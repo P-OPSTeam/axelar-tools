@@ -17,6 +17,4 @@ cd ~
 git clone https://github.com/axelarnetwork/axelarate-community.git
 cd ~/axelarate-community
 
-sudo sed -i 's/--name axelar-core/--name axelar-core -d/g' join/joinTestnet.sh
-
 sudo join/joinTestnet.sh --axelar-core ${CORE_VERSION} --tofnd ${TOFND_VERSION} &>> testnet.log
