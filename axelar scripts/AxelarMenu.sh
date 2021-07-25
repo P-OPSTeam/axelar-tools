@@ -42,8 +42,8 @@ case $CHOICE in
             sudo ./rebuildwithoutrecloningGit.sh
             ;;
         4)
-            chmod u+x rebuildwithoutrecloningGitreset.sh
-            sudo ./rebuildwithoutrecloningGitreset.sh
+            chmod u+x rebuildwithrecloningGitreset.sh
+            sudo ./rebuildwithrecloningGitreset.sh
             ;;
         5)
             chmod u+x rebuildwithoutrecloningGitreset.sh
