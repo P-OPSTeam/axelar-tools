@@ -1,5 +1,5 @@
-sudo docker stop $(sudo docker ps -a -q)
-sudo docker rm $(sudo docker ps -a -q)
+sudo docker stop tofnd axelar-core
+sudo docker rm tofnd axelar-core
 
 # Determining Axelar versions
 
