@@ -9,14 +9,13 @@ BACKTITLE="Axelar"
 TITLE="Install menu"
 MENU="Choose one of the following options:"
 
-OPTIONS=(1 "Create Axelar Node"
-         2 "Rebuild With cloning Git"
-	 3 "Rebuild Without cloning Git"
-	 4 "Rebuild With cloning Git reset chain"
-	 5 "Rebuild Without cloning Git reset chain"
-         6 "Start Axelar Core Docker and Tofnd Docker"
-	 7 "Start c2d2"
-	 8 "Reboot node")
+OPTIONS=(1 "Create Axelar Node and install requirements (docker, etc ..)"
+         2 "Rebuild only"
+         3 "Rebuild with reset chain"
+         4 "Start Axelar Core Docker and Tofnd Docker"
+         5 "Start c2d2"
+         6 "Reboot node"
+         7 "Build and use your own BTC&ETH endpont")
 
 
 CHOICE=$(dialog --clear \
@@ -31,36 +30,29 @@ clear
 case $CHOICE in
         1)
             chmod u+x testnetaxelar.sh
-	    sudo ./testnetaxelar.sh
+            sudo ./testnetaxelar.sh
             ;;
         2)
-            chmod u+x rebuildwithrecloningGit.sh
-	    sudo ./rebuildwithrecloningGit.sh
+	        sudo bash ./run.sh
             ;;
         3)
-            chmod u+x rebuildwithoutrecloningGit.sh
-            sudo ./rebuildwithoutrecloningGit.sh
+            sudo bash ./run.sh reset
             ;;
-        4)
-            chmod u+x rebuildwithrecloningGitreset.sh
-            sudo ./rebuildwithrecloningGitreset.sh
-            ;;
-        5)
-            chmod u+x rebuildwithoutrecloningGitreset.sh
-            sudo ./rebuildwithoutrecloningGitreset.sh
-            ;;
- 	6)
+ 	    4)
             sudo Docker start Axelar-core
-	    sudo Docker start tofnd
+	        sudo Docker start tofnd
             ;;	
- 	7)
+ 	    5)
             chmod u+x RunC2D2.sh
             sudo ./RunC2D2.sh
-
             ;;
- 	8)
+ 	    6)
             chmod u+x rebootserver.sh
             sudo ./rebootserver.sh
+            ;;
+  	    7)
+            chmod u+x newvalidator.sh
+            sudo ./newvalidator.sh
             ;;
 
 esac
