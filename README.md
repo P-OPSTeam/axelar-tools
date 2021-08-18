@@ -13,16 +13,12 @@ run ./AxelarMenu.sh and choose the option.
 
 3 "Rebuild Without cloning Git"
 
-4 "Rebuild With cloning Git reset chain"
+4 "Start Axelar Core Docker and Tofnd Docker"
 
-5 "Rebuild Without cloning Git reset chain"
+5 "Start c2d2"
 
-6 "Start Axelar Core Docker and Tofnd Docker"
+6 "Reboot node"
 
-7 "Start c2d2"
-
-8 "Start Axelar Shell"
-
-9 "Reboot node"
+7 "Build and use your own BTC&ETH endpont"
 
 Option 1 is only to be used on a new install!
