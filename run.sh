@@ -19,7 +19,7 @@ CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate
 # Clone Axerlar Community Github
 
 # Remove repo for a clean git clone
-sudo rm -rf ~axelarate-community/
+sudo rm -rf ~/axelarate-community/
 
 cd ~
 git clone https://github.com/axelarnetwork/axelarate-community.git
