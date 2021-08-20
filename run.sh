@@ -1,5 +1,7 @@
 #! /bin/bash
 
+sudo apt install tmux -y -qq > /dev/null
+
 if [[ $# -eq 1 && "$1" =~ "reset" ]]; then
     reset="true"
 else
@@ -27,7 +29,9 @@ cd ~/axelarate-community
 
 # start the validator
 if [[ "$reset" =~ "false" ]]; then
-    echo sudo join/joinTestnet.sh --axelar-core ${CORE_VERSION} --tofnd ${TOFND_VERSION} &>> testnet.log
+    tmux new -s "remote" -d
+    tmux send-keys -t "remote" "sudo join/joinTestnet.sh --axelar-core ${CORE_VERSION} --tofnd ${TOFND_VERSION} &>> testnet.log" C-m 
 else
-    echo sudo join/joinTestnet.sh --axelar-core ${CORE_VERSION} --tofnd ${TOFND_VERSION} --reset-chain &>> testnet.log
+    tmux new -s "remote" -d
+    tmux send-keys -t "remote" "sudo join/joinTestnet.sh --axelar-core ${CORE_VERSION} --tofnd ${TOFND_VERSION} --reset-chain  &>> testnet.log" C-m
 fi
