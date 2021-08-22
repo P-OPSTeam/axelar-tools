@@ -1,0 +1,53 @@
+version: '2.2'
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.28.1
+    container_name: prometheus
+    user: 1000:1000
+    command: --log.level=warn --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles
+    ports:
+      - "9090"
+    volumes:
+      - ${PROMETHEUS_CONFIG_PATH:-./data/prometheus.yml}:/etc/prometheus/prometheus.yml
+      - ${XDG_DATA_HOME:-~/.local/share}/prometheus:/prometheus
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:8.1.1
+    user: 1000:1000
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ${GRAFANA_CONFIG_PATH:-./data/grafana.ini}:/etc/grafana/grafana.ini
+      - ./data/datasources:/etc/grafana/provisioning/datasources
+      - ./data/dashboards:/etc/grafana/provisioning/dashboards
+      - ${XDG_DATA_HOME:-~/.local/share}/grafana:/var/lib/grafana
+    restart: unless-stopped
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.40.0
+    container_name: cadvisor
+    restart: unless-stopped
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    expose:
+      - 8080
+
+  node-exporter:
+    image: prom/node-exporter:1.2.2
+    container_name: node_exporter
+    restart: unless-stopped
+    command:
+      - '--path.rootfs=/host'
+    #network_mode: host
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
+    expose:
+      - 9100
