@@ -4,6 +4,12 @@ global:
   evaluation_interval: 5s
 
 scrape_configs:
+  - job_name: Axelar
+    static_configs:
+      - targets: ['axelar-core:26660']
+        labels:
+          instance: axelar-node
+
   - job_name: prometheus
     static_configs:
       - targets: ['localhost:9090','cadvisor:8080','node-exporter:9100']
