@@ -30,6 +30,7 @@ services:
       - ${GRAFANA_CONFIG_PATH:-./data/grafana.ini}:/etc/grafana/grafana.ini
       - ./data/datasources:/etc/grafana/provisioning/datasources
       - ./data/dashboards:/etc/grafana/provisioning/dashboards
+      - ./data/notifiers:/etc/grafana/provisioning/notifiers
       - ${XDG_DATA_HOME:-~/.local/share}/grafana:/var/lib/grafana
     restart: unless-stopped
 
