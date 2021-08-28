@@ -13,9 +13,8 @@ OPTIONS=(1 "Create Axelar Node and install requirements (docker, etc ..)"
          2 "Rebuild only"
          3 "Rebuild with reset chain"
          4 "Start Axelar Core Docker and Tofnd Docker"
-         5 "Start c2d2"
-         6 "Reboot node"
-         7 "Build and use your own BTC&ETH endpont")
+         5 "Reboot node"
+         6 "Build and use your own BTC&ETH endpont")
 
 
 CHOICE=$(dialog --clear \
@@ -43,14 +42,10 @@ case $CHOICE in
 	        sudo Docker start tofnd
             ;;	
  	    5)
-            chmod u+x RunC2D2.sh
-            sudo ./RunC2D2.sh
-            ;;
- 	    6)
             chmod u+x rebootserver.sh
             sudo ./rebootserver.sh
             ;;
-  	    7)
+  	    6)
             chmod u+x newvalidator.sh
             sudo ./newvalidator.sh
             ;;
