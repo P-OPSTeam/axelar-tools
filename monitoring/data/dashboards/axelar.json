@@ -197,15 +197,36 @@
         "type": "stat"
       },
       {
-        "cacheTimeout": null,
+        "id": 39,
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 12,
+          "y": 3
+        },
+        "type": "stat",
+        "title": "Avg Block Time",
         "datasource": "$DS",
-        "description": "",
+        "pluginVersion": "8.1.1",
+        "timeFrom": "1h",
+        "hideTimeOverride": true,
+        "maxDataPoints": 100,
+        "links": [],
         "fieldConfig": {
           "defaults": {
-            "color": {
-              "mode": "thresholds"
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 10
+                }
+              ]
             },
-            "decimals": 2,
             "mappings": [
               {
                 "options": {
@@ -217,63 +238,45 @@
                 "type": "special"
               }
             ],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                },
-                {
-                  "color": "red",
-                  "value": 80
-                }
-              ]
+            "color": {
+              "mode": "thresholds"
             },
+            "decimals": 2,
             "unit": "s"
           },
           "overrides": []
         },
-        "gridPos": {
-          "h": 4,
-          "w": 6,
-          "x": 12,
-          "y": 3
-        },
-        "hideTimeOverride": true,
-        "id": 39,
-        "interval": null,
-        "links": [],
-        "maxDataPoints": 100,
         "options": {
-          "colorMode": "value",
-          "graphMode": "area",
-          "justifyMode": "auto",
-          "orientation": "horizontal",
           "reduceOptions": {
+            "values": false,
             "calcs": [
-              "mean"
+              "lastNotNull"
             ],
-            "fields": "",
-            "values": false
+            "fields": ""
           },
+          "orientation": "horizontal",
           "text": {},
-          "textMode": "auto"
+          "textMode": "auto",
+          "colorMode": "value",
+          "graphMode": "none",
+          "justifyMode": "auto"
         },
-        "pluginVersion": "8.0.6",
         "targets": [
           {
-            "expr": "tendermint_consensus_block_interval_seconds{chain_id=\"$chain_id\", instance=\"$instance\"}",
-            "format": "time_series",
+            "expr": "tendermint_consensus_block_interval_seconds_sum{chain_id=\"$chain_id\", instance=\"$instance\"} / tendermint_consensus_block_interval_seconds_count{chain_id=\"$chain_id\", instance=\"$instance\"}",      
+            "legendFormat": " ",
             "interval": "30s",
+            "exemplar": true,
+            "format": "time_series",
             "intervalFactor": 1,
-            "refId": "A"
+            "refId": "A",
+            "instant": false
           }
         ],
-        "timeFrom": "1h",
-        "timeShift": null,
-        "title": "Avg Block Time",
-        "type": "stat"
+        "cacheTimeout": null,
+        "description": "",
+        "interval": null,
+        "timeShift": null
       },
       {
         "cacheTimeout": null,
