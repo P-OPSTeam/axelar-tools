@@ -24,7 +24,7 @@ echo "Clone Axerlar Community Github"
 sudo rm -rf ~/axelarate-community/
 
 cd ~
-git clone https://github.com/axelarnetwork/axelarate-community.git
+git clone https://github.com/axelarnetwork/axelarate-community.git  >/dev/null 2>&1
 cd ~/axelarate-community
 
 echo "start the validator"
