@@ -1,5 +1,9 @@
 version: '2.2'
 
+networks:
+  default:
+    name: axelarate_default
+
 services:
   prometheus:
     image: prom/prometheus:v2.28.1
