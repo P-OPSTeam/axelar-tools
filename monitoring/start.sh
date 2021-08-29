@@ -1,6 +1,9 @@
 # Configure your notifier channel :
 ALERT_TELEGRAM_BOT_TOKEN="putyourbottokenhere"
 ALERT_TELEGRAM_CHAT_ID="putyourchatidhere"
+
+cp data/notifiers/notify.yml.tpl data/notifiers/notify.yml
+
 sed -i "s/TGBOTTOKEN/${ALERT_TELEGRAM_BOT_TOKEN}/g" data/notifiers/notify.yml
 sed -i "s/TGCHATID/${ALERT_TELEGRAM_CHAT_ID}/g" data/notifiers/notify.yml
 

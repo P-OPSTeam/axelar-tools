@@ -5,13 +5,13 @@ notifiers:
     org_id: 1
     is_default: true
     send_reminder: false
-    frequency: 1h
+    frequency: 5m
     disable_resolve_message: false
     # See `Supported Settings` section for settings supported for each
     # alert notification type.
     settings:
       chatid: 'TGCHATID'
-      uploadImage: true
+      uploadImage: false
     # Secure settings that will be encrypted in the database (supported since Grafana v7.2). See `Supported Settings` section for secure settings supported for each notifier.
     secure_settings:
       bottoken: 'TGBOTTOKEN'
