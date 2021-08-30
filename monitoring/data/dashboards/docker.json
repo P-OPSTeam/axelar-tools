@@ -858,6 +858,15 @@
         }
       },
       {
+        "id": 13,
+        "gridPos": {
+          "h": 6,
+          "w": 4,
+          "x": 16,
+          "y": 4
+        },
+        "type": "graph",
+        "title": "Used Disk Space",
         "alert": {
           "alertRuleTags": {},
           "conditions": [
@@ -889,31 +898,24 @@
           "for": "5m",
           "frequency": "1m",
           "handler": 1,
+          "message": "Disk space 85% used",
           "name": "Used Disk Space alert",
           "noDataState": "keep_state",
           "notifications": []
         },
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
         "datasource": "Prometheus",
-        "fieldConfig": {
-          "defaults": {
-            "unit": "percent"
-          },
-          "overrides": []
-        },
-        "fill": 1,
-        "fillGradient": 0,
-        "gridPos": {
-          "h": 6,
-          "w": 4,
-          "x": 16,
-          "y": 4
-        },
-        "hiddenSeries": false,
-        "id": 13,
+        "thresholds": [
+          {
+            "value": 50,
+            "op": "gt",
+            "visible": true,
+            "fill": true,
+            "line": true,
+            "colorMode": "critical"
+          }
+        ],
+        "pluginVersion": "8.1.1",
+        "links": [],
         "legend": {
           "avg": false,
           "current": false,
@@ -923,15 +925,26 @@
           "total": false,
           "values": false
         },
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent"
+          },
+          "overrides": []
+        },
+        "fill": 1,
+        "fillGradient": 0,
+        "hiddenSeries": false,
         "lines": true,
         "linewidth": 1,
-        "links": [],
         "nullPointMode": "null",
         "options": {
           "alertThreshold": true
         },
         "percentage": false,
-        "pluginVersion": "8.1.1",
         "pointradius": 2,
         "points": false,
         "renderer": "flot",
@@ -951,26 +964,14 @@
             "step": 600
           }
         ],
-        "thresholds": [
-          {
-            "colorMode": "critical",
-            "fill": true,
-            "line": true,
-            "op": "gt",
-            "value": 85,
-            "visible": true
-          }
-        ],
         "timeFrom": null,
         "timeRegions": [],
         "timeShift": null,
-        "title": "Used Disk Space",
         "tooltip": {
           "shared": true,
           "sort": 0,
           "value_type": "individual"
         },
-        "type": "graph",
         "xaxis": {
           "buckets": null,
           "mode": "time",
