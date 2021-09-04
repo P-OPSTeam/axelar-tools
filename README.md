@@ -13,9 +13,7 @@ run ./AxelarMenu.sh and choose the option.
 
 3 "Rebuild Without cloning Git"
 
-4 "Start Axelar Core Docker and Tofnd Docker"
-
-5 "Start c2d2"
+4 "Start Axelar Core Docker
 
 6 "Reboot node"
 
