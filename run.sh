@@ -8,7 +8,7 @@ fi
 
 # stop axelar core
 echo Stopping axelar-core container
-sudo docker stop tofnd axelar-core 2> /dev/null
+sudo docker stop axelar-core 2> /dev/null
 
 # Determining Axelar versions
 echo Determining latest Axelar version
