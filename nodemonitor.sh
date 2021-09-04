@@ -117,12 +117,9 @@ while true; do
     free -m | awk 'NR==2{printf "Memory Usage: %s/%sMB (%.2f%%)\n", $3,$2,$3*100/$2 }'
     df -h | awk '$NF=="/"{printf "Disk Usage: %d/%dGB (%s)\n", $3,$2,$5}'
     top -bn1 | grep load | awk '{printf "CPU Load: %.2f\n", $(NF-2)}' 
-    TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/TESTNET%20RELEASE.md | grep tofnd | cut -d \` -f 4)
     CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/TESTNET%20RELEASE.md | grep axelar-core | cut -d \` -f 4)
-    if [ $(docker inspect -f '{{.Config.Image}}' tofnd) = "axelarnet/tofnd:$TOFND_VERSION" ]; then echo Runs tofnd latest; else echo Download new tofnd version; fi
     if [ $(docker inspect -f '{{.Config.Image}}' axelar-core) = "axelarnet/axelar-core:$CORE_VERSION" ]; then echo Runs axelar-core latest; else echo Download new axelar-core version; fi
     if [ $(docker inspect -f '{{.State.Running}}' axelar-core) = "true" ]; then echo axelar-core running; else echo axelar-core stopped; fi
-    if [ $(docker inspect -f '{{.State.Running}}' tofnd) = "true" ]; then echo tofnd running; else echo tofnd stopped; fi
     status=$(curl -s "$url"/status)
     result=$(grep -c "result" <<<$status)
     if [ "$result" != "0" ]; then
