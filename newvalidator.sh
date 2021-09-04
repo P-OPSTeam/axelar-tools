@@ -20,8 +20,6 @@ read ETH
 
 sudo sed -i "/^# Address of the ethereum RPC proxy/a rpc_addr    = "$ETH"" ~/.axelar_testnet/shared/config.toml
 
-sudo docker start tofnd
-
 sudo docker start axelar-core
 
 echo Name for your validator
