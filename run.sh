@@ -36,5 +36,5 @@ fi
 if [[ "$reset" =~ "false" ]]; then    
     sudo join/joinTestnet.sh --axelar-core ${CORE_VERSION} &>> testnet.log
 else
-    remote" "sudo join/joinTestnet.sh --axelar-core ${CORE_VERSION} --reset-chain  &>> testnet.log
+    sudo join/joinTestnet.sh --axelar-core ${CORE_VERSION} --reset-chain  &>> testnet.log
 fi
