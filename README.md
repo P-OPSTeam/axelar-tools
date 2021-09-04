@@ -15,6 +15,10 @@ run ./AxelarMenu.sh and choose the option.
 
 4 "Start Axelar Core Docker
 
+5 "Reboot node"
+
 6 "Build and use your own BTC&ETH endpont"
+
+7 "Monitor the node via cli"
 
 Option 1 is only to be used on a new install!
