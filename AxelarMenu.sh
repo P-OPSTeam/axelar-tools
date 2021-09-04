@@ -14,7 +14,7 @@ OPTIONS=(1 "Create Axelar Node and install requirements (docker, etc ..)"
          3 "Rebuild with reset chain"
          4 "Start Axelar Core Docker and Tofnd Docker"
          5 "Reboot node"
-         6 "Build and use your own BTC&ETH endpont"
+         6 "Build and use your own BTC&ETH endpoint"
 	 7 "Monitor the node via cli")
 
 
