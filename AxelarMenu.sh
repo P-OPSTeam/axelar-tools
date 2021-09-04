@@ -14,7 +14,8 @@ OPTIONS=(1 "Create Axelar Node and install requirements (docker, etc ..)"
          3 "Rebuild with reset chain"
          4 "Start Axelar Core Docker and Tofnd Docker"
          5 "Reboot node"
-         6 "Build and use your own BTC&ETH endpont")
+         6 "Build and use your own BTC&ETH endpont"
+	 7 "Monitor the node via cli")
 
 
 CHOICE=$(dialog --clear \
@@ -28,26 +29,25 @@ CHOICE=$(dialog --clear \
 clear
 case $CHOICE in
         1)
-            chmod u+x testnetaxelar.sh
-            sudo ./testnetaxelar.sh
+            sudo bash ./testnetaxelar.sh
             ;;
         2)
-	        sudo bash ./run.sh
+	    sudo bash ./run.sh
             ;;
         3)
             sudo bash ./run.sh reset
             ;;
  	    4)
             sudo Docker start Axelar-core
-	        sudo Docker start tofnd
-            ;;	
+	    ;;	
  	    5)
-            chmod u+x rebootserver.sh
-            sudo ./rebootserver.sh
+            sudo bash ./rebootserver.sh
             ;;
   	    6)
-            chmod u+x newvalidator.sh
-            sudo ./newvalidator.sh
+            sudo bash ./newvalidator.sh
+            ;;
+	    7)
+            sudo bash ./nodemonitoring.sh
             ;;
 
 esac
