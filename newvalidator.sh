@@ -1,4 +1,4 @@
-sudo docker stop axelar-core tofnd
+sudo docker stop axelar-core
 
 sudo rm ~/.axelar_testnet/shared/config.toml
 
