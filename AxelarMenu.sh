@@ -47,7 +47,7 @@ case $CHOICE in
             sudo bash ./newvalidator.sh
             ;;
 	    7)
-            sudo bash ./nodemonitoring.sh
+            sudo bash ./nodemonitor.sh
             ;;
 
 esac
