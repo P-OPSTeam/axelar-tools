@@ -1,19 +1,19 @@
 # update repository's
-echo updating the node repository's
-sudo apt-get update -qq > /dev/null
+echo updating ubuntu Repository's
+sudo apt-get update 2> /dev/null
 
 # upgrade node
-echo upgrading the node
-sudo apt-get upgrade -y -qq > /dev/null
+echo upgrading ubuntu
+sudo apt-get upgrade -y 2> /dev/null
 
 # install docker dependencies
-echo installing docker
+echo installing dependencies for docker
 sudo apt-get install \
     apt-transport-https \
     ca-certificates \
     curl \
     gnupg \
-    lsb-release -qq > /dev/null
+    lsb-release 2> /dev/null
 
 # Curl docker GPG key
 
@@ -27,17 +27,17 @@ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o 
 
 # update repository's
 
-sudo apt-get update -qq > /dev/null
-
+sudo apt-get update
+echo installing docker
 # Install docker Engine
 
-sudo apt-get install docker-ce docker-ce-cli containerd.io -y -qq > /dev/null
+sudo apt-get install docker-ce docker-ce-cli containerd.io -y 2> /dev/null
 
 # install jq
-echo installing jq
-sudo apt-get install jq -y -qq > /dev/null 
+
+sudo apt-get install jq -y 2> /dev/null
 
 # run the validator
 sudo bash run.sh reset
-
+echo setup is finished
 

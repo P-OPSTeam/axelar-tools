@@ -1,4 +1,4 @@
-sudo docker stop axelar-core tofnd
+sudo docker stop axelar-core
 
 sudo rm ~/.axelar_testnet/shared/config.toml
 
@@ -19,8 +19,6 @@ echo Type in your ETH Ropsten node address with double quotes!
 read ETH
 
 sudo sed -i "/^# Address of the ethereum RPC proxy/a rpc_addr    = "$ETH"" ~/.axelar_testnet/shared/config.toml
-
-sudo docker start tofnd
 
 sudo docker start axelar-core
 
