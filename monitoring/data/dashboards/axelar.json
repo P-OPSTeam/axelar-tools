@@ -18,12 +18,12 @@
       }
     ]
   },
-  "description": "Internet of blockchains",
+  "description": "Empowering dApp builders and blockchain ecosystems - Unlocking cross-chain communication",
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 2,
-  "iteration": 1630766492961,
+  "id": 1,
+  "iteration": 1631205979416,
   "links": [],
   "panels": [
     {
@@ -43,7 +43,7 @@
     {
       "datasource": null,
       "gridPos": {
-        "h": 2,
+        "h": 3,
         "w": 24,
         "x": 0,
         "y": 1
@@ -51,7 +51,7 @@
       "id": 62,
       "links": [],
       "options": {
-        "content": "<img width=\"160px\" src=\"https://s3.amazonaws.com/assets.knackhq.com/assets/60e363e6ad9a36001e917822/logos/untitleddesign2111.png\" />",
+        "content": "<table width=\"100%\" style=\"margin: 0px; border: 0px transparent; border-color: transparent\">\r\n<thead>\r\n  <tr>\r\n    <td style=\"text-align:left\">\r\n      <a href=\"https://axelar.network/\" target=\"_blank\">\r\n      <img width=\"250px\" src=\"https://s3.amazonaws.com/assets.knackhq.com/assets/60e363e6ad9a36001e917822/logos/untitleddesign2111.png\" />\r\n      </a>\r\n</td>\r\n    <td style=\"text-align:right\">\r\n      <a href=\"https://www.pops.one\" target=\"_blank\">\r\n      <img src=\"https://pops.one/img/logo.png\" /></td>\r\n      </a>\r\n  </tr>\r\n</thead>\r\n</table>\r\n",
         "mode": "html"
       },
       "pluginVersion": "8.1.1",
@@ -86,7 +86,7 @@
         "h": 4,
         "w": 3,
         "x": 0,
-        "y": 3
+        "y": 4
       },
       "hideTimeOverride": false,
       "id": 4,
@@ -153,7 +153,7 @@
         "h": 4,
         "w": 3,
         "x": 3,
-        "y": 3
+        "y": 4
       },
       "hideTimeOverride": false,
       "id": 40,
@@ -221,7 +221,7 @@
         "h": 4,
         "w": 3,
         "x": 6,
-        "y": 3
+        "y": 4
       },
       "hideTimeOverride": true,
       "id": 39,
@@ -288,7 +288,7 @@
         "h": 4,
         "w": 3,
         "x": 9,
-        "y": 3
+        "y": 4
       },
       "hideTimeOverride": false,
       "id": 47,
@@ -352,7 +352,7 @@
         "h": 4,
         "w": 3,
         "x": 12,
-        "y": 3
+        "y": 4
       },
       "hideTimeOverride": false,
       "id": 81,
@@ -425,7 +425,7 @@
         "h": 4,
         "w": 3,
         "x": 15,
-        "y": 3
+        "y": 4
       },
       "id": 75,
       "options": {
@@ -481,7 +481,7 @@
         "h": 2,
         "w": 3,
         "x": 18,
-        "y": 3
+        "y": 4
       },
       "id": 72,
       "options": {
@@ -537,7 +537,7 @@
         "h": 2,
         "w": 3,
         "x": 21,
-        "y": 3
+        "y": 4
       },
       "id": 70,
       "options": {
@@ -593,7 +593,7 @@
         "h": 2,
         "w": 3,
         "x": 18,
-        "y": 5
+        "y": 6
       },
       "id": 73,
       "options": {
@@ -649,7 +649,7 @@
         "h": 2,
         "w": 3,
         "x": 21,
-        "y": 5
+        "y": 6
       },
       "id": 71,
       "options": {
@@ -771,7 +771,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 7
+        "y": 8
       },
       "hideTimeOverride": false,
       "id": 15,
@@ -913,7 +913,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 7
+        "y": 8
       },
       "hideTimeOverride": false,
       "id": 48,
@@ -1055,7 +1055,7 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 17
       },
       "hideTimeOverride": false,
       "id": 49,
@@ -1181,7 +1181,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 17
       },
       "hideTimeOverride": false,
       "id": 50,
@@ -1224,12 +1224,12 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 21
+        "y": 22
       },
       "id": 55,
       "panels": [],
       "repeat": "instance",
-      "title": "instance overview: $instance",
+      "title": "Tendermint instance overview: $instance",
       "type": "row"
     },
     {
@@ -1270,7 +1270,7 @@
         "h": 4,
         "w": 3,
         "x": 0,
-        "y": 22
+        "y": 23
       },
       "hideTimeOverride": true,
       "id": 53,
@@ -1345,7 +1345,7 @@
         "h": 4,
         "w": 3,
         "x": 3,
-        "y": 22
+        "y": 23
       },
       "id": 79,
       "options": {
@@ -1417,7 +1417,7 @@
         "h": 4,
         "w": 3,
         "x": 6,
-        "y": 22
+        "y": 23
       },
       "id": 80,
       "options": {
@@ -1486,7 +1486,7 @@
         "h": 4,
         "w": 3,
         "x": 9,
-        "y": 22
+        "y": 23
       },
       "hideTimeOverride": true,
       "id": 56,
@@ -1552,7 +1552,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 22
+        "y": 23
       },
       "hideTimeOverride": true,
       "id": 60,
@@ -1624,7 +1624,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 22
+        "y": 23
       },
       "hideTimeOverride": true,
       "id": 61,
@@ -1680,7 +1680,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 26
+        "y": 27
       },
       "hiddenSeries": false,
       "id": 59,
@@ -1780,7 +1780,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 26
+        "y": 27
       },
       "hiddenSeries": false,
       "id": 58,
@@ -1869,7 +1869,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 33
+        "y": 34
       },
       "id": 66,
       "panels": [
@@ -2133,7 +2133,8 @@
   "style": "dark",
   "tags": [
     "Blockchain",
-    "Cosmos"
+    "Cosmos",
+    "axelar"
   ],
   "templating": {
     "list": [
@@ -2248,8 +2249,8 @@
       "30d"
     ]
   },
-  "timezone": "",
+  "timezone": "browser",
   "title": "Axelar Network dashboard",
   "uid": "",
-  "version": 31
+  "version": 16
 }
