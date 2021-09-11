@@ -113,13 +113,19 @@ if [ $nloglines -gt $LOGSIZE ]; then sed -i "1,$(expr $nloglines - $LOGSIZE)d" $
 date=$(date --rfc-3339=seconds)
 echo "$date status=scriptstarted chainid=$chainid" >>$logfile
 
+echo -n "Determining latest Axelar version : "
+CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
+if [ $(docker inspect -f '{{.Config.Image}}' axelar-core) = "axelarnet/axelar-core:$CORE_VERSION" ]; then echo "$CORE_VERSION is latest" ; else echo "Not latest, consider upgrading to the new axelar-core version $CORE_VERSION"; fi
+
+echo -n "Is axelar-core running: "
+if [ $(docker inspect -f '{{.State.Running}}' axelar-core) = "true" ]; then echo "Yes"; else echo "No, please make sure it runs"; exit; fi
+
+echo
+
 while true; do
     free -m | awk 'NR==2{printf "Memory Usage: %s/%sMB (%.2f%%)\n", $3,$2,$3*100/$2 }'
     df -h | awk '$NF=="/"{printf "Disk Usage: %d/%dGB (%s)\n", $3,$2,$5}'
     top -bn1 | grep load | awk '{printf "CPU Load: %.2f\n", $(NF-2)}' 
-    CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/TESTNET%20RELEASE.md | grep axelar-core | cut -d \` -f 4)
-    if [ $(docker inspect -f '{{.Config.Image}}' axelar-core) = "axelarnet/axelar-core:$CORE_VERSION" ]; then echo Runs axelar-core latest; else echo Download new axelar-core version; fi
-    if [ $(docker inspect -f '{{.State.Running}}' axelar-core) = "true" ]; then echo axelar-core running; else echo axelar-core stopped; fi
     status=$(curl -s "$url"/status)
     result=$(grep -c "result" <<<$status)
     if [ "$result" != "0" ]; then
@@ -217,6 +223,7 @@ while true; do
     logentry="$(sed 's/[^ ]*[\=]/'\\${color}'&'\\${noColor}'/g' <<<$logentry)"
     echo -e $logentry
     echo -e "${colorD}sleep ${SLEEP1}${noColor}"
+    echo
 
     variables_=""
     for var in $variables; do
