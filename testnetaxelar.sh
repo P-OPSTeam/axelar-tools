@@ -35,8 +35,8 @@ sudo apt-get install docker-compose docker-ce docker-ce-cli containerd.io -y 2> 
 sudo usermod -aG docker $USER
 
 # make sure docker services are started
- sudo systemctl enable docker.service
- sudo systemctl enable containerd.service
+sudo systemctl enable docker.service
+sudo systemctl enable containerd.service
 
 # install jq
 sudo apt-get install jq -y 2> /dev/null
