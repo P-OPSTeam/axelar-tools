@@ -15,7 +15,8 @@ OPTIONS=(1 "Create Axelar Node and install requirements (docker, etc ..)"
          4 "Start Axelar Core Docker and Tofnd Docker"
          5 "Reboot node"
          6 "Build and use your own BTC&ETH endpoint"
-	 7 "Monitor the node via cli")
+	 7 "Monitor the node via cli"
+	 8 "Exit menu")
 
 
 CHOICE=$(dialog --clear \
@@ -49,5 +50,6 @@ case $CHOICE in
 	    7)
             sudo bash ./nodemonitor.sh
             ;;
+	    8) exit
 
 esac
