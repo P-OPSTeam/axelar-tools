@@ -1,5 +1,5 @@
 # update repository's
-echo updating ubuntu Repository's
+echo "updating ubuntu Repository's"
 sudo apt-get update 2> /dev/null
 
 # upgrade node
