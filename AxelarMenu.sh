@@ -30,25 +30,25 @@ CHOICE=$(dialog --clear \
 clear
 case $CHOICE in
         1)
-            sudo bash ./testnetaxelar.sh
+            bash ./testnetaxelar.sh
             ;;
         2)
-	    sudo bash ./run.sh
+	        bash ./run.sh
             ;;
         3)
-            sudo bash ./run.sh reset
+            bash ./run.sh reset
             ;;
  	    4)
-            sudo Docker start Axelar-core
+            docker start axelar-core
 	    ;;	
  	    5)
-            sudo bash ./rebootserver.sh
+            bash ./rebootserver.sh
             ;;
   	    6)
-            sudo bash ./newvalidator.sh
+            bash ./newvalidator.sh
             ;;
 	    7)
-            sudo bash ./nodemonitor.sh
+            bash ./nodemonitor.sh
             ;;
 	    8) exit
 
