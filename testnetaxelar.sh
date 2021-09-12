@@ -111,4 +111,4 @@ echo "setup is finished" >&3
 echo "press any key to go back to the menu" >&3
 read -n 1 -s -r -p "press any key to go back to the menu" 
 
-sudo bash /home/axelar/axelar-tools/AxelarMenu.sh
+sudo bash ~/axelar-tools/AxelarMenu.sh
