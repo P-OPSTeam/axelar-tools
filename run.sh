@@ -4,6 +4,7 @@ exec 3>&1 4>&2
 trap 'exec 2>&4 1>&3' 0 1 2 3
 exec 1>run.log 2>&1
 # Everything below will go to the file 'run.log':
+echo "logs can be found in ~/axelar-tools/run.log
 
 if [[ $# -eq 1 && "$1" =~ "reset" ]]; then
     reset="true"
@@ -58,4 +59,4 @@ echo >&3
 echo "press any key to go back to the menu" >&3
 read -n 1 -s -r -p "press any key to go back to the menu" 
 
-sudo bash /home/axelar/axelar-tools/AxelarMenu.sh
+sudo bash ~/axelar-tools/AxelarMenu.sh
