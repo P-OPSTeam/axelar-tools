@@ -13,3 +13,10 @@ scrape_configs:
   - job_name: prometheus
     static_configs:
       - targets: ['localhost:9090','cadvisor:8080','node-exporter:9100']
+
+  - job_name: erigon
+    metrics_path: /debug/metrics/prometheus
+    scheme: http
+    static_configs:
+      - targets:
+          - erigon:6060
