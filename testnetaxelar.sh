@@ -4,6 +4,7 @@ exec 3>&1 4>&2
 trap 'exec 2>&4 1>&3' 0 1 2 3
 exec 1>testnetaxelar.log 2>&1
 # Everything below will go to the file 'testnetaxelar.log':
+echo "logs can be found in ~/axelar-tools/testnetaxelar.log"
 
 # update repository's
 echo "Updating ubuntu Repository's" >&3
