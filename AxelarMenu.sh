@@ -33,25 +33,25 @@ CHOICE=$(dialog --clear \
 clear
 case $CHOICE in
             1)
-            bash SCRIPTPATH/testnetaxelar.sh
+            bash $SCRIPTPATH/testnetaxelar.sh
             ;;
             2)
-	    bash SCRIPTPATH/run.sh
+	    bash $SCRIPTPATH/run.sh
             ;;
             3)
-            bash SCRIPTPATH/run.sh reset
+            bash $SCRIPTPATH/run.sh reset
             ;;
  	    4)
             docker start axelar-core
 	    ;;	
  	    5)
-            bash SCRIPTPATH/rebootserver.sh
+            bash $SCRIPTPATH/rebootserver.sh
             ;;
   	    6)
-            bash SCRIPTPATH/newvalidator.sh
+            bash $SCRIPTPATH/newvalidator.sh
             ;;
 	    7)
-            bash SCRIPTPATH/nodemonitor.sh
+            bash $SCRIPTPATH/nodemonitor.sh
             ;;
 	    8) exit
 
