@@ -62,7 +62,9 @@ echo >&3
 echo "Node is restarted" >&3
 echo >&3
 
+exec >&-
+
 echo "press any key to go back to the menu" >&3
-read -n 1 -s -r -p "press any key to go back to the menu" 
+read -n 1 -s -r -p "press any key to go back to the menu"
 
 sudo bash $SCRIPTPATH/AxelarMenu.sh
