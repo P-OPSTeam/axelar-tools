@@ -2,6 +2,9 @@
 
 sudo apt install dialog -y -qq > /dev/null
 
+SCRIPT=`realpath -s $0`
+SCRIPTPATH=`dirname $SCRIPT`
+
 HEIGHT=15
 WIDTH=60
 CHOICE_HEIGHT=15
@@ -29,26 +32,26 @@ CHOICE=$(dialog --clear \
 
 clear
 case $CHOICE in
-        1)
-            bash ./testnetaxelar.sh
+            1)
+            bash SCRIPTPATH/testnetaxelar.sh
             ;;
-        2)
-	        bash ./run.sh
+            2)
+	    bash SCRIPTPATH/run.sh
             ;;
-        3)
-            bash ./run.sh reset
+            3)
+            bash SCRIPTPATH/run.sh reset
             ;;
  	    4)
             docker start axelar-core
 	    ;;	
  	    5)
-            bash ./rebootserver.sh
+            bash SCRIPTPATH/rebootserver.sh
             ;;
   	    6)
-            bash ./newvalidator.sh
+            bash SCRIPTPATH/newvalidator.sh
             ;;
 	    7)
-            bash ./nodemonitor.sh
+            bash SCRIPTPATH/nodemonitor.sh
             ;;
 	    8) exit
 
