@@ -4,7 +4,7 @@ exec 3>&1 4>&2
 trap 'exec 2>&4 1>&3' 0 1 2 3
 exec 1>run.log 2>&1
 # Everything below will go to the file 'run.log':
-echo "logs can be found in ~/axelar-tools/run.log"
+echo "logs can be found in run.log"
 
 echo "Determining script path" >&3
 SCRIPT=`realpath -s $0`
@@ -66,5 +66,7 @@ exec >&-
 
 echo "press any key to go back to the menu" >&3
 read -n 1 -s -r -p "press any key to go back to the menu"
+
+exec 2>&4 1>&3
 
 sudo bash $SCRIPTPATH/AxelarMenu.sh
