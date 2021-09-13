@@ -120,4 +120,6 @@ exec >&-
 echo "press any key to go back to the menu" >&3
 read -n 1 -s -r -p "press any key to go back to the menu" 
 
+exec 2>&4 1>&3
+
 sudo bash $SCRIPTPATH/AxelarMenu.sh
