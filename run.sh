@@ -7,8 +7,8 @@ exec 1>run.log 2>&1
 echo "logs can be found in ~/axelar-tools/run.log
 
 echo "Determining script path" >&3
-start=$PWD
-echo $start 
+SCRIPT=`realpath -s $0`
+SCRIPTPATH=`dirname $SCRIPT` 
 echo "done" >&3
 echo >&3
 
@@ -65,4 +65,4 @@ echo >&3
 echo "press any key to go back to the menu" >&3
 read -n 1 -s -r -p "press any key to go back to the menu" 
 
-sudo bash $start/AxelarMenu.sh
+sudo bash $SCRIPTPATH/AxelarMenu.sh >&3
