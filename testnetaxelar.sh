@@ -6,6 +6,12 @@ exec 1>testnetaxelar.log 2>&1
 # Everything below will go to the file 'testnetaxelar.log':
 echo "logs can be found in ~/axelar-tools/testnetaxelar.log"
 
+echo "Determining script path" >&3
+start=$PWD
+echo $start 
+echo "done" >&3
+echo >&3
+
 # update repository's
 echo "Updating ubuntu Repository's" >&3
 sudo apt-get update
@@ -112,4 +118,4 @@ echo "setup is finished" >&3
 echo "press any key to go back to the menu" >&3
 read -n 1 -s -r -p "press any key to go back to the menu" 
 
-sudo bash ~/axelar-tools/AxelarMenu.sh
+sudo bash $start/AxelarMenu.sh
