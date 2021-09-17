@@ -107,19 +107,18 @@ if [[ $? -eq 1 ]]; then
     docker network create axelarate_default
 fi
 
-echo "--> starting the node" >&3
-sudo join/joinTestnet.sh --axelar-core ${CORE_VERSION} --reset-chain  &>> testnet.log
-echo "done" >&3
-echo >&3
-
-echo >&3
-echo "setup is finished" >&3
-
-exec >&-
-
-echo "press any key to go back to the menu" >&3
-read -n 1 -s -r -p "press any key to go back to the menu" 
-
 exec 2>&4 1>&3
+
+echo "--> starting the node" 
+sudo join/joinTestnet.sh --axelar-core ${CORE_VERSION} --reset-chain  &>> testnet.log
+echo "done"
+echo 
+
+sed -n '10,50p' testnet.log
+
+echo 
+echo "setup is finished"
+
+read -n 1 -s -r -p "press any key to go back to the menu" 
 
 sudo bash $SCRIPTPATH/AxelarMenu.sh
