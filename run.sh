@@ -68,7 +68,7 @@ else
     sudo join/joinTestnet.sh --axelar-core ${CORE_VERSION} --reset-chain  &>> testnet.log
 fi
 
-sed -n '10,50p' testnet.log
+sed -n '10,32p' testnet.log
 
 echo 
 echo "Node is restarted"
