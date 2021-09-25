@@ -34,10 +34,16 @@ echo ${CORE_VERSION}
 
 echo "Clone Axerlar Community Github" >&3
 # Remove repo for a clean git clone
+if [[ "$reset" =~ "false" ]]; then
 sudo rm -rf ~/axelarate-community/
 
 cd ~
 git clone https://github.com/axelarnetwork/axelarate-community.git
+
+else
+echo "Repo download not needed" >&3
+fi
+
 cd ~/axelarate-community
 echo "done" >&3
 echo >&3
@@ -51,22 +57,21 @@ if [[ $? -eq 1 ]]; then
     docker network create axelarate_default
 fi
 
-echo "--> starting the node" >&3
+exec 2>&4 1>&3
+
+echo "--> starting the node"
 if [[ "$reset" =~ "false" ]]; then    
     sudo join/joinTestnet.sh --axelar-core ${CORE_VERSION} &>> testnet.log
 else
     sudo join/joinTestnet.sh --axelar-core ${CORE_VERSION} --reset-chain  &>> testnet.log
 fi
 
-echo >&3
-echo "Node is restarted" >&3
-echo >&3
+sed -n '10,50p' testnet.log
 
-exec >&-
+echo 
+echo "Node is restarted"
+echo
 
-echo "press any key to go back to the menu" >&3
 read -n 1 -s -r -p "press any key to go back to the menu"
-
-exec 2>&4 1>&3
 
 sudo bash $SCRIPTPATH/AxelarMenu.sh
