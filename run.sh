@@ -35,13 +35,15 @@ echo ${CORE_VERSION}
 echo "Clone Axerlar Community Github" >&3
 # Remove repo for a clean git clone
 if [[ "$reset" =~ "false" ]]; then
-sudo rm -rf ~/axelarate-community/
 
+echo "Repo download not needed" >&3
+
+else
+
+sudo rm -rf ~/axelarate-community/
 cd ~
 git clone https://github.com/axelarnetwork/axelarate-community.git
 
-else
-echo "Repo download not needed" >&3
 fi
 
 cd ~/axelarate-community
