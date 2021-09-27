@@ -15,11 +15,10 @@ MENU="Choose one of the following options:"
 OPTIONS=(1 "Create Axelar Node and install requirements (docker, etc ..)"
          2 "Rebuild only"
          3 "Rebuild with reset chain"
-         4 "Start Axelar Core Docker"
-         5 "Reboot host"
-         6 "Build and use your own BTC&ETH endpoint"
-	 7 "Monitor the node via cli"
-	 8 "Exit menu")
+         4 "Reboot host"
+         5 "Build and use your own BTC&ETH endpoint"
+	 6 "Monitor the node via cli"
+	 7 "Exit menu")
 
 
 CHOICE=$(dialog --clear \
@@ -42,17 +41,14 @@ case $CHOICE in
             bash $SCRIPTPATH/run.sh reset
             ;;
  	    4)
-            docker start axelar-core
-	    ;;	
- 	    5)
             bash $SCRIPTPATH/rebootserver.sh
             ;;
-  	    6)
+  	    5)
             bash $SCRIPTPATH/newvalidator.sh
             ;;
-	    7)
+	    6)
             bash $SCRIPTPATH/nodemonitor.sh
             ;;
-	    8) exit
+	    7) exit
 
 esac
