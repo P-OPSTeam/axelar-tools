@@ -66,7 +66,7 @@ if [ ! -f "${AXELARD}" ]; then
 fi
 
 if [ ! -f "${CONFIG_DIRECTORY}/genesis.json" ]; then
-  echo " --> Downloading genesis.json" >&3
+  echo "--> Downloading genesis.json" >&3
   curl -s --fail https://axelar-testnet.s3.us-east-2.amazonaws.com/genesis.json -o "${CONFIG_DIRECTORY}/genesis.json"
 fi
 
@@ -150,3 +150,4 @@ echo  >&3
 echo "To follow execution, run 'tail -f ${LOGS_DIRECTORY}/axelard.log'" >&3
 echo "To stop the node, run 'killall -9 \"axelard\"'"  >&3
 echo  >&3
+done
