@@ -150,4 +150,3 @@ echo  >&3
 echo "To follow execution, run 'tail -f ${LOGS_DIRECTORY}/axelard.log'" >&3
 echo "To stop the node, run 'killall -9 \"axelard\"'"  >&3
 echo  >&3
-done
