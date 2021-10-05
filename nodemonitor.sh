@@ -113,16 +113,47 @@ if [ $nloglines -gt $LOGSIZE ]; then sed -i "1,$(expr $nloglines - $LOGSIZE)d" $
 date=$(date --rfc-3339=seconds)
 echo "$date status=scriptstarted chainid=$chainid" >>$logfile
 
-echo -n "Determining latest Axelar version : "
+if [[ -f "/home/axelar/.axelar_testnet/bin/axelard" ]];
+ 
+then
+
+if pgrep axelard >/dev/null;
+then
+     echo "Is axelard binary running: Yes";
+else
+     echo "Is axelard binary running: No, please rerun join-testnet-with-binaries.sh";
+fi
+
+else 
+
+echo -n "Determining latest Axelar version:"
 CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
-if [ $(docker inspect -f '{{.Config.Image}}' axelar-core) = "axelarnet/axelar-core:$CORE_VERSION" ]; then echo "$CORE_VERSION is latest" ; else echo "Not latest, consider upgrading to the new axelar-core version $CORE_VERSION"; fi
+if [ $(docker inspect -f '{{.Config.Image}}' axelar-core) = "axelarnet/axelar-core:$CORE_VERSION" ]; then echo " $CORE_VERSION is latest" ; else echo "Not latest, consider upgrading to the new axelar-core version $CORE_VERSION"; fi
 
 echo -n "Is axelar-core running: "
+
 if [ $(docker inspect -f '{{.State.Running}}' axelar-core) = "true" ]; then echo "Yes"; else echo "No, please make sure it runs"; exit; fi
+
+consdump=$(curl -s "$url"/dump_consensus_state)
+validators=$(jq -r '.result.round_state.validators[]' <<<$consdump)
+isvalidator=$(grep -c "$VALIDATORADDRESS" <<<$validators)
+
+if [ "$isvalidator" != "0" ]; 
+
+then  
+
+echo -n "Is Vald running: "
+if [ $(docker inspect -f '{{.State.Running}}' vald) = "true" ]; then echo "Yes"; else echo "No, please make sure it runs"; exit; fi
+
+echo -n "Is tofnd running: "
+if [ $(docker inspect -f '{{.State.Running}}' tofnd) = "true" ]; then echo "Yes"; else echo "No, please make sure it runs"; exit; fi
+fi
+
+fi
 
 echo
 
-while true; do
+while true ; do
     free -m | awk 'NR==2{printf "Memory Usage: %s/%sMB (%.2f%%)\n", $3,$2,$3*100/$2 }'
     df -h | awk '$NF=="/"{printf "Disk Usage: %d/%dGB (%s)\n", $3,$2,$5}'
     top -bn1 | grep load | awk '{printf "CPU Load: %.2f\n", $(NF-2)}' 
