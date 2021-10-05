@@ -147,6 +147,10 @@ if [ $(docker inspect -f '{{.State.Running}}' vald) = "true" ]; then echo "Yes";
 
 echo -n "Is tofnd running: "
 if [ $(docker inspect -f '{{.State.Running}}' tofnd) = "true" ]; then echo "Yes"; else echo "No, please make sure it runs"; exit; fi
+
+echo "if there is no Pong! below, the node is not configured properly"
+docker exec -ti vald axelard tofnd-ping --tofnd-host tofnd
+
 fi
 
 fi
