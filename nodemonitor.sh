@@ -41,6 +41,19 @@ colorW='\033[0;33m'      #
 noColor='\033[0m'        # no color
 ###  END CONFIG  ##################################################################################################
 
+################### NOTIFICATION CONFIG ###################
+#TELEGRAM
+BOT_ID="bot<ENTER_YOURBOT_ID>"
+CHAT_ID="<ENTER YOUR CHAT_ID>"
+
+################### END NOTIFICATION CONFIG ###################
+
+send_telegram_notification() {
+    message=$1
+
+    curl -s -X POST https://api.telegram.org/${BOT_ID}/sendMessage -d parse_mode=html -d chat_id=${CHAT_ID=} -d text="<b>$(hostname)</b> - $(date) : ${message}"
+}
+
 if [ -z $CONFIG ]; then
     echo "please configure config.toml in script"
     exit 1
