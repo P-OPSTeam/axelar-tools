@@ -45,7 +45,10 @@ noColor='\033[0m'        # no color
 #TELEGRAM
 BOT_ID="bot<ENTER_YOURBOT_ID>"
 CHAT_ID="<ENTER YOUR CHAT_ID>"
-
+#variable below avoid spams for the same notification state along with their notification message
+synced_n="synced" #either synced of catchingup
+nmsg_synced="Your Axelar node is now in synced"
+nmsg_unsynced="Your Axelar node is no longer in synced"
 ################### END NOTIFICATION CONFIG ###################
 
 send_telegram_notification() {
@@ -151,21 +154,16 @@ consdump=$(curl -s "$url"/dump_consensus_state)
 validators=$(jq -r '.result.round_state.validators[]' <<<$consdump)
 isvalidator=$(grep -c "$VALIDATORADDRESS" <<<$validators)
 
-if [ "$isvalidator" != "0" ]; 
+if [ "$isvalidator" != "0" ]; then  
+    echo -n "Is Vald running: "
+    if [ $(docker inspect -f '{{.State.Running}}' vald) = "true" ]; then echo "Yes"; else echo "No, please make sure it runs"; exit; 
+    fi
 
-then  
+    echo -n "Is tofnd running: "
+    if [ $(docker inspect -f '{{.State.Running}}' tofnd) = "true" ]; then echo "Yes"; else echo "No, please make sure it runs"; exit; fi
 
-echo -n "Is Vald running: "
-if [ $(docker inspect -f '{{.State.Running}}' vald) = "true" ]; then echo "Yes"; else echo "No, please make sure it runs"; exit; fi
-
-echo -n "Is tofnd running: "
-if [ $(docker inspect -f '{{.State.Running}}' tofnd) = "true" ]; then echo "Yes"; else echo "No, please make sure it runs"; exit; fi
-
-echo "if there is no Pong! below, the node is not configured properly"
-docker exec -ti vald axelard tofnd-ping --tofnd-host tofnd
-
-fi
-
+    echo "if there is no Pong! below, the node is not configured properly"
+    docker exec -ti vald axelard tofnd-ping --tofnd-host tofnd
 fi
 
 echo
@@ -182,7 +180,13 @@ while true ; do
         blockheight=$(jq -r '.result.sync_info.latest_block_height' <<<$status)
         blocktime=$(jq -r '.result.sync_info.latest_block_time' <<<$status)
         catchingup=$(jq -r '.result.sync_info.catching_up' <<<$status)
-        if [ $catchingup == "false" ]; then catchingup="synced"; elif [ $catchingup == "true" ]; then catchingup="catchingup"; fi
+        if [ $catchingup == "false" ]; then 
+            catchingup="synced"; 
+            if [ $synced_n == "catchingup" ]; then send_telegram_notification $nmsg_synced fi
+        elif [ $catchingup == "true" ]; then 
+            catchingup="catchingup"; 
+            if [ $synced_n == "synced" ]; then send_telegram_notification $nmsg_unsynced fi
+        fi
         if [ "$CHECKPERSISTENTPEERS" -eq 1 ]; then
             npersistentpeersmatch=0
             netinfo=$(curl -s "$url"/net_info)
