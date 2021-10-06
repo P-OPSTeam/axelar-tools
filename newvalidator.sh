@@ -1,3 +1,9 @@
+echo "Determining script path" >&3
+SCRIPT=`realpath -s $0`
+SCRIPTPATH=`dirname $SCRIPT`
+echo "done" >&3
+echo >&3
+
 sudo docker stop axelar-core
 
 sudo rm ~/.axelar_testnet/shared/config.toml
@@ -20,13 +26,13 @@ read ETH
 
 sudo sed -i "/^# Address of the ethereum RPC proxy/a rpc_addr    = "$ETH"" ~/.axelar_testnet/shared/config.toml
 
-bash run.sh
+bash $SCRIPT/run.sh
 
 echo "Name for your validator"
 
 read validator
 
-echo "amount of selfstake axltest example: 90000000uaxl"
+echo "amount of selfstake axltest example: 90000000axltest"
 
 read axltest
 
