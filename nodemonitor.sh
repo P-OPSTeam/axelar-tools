@@ -46,9 +46,16 @@ noColor='\033[0m'        # no color
 BOT_ID="bot<ENTER_YOURBOT_ID>"
 CHAT_ID="<ENTER YOUR CHAT_ID>"
 #variable below avoid spams for the same notification state along with their notification message
+#catchup
 synced_n="synced" #either synced of catchingup
 nmsg_synced="Your Axelar node is now in synced"
 nmsg_unsynced="Your Axelar node is no longer in synced"
+
+#node stuck
+lastblockheight=0
+node_stuck_n="true"
+nmsg_nodestuck="Your Axelar node is now stuck at block : $lastblockheight"
+nmsg_node_not_stuck="Your Axelar node is no longer stuck, Yeah !"
 ################### END NOTIFICATION CONFIG ###################
 
 send_telegram_notification() {
@@ -177,13 +184,15 @@ while true ; do
         catchingup=$(jq -r '.result.sync_info.catching_up' <<<$status)
         if [ $catchingup == "false" ]; then 
             catchingup="synced"; 
-            if [ $synced_n == "catchingup" ]; then 
-                send_telegram_notification $nmsg_synced 
+            if [ $synced_n == "catchingup" ]; then #it was previously synching
+                send_telegram_notification $nmsg_synced
+                $synced_n = "synced" #now it is synced
             fi
         elif [ $catchingup == "true" ]; then 
             catchingup="catchingup"; 
-            if [ $synced_n == "synced" ]; then 
+            if [ $synced_n == "synced" ]; then #it was previously synced
                 send_telegram_notification $nmsg_unsynced 
+                $synced_n = "catchingup" #now it is not sync and need to catchup
             fi
         fi
         if [ "$CHECKPERSISTENTPEERS" -eq 1 ]; then
@@ -223,6 +232,21 @@ while true ; do
         now=$(date --rfc-3339=seconds)
         blockheightfromnow=$(expr $(date +%s -d "$now") - $(date +%s -d $blocktime))
         variables="status=$status blockheight=$blockheight tfromnow=$blockheightfromnow npeers=$npeers npersistentpeersoff=$npersistentpeersoff $validatorinfo"
+
+        # test if last block saved and new block height are the same
+        # if yes the node is stuck
+        if [ $lastblockheight -eq $blockheight ]; then
+            if [ nmsg_nodestuck != "false" ]; then 
+                nmsg_nodestuck = "true"
+                send_telegram_notification $nmsg_nodestuck
+            fi
+        else
+            if [ nmsg_nodestuck != "true" ]; then # mean it was previously stuck
+                nmsg_nodestuck = "false"
+                send_telegram_notification $nmsg_node_not_stuck
+            fi
+            lastblockheight=$blockheight
+        fi
     else
         status="error"
         now=$(date --rfc-3339=seconds)
