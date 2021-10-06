@@ -129,41 +129,36 @@ if [ $nloglines -gt $LOGSIZE ]; then sed -i "1,$(expr $nloglines - $LOGSIZE)d" $
 date=$(date --rfc-3339=seconds)
 echo "$date status=scriptstarted chainid=$chainid" >>$logfile
 
-if [[ -f "/home/axelar/.axelar_testnet/bin/axelard" ]];
- 
-then
-
-if pgrep axelard >/dev/null;
-then
-     echo "Is axelard binary running: Yes";
-else
-     echo "Is axelard binary running: No, please rerun join-testnet-with-binaries.sh";
-fi
-
-else 
-
-echo -n "Determining latest Axelar version:"
-CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
-if [ $(docker inspect -f '{{.Config.Image}}' axelar-core) = "axelarnet/axelar-core:$CORE_VERSION" ]; then echo " $CORE_VERSION is latest" ; else echo "Not latest, consider upgrading to the new axelar-core version $CORE_VERSION"; fi
-
-echo -n "Is axelar-core running: "
-
-if [ $(docker inspect -f '{{.State.Running}}' axelar-core) = "true" ]; then echo "Yes"; else echo "No, please make sure it runs"; exit; fi
-
-consdump=$(curl -s "$url"/dump_consensus_state)
-validators=$(jq -r '.result.round_state.validators[]' <<<$consdump)
-isvalidator=$(grep -c "$VALIDATORADDRESS" <<<$validators)
-
-if [ "$isvalidator" != "0" ]; then  
-    echo -n "Is Vald running: "
-    if [ $(docker inspect -f '{{.State.Running}}' vald) = "true" ]; then echo "Yes"; else echo "No, please make sure it runs"; exit; 
+if [[ -f "/home/axelar/.axelar_testnet/bin/axelard" ]]; then
+    if pgrep axelard >/dev/null; then
+        echo "Is axelard binary running: Yes";
+    else
+        echo "Is axelard binary running: No, please rerun join-testnet-with-binaries.sh";
     fi
+else 
+    echo -n "Determining latest Axelar version:"
+    CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
+    if [ $(docker inspect -f '{{.Config.Image}}' axelar-core) = "axelarnet/axelar-core:$CORE_VERSION" ]; then echo " $CORE_VERSION is latest" ; else echo "Not latest, consider upgrading to the new axelar-core version $CORE_VERSION"; fi
 
-    echo -n "Is tofnd running: "
-    if [ $(docker inspect -f '{{.State.Running}}' tofnd) = "true" ]; then echo "Yes"; else echo "No, please make sure it runs"; exit; fi
+    echo -n "Is axelar-core running: "
 
-    echo "if there is no Pong! below, the node is not configured properly"
-    docker exec -ti vald axelard tofnd-ping --tofnd-host tofnd
+    if [ $(docker inspect -f '{{.State.Running}}' axelar-core) = "true" ]; then echo "Yes"; else echo "No, please make sure it runs"; exit; fi
+
+    consdump=$(curl -s "$url"/dump_consensus_state)
+    validators=$(jq -r '.result.round_state.validators[]' <<<$consdump)
+    isvalidator=$(grep -c "$VALIDATORADDRESS" <<<$validators)
+
+    if [ "$isvalidator" != "0" ]; then  
+        echo -n "Is Vald running: "
+        if [ $(docker inspect -f '{{.State.Running}}' vald) = "true" ]; then echo "Yes"; else echo "No, please make sure it runs"; exit; 
+        fi
+
+        echo -n "Is tofnd running: "
+        if [ $(docker inspect -f '{{.State.Running}}' tofnd) = "true" ]; then echo "Yes"; else echo "No, please make sure it runs"; exit; fi
+
+        echo "if there is no Pong! below, the node is not configured properly"
+        docker exec -ti vald axelard tofnd-ping --tofnd-host tofnd
+    fi
 fi
 
 echo
@@ -182,10 +177,14 @@ while true ; do
         catchingup=$(jq -r '.result.sync_info.catching_up' <<<$status)
         if [ $catchingup == "false" ]; then 
             catchingup="synced"; 
-            if [ $synced_n == "catchingup" ]; then send_telegram_notification $nmsg_synced fi
+            if [ $synced_n == "catchingup" ]; then 
+                send_telegram_notification $nmsg_synced 
+            fi
         elif [ $catchingup == "true" ]; then 
             catchingup="catchingup"; 
-            if [ $synced_n == "synced" ]; then send_telegram_notification $nmsg_unsynced fi
+            if [ $synced_n == "synced" ]; then 
+                send_telegram_notification $nmsg_unsynced 
+            fi
         fi
         if [ "$CHECKPERSISTENTPEERS" -eq 1 ]; then
             npersistentpeersmatch=0
