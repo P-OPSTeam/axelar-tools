@@ -8,25 +8,25 @@ sudo sed -i '/^# Address of the bitcoin RPC server/{n;d}' ~/.axelar_testnet/shar
 
 sudo sed -i '/^# Address of the ethereum RPC proxy/{n;d}' ~/.axelar_testnet/shared/config.toml
 
-echo Type in your btc node address with double quotes!
+echo "Type in your btc node address with double quotes!"
 
 read btc
 
 sudo sed -i "/^# Address of the bitcoin RPC server/a rpc_addr    = "$btc"" ~/.axelar_testnet/shared/config.toml
 
-echo Type in your ETH Ropsten node address with double quotes!
+echo "Type in your ETH Ropsten node address with double quotes!"
 
 read ETH
 
 sudo sed -i "/^# Address of the ethereum RPC proxy/a rpc_addr    = "$ETH"" ~/.axelar_testnet/shared/config.toml
 
-sudo docker start axelar-core
+bash run.sh
 
-echo Name for your validator
+echo "Name for your validator"
 
 read validator
 
-echo amount of selfstake axltest example: 90000000axltest
+echo "amount of selfstake axltest example: 90000000axltest"
 
 read axltest
 
@@ -44,7 +44,13 @@ sudo docker exec -it axelar-core axelard q staking validator "$validator" | grep
 
 sudo docker exec -it axelar-core axelard tx snapshot registerProxy broadcaster --from validator -y
 
-sudo docker exec axelar-core ps
+CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
+echo ${CORE_VERSION}
 
-echo If there is no vald-start, please run following command sudo docker exec axelar-core axelard vald-start --tofnd-host 172.17.0.2 --validator-addr $validator
- 
+
+TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep tofnd | cut -d \` -f 4)
+echo ${TOFND_VERSION}
+
+bash ~/axelarate-community/join/launchValidator.sh --axelar-core $CORE_VERSION --tofnd $TOFND_VERSION 
+
+
