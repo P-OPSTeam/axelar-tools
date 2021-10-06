@@ -26,7 +26,7 @@ echo "Name for your validator"
 
 read validator
 
-echo "amount of selfstake axltest example: 90000000axltest"
+echo "amount of selfstake axltest example: 90000000uaxl"
 
 read axltest
 
