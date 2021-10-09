@@ -1,3 +1,5 @@
+denom=uaxl 
+
 echo "Determining script path" 
 SCRIPT=`realpath -s $0`
 SCRIPTPATH=`dirname $SCRIPT`
@@ -36,17 +38,19 @@ echo
 echo "Setting up validator config"
 
 echo "Name for your validator :"
-read validator
-
-denom=$(sudo docker exec axelar-core axelard q bank balances ${validator} | grep denom | cut -d ':' -f 2)
-
-echo "amount of selfstake axltest example: 90000000 (without ${denom})"
-read uaxl
+read validatorname
 
 validator=$(sudo docker exec axelar-core axelard keys show validator -a)
 
+echo "amount of selfstake axltest example: 90000000 (without ${denom}),"
+read uaxl
+
 #check selfstake has been funded
-balance=$(sudo docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2)
+sudo docker exec axelar-core axelard q bank balances ${validator} | grep amount > /dev/null 1>&2
+
+if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
+    balance=0
+fi
 
 while [ $(echo "${balance} < ${uaxl}" | bc -l) -eq 1 ]; do 
     echo "${validator} has ${balance} ${denom}. You need at least ${uaxl} ${denom}, press enter once funded completed"
@@ -59,9 +63,9 @@ echo
 
 echo "Creating the validator with your self stake of ${uaxl} ${denom} (wait 10s for confirmation)"
 
-axelarvaloper=$(sudo docker exec axelar-core axelard tendermint show-validator)
-
-sudo docker exec -it axelar-core axelard tx staking create-validator --yes --amount "${uaxl}uaxl" --moniker "$validator" --commission-rate="0.10" --commission-max-rate="0.20" --commission-max-change-rate="0.01" --min-self-delegation="1" --pubkey $axelarvaloper --from validator -b block
+axelarvalconspub=$(sudo docker exec axelar-core axelard tendermint show-validator)
+#axelarvaloper=$(sudo docker exec axelar-core sh -c "axelard keys show validator -a --bech val)
+sudo docker exec -it axelar-core axelard tx staking create-validator --yes --amount "${uaxl}uaxl" --moniker "$validatorname" --commission-rate="0.10" --commission-max-rate="0.20" --commission-max-change-rate="0.01" --min-self-delegation="1" --pubkey $axelarvalconspub --from validator -b block
 
 sleep 10
 echo "done"
@@ -87,7 +91,13 @@ echo
 echo "Registering proxy"
 broadcaster=$(sudo docker exec vald sh -c "axelard keys show broadcaster -a")
 #check broadcaster has some uaxl
-balance=$(sudo docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount | cut -d '"' -f 2)
+
+sudo docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount > /dev/null 1>&2
+
+if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
+    balance=0
+fi
+
 while [ $(echo "${balance} <= 0" | bc -l) -eq 1 ]; do 
     echo "${broadcaster} has 0 ${denom}. Please fund it, press enter once done"
     read waitentry
