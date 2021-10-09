@@ -28,7 +28,7 @@ echo "done"
 
 echo
 
-bash $SCRIPT/run.sh
+bash $SCRIPTPATH/run.sh
 
 
 echo "Setting up validator config"
@@ -68,15 +68,15 @@ echo
 echo "Starting prereq docker containers"
 
 CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
-echo ${CORE_VERSION}
+echo Axelar Core version : ${CORE_VERSION}
 
 
 TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep tofnd | cut -d \` -f 4)
-echo ${TOFND_VERSION}
+echo Axelar TOFND version ${TOFND_VERSION}
 
 cd ~/axelarate-community
 
-bash join/launchValidator.sh --axelar-core $CORE_VERSION --tofnd $TOFND_VERSION 
+sudo bash join/launchValidator.sh --axelar-core $CORE_VERSION --tofnd $TOFND_VERSION 
 
 echo "done"
 
