@@ -8,7 +8,7 @@ sudo docker stop axelar-core
 
 echo "Modifying config.toml for using own Ropsten and tbtc node"
 
-sudo sed -i '/^# Address of the bitcoin RPC server/{n;d}' /root/axelar_testnet/shared/config.toml
+sudo sed -i '/^# Address of the bitcoin RPC server/{n;d}' /root/.axelar_testnet/shared/config.toml
 
 sudo sed -i '/^# Address of the ethereum RPC proxy/{n;d}' /root/.axelar_testnet/shared/config.toml
 
