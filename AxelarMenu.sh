@@ -1,6 +1,6 @@
 #!/bin/bash
-sudo apt update
-sudo apt install dialog -y -qq > /dev/null
+sudo apt update > /dev/null 1>&2
+sudo apt install dialog -y -qq > /dev/null 1>&2
 
 SCRIPT=`realpath -s $0`
 SCRIPTPATH=`dirname $SCRIPT`
