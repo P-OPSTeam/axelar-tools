@@ -4,6 +4,7 @@ SCRIPTPATH=`dirname $SCRIPT`
 echo "done"
 echo
 
+echo "Stopping Axelar-core container"
 sudo docker stop axelar-core
 
 echo "Modifying config.toml for using own Ropsten and tbtc node"
@@ -59,7 +60,7 @@ validator=$(sudo docker exec -it axelar-core axelard keys show validator --bech 
 
 sudo docker exec -it axelar-core axelard q staking validator "$validator" | grep tokens
 
-sudo docker exec -it axelar-core axelard tx snapshot registerProxy broadcaster --from validator -y
+sudo docker exec -it axelar-core axelard tx snapshot register-proxy broadcaster --from validator -y
 
 echo "done"
 
