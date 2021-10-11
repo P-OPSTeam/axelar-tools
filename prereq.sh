@@ -108,17 +108,10 @@ if [[ $? -eq 1 ]]; then
 fi
 
 exec 2>&4 1>&3
-
-echo "--> starting the node" 
-sudo join/joinTestnet.sh --axelar-core ${CORE_VERSION} --reset-chain  &>> testnet.log
-echo "done"
-echo 
-
-sed -n '10,50p' testnet.log
-
-echo 
-echo "setup is finished"
-
+ 
+echo
+echo "prereq done, start option 2 in the menu"
+echo
 read -n 1 -s -r -p "press any key to go back to the menu" 
 
 sudo bash $SCRIPTPATH/AxelarMenu.sh

@@ -12,7 +12,7 @@ BACKTITLE="Axelar"
 TITLE="Install menu"
 MENU="Choose one of the following options:"
 
-OPTIONS=(1 "Create Axelar Node and install requirements (docker, etc ..)"
+OPTIONS=(1 "install axelar requirements (docker, etc ..)"
          2 "Rebuild only"
          3 "Rebuild with reset chain"
          4 "Reboot host"
@@ -32,7 +32,7 @@ CHOICE=$(dialog --clear \
 clear
 case $CHOICE in
             1)
-            bash $SCRIPTPATH/testnetaxelar.sh
+            bash $SCRIPTPATH/prereq.sh
             ;;
             2)
 	    bash $SCRIPTPATH/run.sh
