@@ -1,5 +1,5 @@
 #!/bin/bash
-sudo apt update > /dev/null 1>&2
+sudo apt update > /dev/null 2>&1
 sudo apt install dialog -y -qq > /dev/null 1>&2
 
 SCRIPT=`realpath -s $0`
