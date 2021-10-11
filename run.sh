@@ -63,7 +63,3 @@ sed -n '10,32p' testnet.log
 echo 
 echo "Node is restarted"
 echo
-
-read -n 1 -s -r -p "press any key to go back to the menu"
-
-sudo bash $SCRIPTPATH/AxelarMenu.sh
