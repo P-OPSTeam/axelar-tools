@@ -42,14 +42,16 @@ read validatorname
 
 validator=$(sudo docker exec axelar-core axelard keys show validator -a)
 
-echo "amount of selfstake axltest example: 90000000 (without ${denom}),"
+echo "amount of selfstake axltest example: 90000000 (without ${denom})"
 read uaxl
 
 #check selfstake has been funded
-sudo docker exec axelar-core axelard q bank balances ${validator} | grep amount > /dev/null 1>&2
+sudo docker exec axelar-core axelard q bank balances ${validator} | grep amount > /dev/null 2>&1
 
 if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
     balance=0
+else
+    balance=$(sudo docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2)
 fi
 
 while [ $(echo "${balance} < ${uaxl}" | bc -l) -eq 1 ]; do 
@@ -92,10 +94,12 @@ echo "Registering proxy"
 broadcaster=$(sudo docker exec vald sh -c "axelard keys show broadcaster -a")
 #check broadcaster has some uaxl
 
-sudo docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount > /dev/null 1>&2
+sudo docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount > /dev/null 2>&1
 
 if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
     balance=0
+else
+    balance=$(sudo docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount | cut -d '"' -f 2)
 fi
 
 while [ $(echo "${balance} <= 0" | bc -l) -eq 1 ]; do 
