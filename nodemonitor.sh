@@ -22,7 +22,7 @@ fi
 ###    if suppressing error messages is preferred, run as './nodemonitor.sh 2> /dev/null'
 
 ###    CONFIG    ##################################################################################################
-CONFIG="$HOME/axelarate-community/join/config.toml"                # config.toml file for node, eg. $HOME/.gaia/config/config.toml
+CONFIG=""                # config.toml file for node, eg. $HOME/.gaia/config/config.toml
 ### optional:            #
 NPRECOMMITS="20"         # check last n precommits, can be 0 for no checking
 VALIDATORADDRESS=""      # if left empty default is from status call (validator)
@@ -55,6 +55,20 @@ send_telegram_notification() {
     curl -s -X POST https://api.telegram.org/${BOT_ID}/sendMessage -d parse_mode=html -d chat_id=${CHAT_ID=} -d text="<b>$(hostname)</b> - $(date) : ${message}"
 }
 
+if [ -z $CONFIG ]; 
+then 
+	if [[ -f ~/.axelar_testnet/bin/axelard ]];
+	then	
+	CONFIG=~/.axelar_testnet/.core/config/config.toml;
+	else
+		if [[ -f ~/.axelar_testnet/shared/config.toml ]];
+		then
+		CONFIG=~/.axelar_testnet/shared/config.toml;
+		else
+		CONFIG=/root/.axelar_testnet/shared/config.toml 
+		fi
+	fi
+fi
 if [ -z $CONFIG ]; then
     echo "please configure config.toml in script"
     exit 1
@@ -81,7 +95,13 @@ if [ -z $VALIDATORADDRESS ]; then
     exit 1
 fi
 
-if [ -z $AXELARVALIDATORADDRESS ]; then AXELARVALIDATORADDRESS=$(jq -r ''.result.genesis.app_state.genutil.gen_txs[0].body.messages[0].validator_address'' <<<$(curl -s "$url"/genesis)); fi
+if [ -z $AXELARVALIDATORADDRESS ]; 
+then
+	if [[ -f ~/.axelar_testnet/bin/axelard ]]; 
+	then AXELARVALIDATORADDRESS=$(~/.axelar_testnet/bin/axelard keys show validator --bech val -a --home ~/.axelar_testnet/.core); 
+	else AXELARVALIDATORADDRESS=$(docker exec -it axelar-core axelard keys show validator --bech val -a);
+	fi
+fi
 if [ -z $AXELARVALIDATORADDRESS ]; then
     echo "rpc appears to be down, start script again when data can be obtained"
     exit 1
