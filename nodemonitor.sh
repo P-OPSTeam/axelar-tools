@@ -129,17 +129,17 @@ echo "$date status=scriptstarted chainid=$chainid" >>$logfile
 while true ; do
 
 # Determining binary or docker installation
-if [[ -f "/home/axelar/.axelar_testnet/bin/axelard" ]];
- 
+if [[ -f ~/.axelar_testnet/bin/axelard ]];
+
 then
-	
-	# Checking axelard process running
-	if pgrep axelard >/dev/null;
-		then
-     		echo "Is axelard binary running: Yes";
-		else
-     		echo "Is axelard binary running: No, please rerun join-testnet-with-binaries.sh";
-	fi
+
+        # Checking axelard process running
+        if pgrep axelard >/dev/null;
+                then
+                echo "Is axelard binary running: Yes";
+                else
+                echo "Is axelard binary running: No, please rerun join-testnet-with-binaries.sh";
+        fi
 
 	# Checking validator status
         consdump=$(curl -s "$url"/dump_consensus_state)
