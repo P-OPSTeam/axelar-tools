@@ -128,10 +128,12 @@ echo "$date status=scriptstarted chainid=$chainid" >>$logfile
 
 while true ; do
 
+# Determining binary or docker installation
 if [[ -f "/home/axelar/.axelar_testnet/bin/axelard" ]];
  
 then
-
+	
+	# Checking axelard process running
 	if pgrep axelard >/dev/null;
 		then
      		echo "Is axelard binary running: Yes";
@@ -139,8 +141,29 @@ then
      		echo "Is axelard binary running: No, please rerun join-testnet-with-binaries.sh";
 	fi
 
-else 
+	if [ "$isvalidator" != "0" ];
 
+        then
+                # Checking tofnd process
+                if pgrep tofnd >/dev/null;
+                then
+                echo "Is tofnd proces running: Yes";
+                else
+                echo "Is tofnd process running: no, make sure it runs";
+                fi
+
+                # Checking vald-start process
+                if ps aux | grep vald-start >/dev/null;
+                then
+                echo "Is vald-start running: Yes";
+                else
+                echo "Is vald-start process running: no, make sure it runs";
+                fi
+        fi
+
+
+else 
+	# Checking axelar-core version
 	echo -n "Determining latest Axelar version:"
 	CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
 	if [ $(docker inspect -f '{{.Config.Image}}' axelar-core) = "axelarnet/axelar-core:$CORE_VERSION" ]; 
@@ -150,6 +173,7 @@ else
 	echo "Not latest, consider upgrading to the new axelar-core version $CORE_VERSION"; 
 	fi
 
+	# Checking if axelar-core container is running
 	echo -n "Is axelar-core running: "
 
 	if [ $(docker inspect -f '{{.State.Running}}' axelar-core) = "true" ]; 
@@ -157,7 +181,8 @@ else
 	else echo "No, please make sure it runs"; 
 	exit; 
 	fi
-
+	
+	# Checking validator status
 	consdump=$(curl -s "$url"/dump_consensus_state)
 	validators=$(jq -r '.result.round_state.validators[]' <<<$consdump)
 	isvalidator=$(grep -c "$VALIDATORADDRESS" <<<$validators)
@@ -166,6 +191,7 @@ else
 
 	then  
 
+		# Checking Vald Container is running
 		echo -n "Is Vald running: "
 		if [ $(docker inspect -f '{{.State.Running}}' vald) = "true" ]; 
 		then echo "Yes"; 
@@ -173,6 +199,7 @@ else
 		exit; 
 		fi
 
+		# Checking Tofnd container is running
 		echo -n "Is tofnd running: "
 		if [ $(docker inspect -f '{{.State.Running}}' tofnd) = "true" ]; 
 		then echo "Yes"; 
@@ -180,6 +207,7 @@ else
 		exit; 
 		fi
 
+	# Checking Ping Pong! between containers
 	echo "if there is no Pong! below, the node is not configured properly"
 	docker exec -ti vald axelard tofnd-ping --tofnd-host tofnd
 
