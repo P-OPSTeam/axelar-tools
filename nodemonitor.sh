@@ -65,7 +65,7 @@ then
 		then
 		CONFIG=~/.axelar_testnet/shared/config.toml;
 		else
-		CONFIG=/root/.axelar_testnet/shared/config.toml 
+		CONFIG=~/config.toml 
 		fi
 	fi
 fi
