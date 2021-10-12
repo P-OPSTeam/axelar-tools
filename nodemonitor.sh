@@ -26,6 +26,7 @@ CONFIG="$HOME/axelarate-community/join/config.toml"                # config.toml
 ### optional:            #
 NPRECOMMITS="20"         # check last n precommits, can be 0 for no checking
 VALIDATORADDRESS=""      # if left empty default is from status call (validator)
+AXELARVALIDATORADDRESS="" #if left empty default is from status call (axelar validator) 
 CHECKPERSISTENTPEERS="1" # if 1 the number of disconnected persistent peers is checked (when persistent peers are configured in config.toml)
 VALIDATORMETRICS="on"    # metrics for validator node
 LOGNAME=""               # a custom log file name can be chosen, if left empty default is nodecheck-<username>.log
@@ -74,12 +75,19 @@ echo "log file: ${logfile}"
 echo "rpc url: ${url}"
 echo "chain id: ${chainid}"
 
-if [ -z $VALIDATORADDRESS ]; then VALIDATORADDRESS=$(jq -r ''.result.genesis.app_state.genutil.gen_txs[0].body.messages[0].validator_address'' <<<$(curl -s "$url"/genesis)); fi
+if [ -z $VALIDATORADDRESS ]; then VALIDATORADDRESS=$(jq -r ''.result.validator_info.address'' <<<$(curl -s "$url"/status)); fi
 if [ -z $VALIDATORADDRESS ]; then
     echo "rpc appears to be down, start script again when data can be obtained"
     exit 1
 fi
-echo "validator address: $VALIDATORADDRESS"
+
+if [ -z $AXELARVALIDATORADDRESS ]; then AXELARVALIDATORADDRESS=$(jq -r ''.result.genesis.app_state.genutil.gen_txs[0].body.messages[0].validator_address'' <<<$(curl -s "$url"/genesis)); fi
+if [ -z $AXELARVALIDATORADDRESS ]; then
+    echo "rpc appears to be down, start script again when data can be obtained"
+    exit 1
+fi
+
+echo "validator address: $AXELARVALIDATORADDRESS"
 
 if [ "$CHECKPERSISTENTPEERS" -eq 1 ]; then
     persistentpeers=$(sed '/^\[p2p\]/,/^\[/!d;//d' $CONFIG | grep "^persistent_peers\b" | awk -v FS='("|")' '{print $2}')
@@ -145,7 +153,7 @@ then
         consdump=$(curl -s "$url"/dump_consensus_state)
         validators=$(jq -r '.result.round_state.validators[]' <<<$consdump)
         isvalidator=$(grep -c "$VALIDATORADDRESS" <<<$validators)
-
+	
 	if [ "$isvalidator" != "0" ];
 
         then
