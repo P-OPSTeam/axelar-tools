@@ -141,6 +141,11 @@ then
      		echo "Is axelard binary running: No, please rerun join-testnet-with-binaries.sh";
 	fi
 
+	# Checking validator status
+        consdump=$(curl -s "$url"/dump_consensus_state)
+        validators=$(jq -r '.result.round_state.validators[]' <<<$consdump)
+        isvalidator=$(grep -c "$VALIDATORADDRESS" <<<$validators)
+
 	if [ "$isvalidator" != "0" ];
 
         then
