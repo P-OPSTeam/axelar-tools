@@ -74,7 +74,7 @@ echo "log file: ${logfile}"
 echo "rpc url: ${url}"
 echo "chain id: ${chainid}"
 
-if [ -z $VALIDATORADDRESS ]; then VALIDATORADDRESS=$(jq -r ''.result.validator_info.address'' <<<$(curl -s "$url"/status)); fi
+if [ -z $VALIDATORADDRESS ]; then VALIDATORADDRESS=$(jq -r ''.result.genesis.app_state.genutil.gen_txs[0].body.messages[0].validator_address'' <<<$(curl -s "$url"/genesis)); fi
 if [ -z $VALIDATORADDRESS ]; then
     echo "rpc appears to be down, start script again when data can be obtained"
     exit 1
