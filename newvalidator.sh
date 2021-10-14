@@ -6,8 +6,8 @@ SCRIPTPATH=`dirname $SCRIPT`
 echo "done"
 echo
 
-echo "Stopping Axelar-core container tofnd and vald"
-sudo docker stop axelar-core tofnd vald
+echo "Stopping Axelar-core container"
+sudo docker stop axelar-core 
 
 echo "Modifying config.toml for using own Ropsten and tbtc node"
 
