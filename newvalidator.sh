@@ -6,44 +6,49 @@ SCRIPTPATH=`dirname $SCRIPT`
 echo "done"
 echo
 
-echo "Stopping Axelar-core container"
-sudo docker stop axelar-core 
+read -p "Do you wish to update your config.toml, answer yes or no: " wishtoupdate
+while [[ "$wishtoupdate" != @(yes|no) ]]; do
+    read wishtoupdate
+done
 
-echo "Modifying config.toml for using own Ropsten and tbtc node"
+if [[ "$wishtoupdate" == "yes" ]]; then
+    read -p "enter the location of your config.toml (/root/.axelar_testnet or ~/.axelar_testnet): " configloc
+    echo
+    echo "We are going to modify config.toml with our own Ropsten and tbtc node"
 
-# removing current config
-sudo sed -i '/^# Address of the bitcoin RPC server/{n;d}' /root/.axelar_testnet/shared/config.toml
-sudo sed -i '/^# Address of the ethereum RPC proxy/{n;d}' /root/.axelar_testnet/shared/config.toml
+    # removing current config
+    sudo sed -i '/^# Address of the bitcoin RPC server/{n;d}' ${configloc}/config.toml
+    sudo sed -i '/^# Address of the ethereum RPC proxy/{n;d}' ${configloc}/config.toml
 
-# setting up btc rpc
-echo "Type in your btc node address (with double quotes):"
-read btc
-sudo sed -i "/^# Address of the bitcoin RPC server/a rpc_addr    = "$btc"" /root/.axelar_testnet/shared/config.toml
+    # setting up btc rpc
+    echo "Type in your btc node address (with double quotes):"
+    read btc
+    sudo sed -i "/^# Address of the bitcoin RPC server/a rpc_addr    = "$btc"" ${configloc}/config.toml
 
-# setting up eth rpc
-echo "Type in your ETH Ropsten node address (with double quotes):"
-read ETH
-sudo sed -i "/^# Address of the ethereum RPC proxy/a rpc_addr    = "$ETH"" /root/.axelar_testnet/shared/config.toml
+    echo 
 
-echo "done"
+    # setting up eth rpc
+    echo "Type in your ETH Ropsten node address (with double quotes):"
+    read ETH
+    sudo sed -i "/^# Address of the ethereum RPC proxy/a rpc_addr    = "$ETH"" ${configloc}/config.toml
 
-echo
-
-echo "Running the node"
-bash $SCRIPTPATH/run.sh
-echo "done"
+    echo
+    echo "Let's stop axelar-core since we are updated the config"
+    sudo docker stop axelar-core 
+    echo "Run the node"
+    bash $SCRIPTPATH/run.sh
+    echo "done"
+fi
 
 echo
 
 echo "Setting up validator config"
 
-echo "Name for your validator :"
-read validatorname
+read -p "Name for your validator : " validatorname
 
 validator=$(sudo docker exec axelar-core axelard keys show validator -a)
 
-echo "amount of selfstake axltest example: 90000000 (without ${denom})"
-read uaxl
+read -p "amount of selfstake axltest example: 90000000 (without ${denom}) : " uaxl
 
 #check selfstake has been funded
 sudo docker exec axelar-core axelard q bank balances ${validator} | grep amount > /dev/null 2>&1
