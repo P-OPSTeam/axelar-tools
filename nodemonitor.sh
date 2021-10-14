@@ -22,10 +22,11 @@ fi
 ###    if suppressing error messages is preferred, run as './nodemonitor.sh 2> /dev/null'
 
 ###    CONFIG    ##################################################################################################
-CONFIG="$HOME/axelarate-community/join/config.toml"                # config.toml file for node, eg. $HOME/.gaia/config/config.toml
+CONFIG=""                # config.toml file for node, eg. $HOME/.gaia/config/config.toml
 ### optional:            #
 NPRECOMMITS="20"         # check last n precommits, can be 0 for no checking
 VALIDATORADDRESS=""      # if left empty default is from status call (validator)
+AXELARVALIDATORADDRESS="" #if left empty default is from status call (axelar validator) 
 CHECKPERSISTENTPEERS="1" # if 1 the number of disconnected persistent peers is checked (when persistent peers are configured in config.toml)
 VALIDATORMETRICS="on"    # metrics for validator node
 LOGNAME=""               # a custom log file name can be chosen, if left empty default is nodecheck-<username>.log
@@ -54,6 +55,20 @@ send_telegram_notification() {
     curl -s -X POST https://api.telegram.org/${BOT_ID}/sendMessage -d parse_mode=html -d chat_id=${CHAT_ID=} -d text="<b>$(hostname)</b> - $(date) : ${message}"
 }
 
+if [ -z $CONFIG ]; 
+then 
+	if [[ -f ~/.axelar_testnet/bin/axelard ]];
+	then	
+	CONFIG=~/.axelar_testnet/.core/config/config.toml;
+	else
+		if [[ -f ~/.axelar_testnet/shared/config.toml ]];
+		then
+		CONFIG=~/.axelar_testnet/shared/config.toml;
+		else
+		CONFIG=~/config.toml 
+		fi
+	fi
+fi
 if [ -z $CONFIG ]; then
     echo "please configure config.toml in script"
     exit 1
@@ -79,7 +94,20 @@ if [ -z $VALIDATORADDRESS ]; then
     echo "rpc appears to be down, start script again when data can be obtained"
     exit 1
 fi
-echo "validator address: $VALIDATORADDRESS"
+
+if [ -z $AXELARVALIDATORADDRESS ]; 
+then
+	if [[ -f ~/.axelar_testnet/bin/axelard ]]; 
+	then AXELARVALIDATORADDRESS=$(~/.axelar_testnet/bin/axelard keys show validator --bech val -a --home ~/.axelar_testnet/.core); 
+	else AXELARVALIDATORADDRESS=$(docker exec -it axelar-core axelard keys show validator --bech val -a);
+	fi
+fi
+if [ -z $AXELARVALIDATORADDRESS ]; then
+    echo "rpc appears to be down, start script again when data can be obtained"
+    exit 1
+fi
+
+echo "validator address: $AXELARVALIDATORADDRESS"
 
 if [ "$CHECKPERSISTENTPEERS" -eq 1 ]; then
     persistentpeers=$(sed '/^\[p2p\]/,/^\[/!d;//d' $CONFIG | grep "^persistent_peers\b" | awk -v FS='("|")' '{print $2}')
@@ -128,19 +156,47 @@ echo "$date status=scriptstarted chainid=$chainid" >>$logfile
 
 while true ; do
 
-if [[ -f "/home/axelar/.axelar_testnet/bin/axelard" ]];
- 
+# Determining binary or docker installation
+if [[ -f ~/.axelar_testnet/bin/axelard ]];
+
 then
 
-	if pgrep axelard >/dev/null;
-		then
-     		echo "Is axelard binary running: Yes";
-		else
-     		echo "Is axelard binary running: No, please rerun join-testnet-with-binaries.sh";
-	fi
+        # Checking axelard process running
+        if pgrep axelard >/dev/null;
+                then
+                echo "Is axelard binary running: Yes";
+                else
+                echo "Is axelard binary running: No, please rerun join-testnet-with-binaries.sh";
+        fi
+
+	# Checking validator status
+        consdump=$(curl -s "$url"/dump_consensus_state)
+        validators=$(jq -r '.result.round_state.validators[]' <<<$consdump)
+        isvalidator=$(grep -c "$VALIDATORADDRESS" <<<$validators)
+	
+	if [ "$isvalidator" != "0" ];
+
+        then
+                # Checking tofnd process
+                if pgrep tofnd >/dev/null;
+                then
+                echo "Is tofnd proces running: Yes";
+                else
+                echo "Is tofnd process running: no, make sure it runs";
+                fi
+
+                # Checking vald-start process
+                if ps aux | grep vald-start >/dev/null;
+                then
+                echo "Is vald-start running: Yes";
+                else
+                echo "Is vald-start process running: no, make sure it runs";
+                fi
+        fi
+
 
 else 
-
+	# Checking axelar-core version
 	echo -n "Determining latest Axelar version:"
 	CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
 	if [ $(docker inspect -f '{{.Config.Image}}' axelar-core) = "axelarnet/axelar-core:$CORE_VERSION" ]; 
@@ -150,6 +206,7 @@ else
 	echo "Not latest, consider upgrading to the new axelar-core version $CORE_VERSION"; 
 	fi
 
+	# Checking if axelar-core container is running
 	echo -n "Is axelar-core running: "
 
 	if [ $(docker inspect -f '{{.State.Running}}' axelar-core) = "true" ]; 
@@ -157,7 +214,8 @@ else
 	else echo "No, please make sure it runs"; 
 	exit; 
 	fi
-
+	
+	# Checking validator status
 	consdump=$(curl -s "$url"/dump_consensus_state)
 	validators=$(jq -r '.result.round_state.validators[]' <<<$consdump)
 	isvalidator=$(grep -c "$VALIDATORADDRESS" <<<$validators)
@@ -166,6 +224,7 @@ else
 
 	then  
 
+		# Checking Vald Container is running
 		echo -n "Is Vald running: "
 		if [ $(docker inspect -f '{{.State.Running}}' vald) = "true" ]; 
 		then echo "Yes"; 
@@ -173,6 +232,7 @@ else
 		exit; 
 		fi
 
+		# Checking Tofnd container is running
 		echo -n "Is tofnd running: "
 		if [ $(docker inspect -f '{{.State.Running}}' tofnd) = "true" ]; 
 		then echo "Yes"; 
@@ -180,6 +240,7 @@ else
 		exit; 
 		fi
 
+	# Checking Ping Pong! between containers
 	echo "if there is no Pong! below, the node is not configured properly"
 	docker exec -ti vald axelard tofnd-ping --tofnd-host tofnd
 

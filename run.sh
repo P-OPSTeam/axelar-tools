@@ -58,6 +58,15 @@ else
     sudo join/joinTestnet.sh --axelar-core ${CORE_VERSION} --reset-chain  &>> testnet.log
 fi
 
+
+if [[ -f ~/.axelar_testnet/shared/config.toml ]];
+                then
+                sudo chmod  -R a+r ~/.axelar_testnet/;
+                else
+		user=$(whoami)
+                sudo cp /root/.axelar_testnet/shared/config.toml /home/$user/config.toml;
+                fi
+
 sed -n '10,32p' testnet.log
 
 echo 
