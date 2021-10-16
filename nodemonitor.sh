@@ -33,7 +33,7 @@ LOGNAME=""               # a custom log file name can be chosen, if left empty d
 LOGPATH="$(pwd)"         # the directory where the log file is stored, for customization insert path like: /my/path
 LOGSIZE=200              # the max number of lines after that the log will be trimmed to reduce its size
 LOGROTATION="1"          # options for log rotation: (1) rotate to $LOGNAME.1 every $LOGSIZE lines;  (2) append to $LOGNAME.1 every $LOGSIZE lines; (3) truncate $logfile to $LOGSIZE every iteration
-SLEEP1="30s"             # polls every SLEEP1 sec
+SLEEP1="15s"             # polls every SLEEP1 sec
 ###  internal:           #
 colorI='\033[0;32m'      # black 30, red 31, green 32, yellow 33, blue 34, magenta 35, cyan 36, white 37
 colorD='\033[0;90m'      # for light color 9 instead of 3
@@ -60,6 +60,31 @@ lastblockheight=0
 node_stuck_n="false" # true or false indicating the notification state of a node stuck
 nmsg_nodestuck="Your Axelar node is now stuck"
 nmsg_node_no_longer_stuck="Your Axelar node is no longer stuck, Yeah !"
+
+#axelar-core version
+axelar_version_n="false" # true or false indicating whether the current version is correct
+nmsg_axelar_version_ok="Your Axelar node version is ok now"
+nmsg_axelar_version_nok="Your Axelar node version is different from axelar repo"
+
+#axelar-core run (axelard)
+axelar_run_n="false" # true or false indicating whether axelard(axelar-core) is running or not
+nmsg_axelar_run_ok="Your Axelar node is running ok now"
+nmsg_axelar_run_nok="Your Axelar node has just stop running, fix it !"
+
+#vald run
+vald_run_n="false" # true or false indicating whether tofnd is running or not
+nmsg_vald_run_ok="vald is running ok now"
+nmsg_vald_run_nok="vald has just stop running. We'll try to start the process and you'll see an ok message if that happens, if not please fix it"
+
+#tofnd run
+tofnd_run_n="false" # true or false indicating whether tofnd is running or not
+nmsg_tofnd_run_ok="tofnd is running ok now"
+nmsg_tofnd_run_nok="tofnd has just stop running. We'll try to start the process and you'll see an ok message if that happens, if not please fix it"
+
+#vald tofnd connectivity test
+vald_tofnd_ping_n="false"
+nmsg_vald_tofnd_ping_ok="vald/tofnd connectivity is now ok"
+nmsg_vald_tofnd_ping_nok="vald/tofnd is currently failing, please check"
 
 ################### END NOTIFICATION CONFIG ###################
 
@@ -178,6 +203,7 @@ while true ; do
             echo "Is axelard binary running: Yes";
         else
             echo "Is axelard binary running: No, please rerun join-testnet-with-binaries.sh";
+            exit
         fi
 
         # Checking validator status
@@ -206,20 +232,35 @@ while true ; do
         # Checking axelar-core version (docker)
         echo -n "Determining latest Axelar version: "
         CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
+
+        # testing Axelar version
         if [ $(docker inspect -f '{{.Config.Image}}' axelar-core) = "axelarnet/axelar-core:$CORE_VERSION" ]; then
-            echo "$CORE_VERSION is latest" ;
+            echo "$CORE_VERSION is latest";
+            if [ $axelar_version_n == "false" ]; then #version was not ok
+                send_telegram_notification "$nmsg_axelar_version_ok"
+                axelar_version_n="true"
+            fi
         else
             echo "Not latest, consider upgrading to the new axelar-core version $CORE_VERSION";
+            if [ $axelar_version_n == "true" ]; then #version was ok
+                send_telegram_notification "$nmsg_axelar_version_nok"
+                axelar_version_n="false"
+            fi            
         fi
 
-        # Checking if axelar-core container is running
+        # Testing axelar-core container is running
         echo -n "Is axelar-core running: "
-
         if [ $(docker inspect -f '{{.State.Running}}' axelar-core) = "true" ]; then
             echo "Yes";
+            if [ $axelar_run_n == "false" ]; then #axelar core was stopped
+                send_telegram_notification "$nmsg_axelar_run_ok"
+                axelar_run_n="true"
+            fi
         else 
             echo "No, please make sure it runs";
-            exit;
+            axelar_run_n="true"
+            send_telegram_notification "$nmsg_axelar_run_nok"
+            # exit; Let's not exit and spam the notification channel so validator is aware :)
         fi
 
         # Checking validator status
@@ -232,23 +273,52 @@ while true ; do
             echo -n "Is Vald running: "
             if [ $(docker inspect -f '{{.State.Running}}' vald) = "true" ]; then 
                 echo "Yes";
-            else 
-                echo "No, please make sure it runs";
-                exit;
+                if [ $vald_run_n == "false" ]; then #vald was stopped
+                    send_telegram_notification "$nmsg_vald_run_ok"
+                    vald_run_n="true"
+                fi   
+            else
+                echo "No"
+                if [ $vald_run_n == "true" ]; then #tofnd was running
+                    vald_run_n="false"
+                    send_telegram_notification "$nmsg_vald_run_nok"
+                    # let's try to fix the problem once
+                    sudo docker container restart vald
+                fi
             fi
 
             # Checking Tofnd container is running
             echo -n "Is tofnd running: "
-            if [ $(docker inspect -f '{{.State.Running}}' tofnd) = "true" ]; then 
-                echo "Yes";
-            else 
-                echo "No, please make sure it runs";
-                exit;
+            if [ $(docker inspect -f '{{.State.Running}}' tofnd) = "true" ]; then
+                echo "Yes"
+                if [ $tofnd_run_n == "false" ]; then #tofnd was stopped
+                    send_telegram_notification "$nmsg_tofnd_run_ok"
+                    tofnd_run_n="true"
+                fi                
+            else
+                echo "No"
+                if [ $tofnd_run_n == "true" ]; then #tofnd was running
+                    tofnd_run_n="false"
+                    send_telegram_notification "$nmsg_tofnd_run_nok"
+                    # let's try to fix the problem once
+                    sudo docker container restart tofnd
+                fi
             fi
 
-            # Checking Ping Pong! between containers
-            echo "if there is no Pong! below, the node is not configured properly"
-            docker exec -ti vald axelard tofnd-ping --tofnd-host tofnd
+            echo -n "Is there connectivity between vald/tofnd : "
+            if [ $(sudo docker exec -ti vald axelard tofnd-ping --tofnd-host tofnd | tr -d '\r') == "Pong!" ]; then
+                echo "Yes"
+                if [ $vald_tofnd_ping_n == "false" ]; then #vald_tofnd_ping_n was failing
+                    send_telegram_notification "$nmsg_vald_tofnd_ping_ok"
+                    vald_tofnd_ping_n="true"
+                fi  
+            else
+                echo "No"
+                if [ $vald_tofnd_ping_n == "true" ]; then #vald_tofnd_ping_n was working
+                    send_telegram_notification "$nmsg_vald_tofnd_ping_nok"
+                    vald_tofnd_ping_n="false"
+                fi
+            fi
         fi
     fi
 
