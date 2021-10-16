@@ -50,9 +50,16 @@ CHAT_ID="<ENTER YOUR CHAT_ID>"
 
 #variable below avoid spams for the same notification state along with their notification message
 #catchup
-synced_n="catchingup"  #last notificaiton state either synced of catchingup (value possible catchingup/synced)
+synced_n="catchingup"  # notification state either synced of catchingup (value possible catchingup/synced)
 nmsg_synced="Your Axelar node is now in synced"
 nmsg_unsynced="Your Axelar node is no longer in synced"
+
+
+#node stuck
+lastblockheight=0
+node_stuck_n="false" # true or false indicating the notification state of a node stuck
+nmsg_nodestuck="Your Axelar node is now stuck"
+nmsg_node_no_longer_stuck="Your Axelar node is no longer stuck, Yeah !"
 
 ################### END NOTIFICATION CONFIG ###################
 
@@ -312,6 +319,20 @@ while true ; do
         now=$(date --rfc-3339=seconds)
         blockheightfromnow=$(expr $(date +%s -d "$now") - $(date +%s -d $blocktime))
         variables="status=$status blockheight=$blockheight tfromnow=$blockheightfromnow npeers=$npeers npersistentpeersoff=$npersistentpeersoff $validatorinfo"
+
+        # test if last block saved and new block height are the same
+        if [ $lastblockheight -eq $blockheight ]; then #block are the same
+            if [ $node_stuck_n == "false" ]; then # node_stuck notification state was false
+                node_stuck_n="true"
+                send_telegram_notification "$nmsg_nodestuck"
+            fi
+        else #new node block is different
+            if [ $node_stuck_n == "true" ]; then # mean it was previously stuck
+                node_stuck_n="false"
+                send_telegram_notification "$nmsg_node_no_longer_stuck"
+            fi
+            lastblockheight=$blockheight
+        fi
     else
         status="error"
         now=$(date --rfc-3339=seconds)
