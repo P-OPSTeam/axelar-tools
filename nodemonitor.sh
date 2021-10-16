@@ -43,16 +43,25 @@ noColor='\033[0m'        # no color
 ###  END CONFIG  ##################################################################################################
 
 ################### NOTIFICATION CONFIG ###################
+enable_notification="true" #true of false
 #TELEGRAM
 BOT_ID="bot<ENTER_YOURBOT_ID>"
 CHAT_ID="<ENTER YOUR CHAT_ID>"
 
+#variable below avoid spams for the same notification state along with their notification message
+#catchup
+synced_n="catchingup"  #last notificaiton state either synced of catchingup (value possible catchingup/synced)
+nmsg_synced="Your Axelar node is now in synced"
+nmsg_unsynced="Your Axelar node is no longer in synced"
+
 ################### END NOTIFICATION CONFIG ###################
 
 send_telegram_notification() {
-    message=$1
-    
-    curl -s -X POST https://api.telegram.org/${BOT_ID}/sendMessage -d parse_mode=html -d chat_id=${CHAT_ID=} -d text="<b>$(hostname)</b> - $(date) : ${message}"
+    if [ "$enable_notification" == "true" ]; then
+        message=$1
+        
+        curl -s -X POST https://api.telegram.org/${BOT_ID}/sendMessage -d parse_mode=html -d chat_id=${CHAT_ID=} -d text="<b>$(hostname)</b> - $(date) : ${message}" > /dev/null 2>&1
+    fi
 }
 
 if [ -z $CONFIG ]; then
@@ -252,7 +261,20 @@ while true ; do
         blockheight=$(jq -r '.result.sync_info.latest_block_height' <<<$status)
         blocktime=$(jq -r '.result.sync_info.latest_block_time' <<<$status)
         catchingup=$(jq -r '.result.sync_info.catching_up' <<<$status)
-        if [ $catchingup == "false" ]; then catchingup="synced"; elif [ $catchingup == "true" ]; then catchingup="catchingup"; fi
+        if [ $catchingup == "false" ]; then 
+            catchingup="synced";
+            if [ $synced_n == "catchingup" ]; then #it was previously synching
+                send_telegram_notification "$nmsg_synced"
+                synced_n="synced" #change notification state
+            fi
+        elif [ $catchingup == "true" ]; then 
+            catchingup="catchingup";
+            if [ $synced_n == "synced" ]; then #it was previously synced
+                send_telegram_notification $nmsg_unsynced 
+                synced_n="catchingup" #change notification state
+            fi
+        fi
+
         if [ "$CHECKPERSISTENTPEERS" -eq 1 ]; then
             npersistentpeersmatch=0
             netinfo=$(curl -s "$url"/net_info)
