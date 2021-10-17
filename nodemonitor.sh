@@ -22,7 +22,7 @@ fi
 ###    if suppressing error messages is preferred, run as './nodemonitor.sh 2> /dev/null'
 
 ###    CONFIG    ##################################################################################################
-CONFIG=""                # config.toml file for node, eg. $HOME/.gaia/config/config.toml
+CONFIG="/root/.axelar_testnet/.core/config/config.toml"                # config.toml file for node, eg. $HOME/.gaia/config/config.toml
 ### optional:            #
 NPRECOMMITS="20"         # check last n precommits, can be 0 for no checking
 VALIDATORADDRESS=""      # if left empty default is from status call (validator)
@@ -82,23 +82,36 @@ nmsg_tofnd_run_ok="tofnd is running ok now"
 nmsg_tofnd_run_nok="tofnd has just stop running. We'll try to start the process and you'll see an ok message if that happens, if not please fix it"
 
 #vald tofnd connectivity test
-vald_tofnd_ping_n="false"
+vald_tofnd_ping_n="false" # true or false indicating connectivity test state
 nmsg_vald_tofnd_ping_ok="vald/tofnd connectivity is now ok"
 nmsg_vald_tofnd_ping_nok="vald/tofnd is currently failing, please check"
 
 #broadcaster balance test
 broadcaster_min_balance=0.1
-broadcaster_balance_n="false"
+broadcaster_balance_n="false" # true or false indicating status of the broadcaster balance test
 nmsg_broadcaster_balance_ok="Broadcaster balance is now ok"
 nmsg_broadcaster_balance_nok="Broadcaster balance is below the min defined of ${broadcaster_min_balance}"
 balance_status=0 #balance test status to print out to log file 
+
+#eth endpoint test
+eth_endpoint_test_n="false" # true or false indicating status of the eth_endpoint_test
+nmsg_eth_endpoint_test_err="Eth endpoint test ended with error"
+nmsg_eth_endpoint_test_ok="Eth endpoint test is now ok !"
+nmsg_eth_endpoint_test_nok="Eth endpoint test just failed !"
+eth_endpoint_status=0 #eth endpoint status to print out to log file 
 ################### END NOTIFICATION CONFIG ###################
+
+ETHNODE="$(sudo grep -A 1 '# Address of the ethereum RPC proxy' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
+if [ $? -ne 0 ]; then #something failed with the above command
+    echo "Failed to capture the eth node"
+    send_telegram_notification "Failed to capture the eth node"
+fi
 
 send_telegram_notification() {
     if [ "$enable_notification" == "true" ]; then
         message=$1
         
-        curl -s -X POST https://api.telegram.org/${BOT_ID}/sendMessage -d parse_mode=html -d chat_id=${CHAT_ID=} -d text="<b>$(hostname)</b> - $(date) : ${message}" > /dev/null 2>&1
+        #curl -s -X POST https://api.telegram.org/${BOT_ID}/sendMessage -d parse_mode=html -d chat_id=${CHAT_ID=} -d text="<b>$(hostname)</b> - $(date) : ${message}" > /dev/null 2>&1
     fi
 }
 
@@ -132,6 +145,32 @@ check_broadcaster_balance() {
     fi
 }
 
+check_eth_endpoint() {
+    url_res=$(curl -sX POST ${ETHNODE} -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}')
+    #echo $url_res
+    if [ $? -ne 0 ]; then #curl somehow failed
+        eth_endpoint_status="error"  
+        if [ $eth_endpoint_test_n == "true" ]; then #test was ok
+            send_telegram_notification "$nmsg_eth_endpoint_test_err"
+            eth_endpoint_test_n="false"
+        fi
+    else
+        if [[ $url_res =~ "error" ]]; then
+            eth_endpoint_status="fail" 
+            if [ $eth_endpoint_test_n == "true" ]; then #test was ok                
+                send_telegram_notification "$nmsg_eth_endpoint_test_nok"
+                eth_endpoint_test_n="false"
+            fi
+        else  
+            eth_endpoint_status="success"
+            if [ $eth_endpoint_test_n == "false" ]; then #test was not ok
+                send_telegram_notification "$nmsg_eth_endpoint_test_ok"
+                eth_endpoint_test_n="true"
+            fi
+        fi
+    fi    
+}
+
 if [ -z $CONFIG ]; then
     if [[ -f ~/.axelar_testnet/bin/axelard ]]; then
         CONFIG=~/.axelar_testnet/.core/config/config.toml;
@@ -148,7 +187,7 @@ if [ -z $CONFIG ]; then
     echo "please configure config.toml in script"
     exit 1
 fi
-url=$(sed '/^\[rpc\]/,/^\[/!d;//d' $CONFIG | grep "^laddr\b" | awk -v FS='("tcp://|")' '{print $2}')
+url=$(sudo sed '/^\[rpc\]/,/^\[/!d;//d' $CONFIG | grep "^laddr\b" | awk -v FS='("tcp://|")' '{print $2}')
 chainid=$(jq -r '.result.node_info.network' <<<$(curl -s "$url"/status))
 if [ -z $url ]; then
     echo "please configure config.toml in script correctly"
@@ -419,8 +458,10 @@ while true ; do
                 if [ $NPRECOMMITS -eq 0 ]; then pctprecommits="1.0"; else pctprecommits=$(echo "scale=2 ; $precommitcount / $NPRECOMMITS" | bc); fi
 
                 check_broadcaster_balance
+
+                check_eth_endpoint
                 
-                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$balance_status"
+                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$balance_status eth_endpoint=$eth_endpoint_status"
             else
                 isvalidator="no"
                 validatorinfo="isvalidator=$isvalidator"
