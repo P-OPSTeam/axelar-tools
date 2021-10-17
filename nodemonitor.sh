@@ -86,6 +86,12 @@ vald_tofnd_ping_n="false"
 nmsg_vald_tofnd_ping_ok="vald/tofnd connectivity is now ok"
 nmsg_vald_tofnd_ping_nok="vald/tofnd is currently failing, please check"
 
+#broadcaster balance test
+broadcaster_min_balance=0.1
+broadcaster_balance_n="false"
+nmsg_broadcaster_balance_ok="Broadcaster balance is now ok"
+nmsg_broadcaster_balance_nok="Broadcaster balance is below the min defined of ${broadcaster_min_balance}"
+balance_status=0 #balance test status to print out to log file 
 ################### END NOTIFICATION CONFIG ###################
 
 send_telegram_notification() {
@@ -93,6 +99,36 @@ send_telegram_notification() {
         message=$1
         
         curl -s -X POST https://api.telegram.org/${BOT_ID}/sendMessage -d parse_mode=html -d chat_id=${CHAT_ID=} -d text="<b>$(hostname)</b> - $(date) : ${message}" > /dev/null 2>&1
+    fi
+}
+
+# checking on broadcaster
+check_broadcaster_balance() {
+    broadcaster=$(sudo docker exec vald sh -c "axelard keys show broadcaster -a")
+
+    sudo docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount > /dev/null 2>&1
+
+    if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
+        #echo "Failed to capture balance, please manually run : axelard q bank balances ${broadcaster} | grep amount"
+        send_telegram_notification "Failed to capture balance, please manually run : axelard q bank balances ${broadcaster} | grep amount"
+        balance_status="error"
+    else
+        balance=$(sudo docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount | cut -d '"' -f 2)  
+
+        if [ $(echo "${balance} <= ${broadcaster_min_balance}" | bc -l) -eq 1 ]; then #balance is <= broadcaster_min_balance
+            msg="${broadcaster} current balance is $balance."
+            balance_status="BelowMin($balance)"
+            if [ $broadcaster_balance_n == "true" ]; then #broadcaster was ok 
+                send_telegram_notification "$nmsg_broadcaster_balance_nok. $msg"
+                broadcaster_balance_n="false"
+            fi
+        else
+            if [ $broadcaster_balance_n == "false" ]; then #broadcaster was not ok 
+                send_telegram_notification "$nmsg_broadcaster_balance_ok with $balance"
+                broadcaster_balance_n="true"
+            fi
+            balance_status="OK($balance)"
+        fi
     fi
 }
 
@@ -328,6 +364,8 @@ while true ; do
     free -m | awk 'NR==2{printf "Memory Usage: %s/%sMB (%.2f%%)\n", $3,$2,$3*100/$2 }'
     df -h | awk '$NF=="/"{printf "Disk Usage: %d/%dGB (%s)\n", $3,$2,$5}'
     top -bn1 | grep load | awk '{printf "CPU Load: %.2f\n", $(NF-2)}'
+
+    echo
     # TBD Alert on resource monitoring 
 
     status=$(curl -s "$url"/status)
@@ -379,7 +417,10 @@ while true ; do
                     precommitcount=$(expr $precommitcount + $validatorprecommit)
                 done
                 if [ $NPRECOMMITS -eq 0 ]; then pctprecommits="1.0"; else pctprecommits=$(echo "scale=2 ; $precommitcount / $NPRECOMMITS" | bc); fi
-                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits"
+
+                check_broadcaster_balance
+                
+                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$balance_status"
             else
                 isvalidator="no"
                 validatorinfo="isvalidator=$isvalidator"
