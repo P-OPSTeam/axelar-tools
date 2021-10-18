@@ -146,7 +146,7 @@ check_broadcaster_balance() {
 }
 
 check_eth_endpoint() {
-    url_res=$(curl -sX POST ${ETHNODE} -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}')
+    url_res=$(curl -sX POST ${ETHNODE} -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_syncing2","params":[],"id":1}' 2> /dev/null)
     #echo $url_res
     if [ $? -ne 0 ]; then #curl somehow failed
         eth_endpoint_status="error"  
