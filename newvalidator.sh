@@ -12,7 +12,7 @@ while [[ "$wishtoupdate" != @(yes|no) ]]; do
 done
 
 if [[ "$wishtoupdate" == "yes" ]]; then
-    read -p "enter the location of your config.toml (/root/.axelar_testnet/shared or ~/.axelar_testnet/shared): " configloc
+    read -p "enter the location of your config.toml (/root/.axelar_testnet/shared or /home/yourUSER/.axelar_testnet/shared): " configloc
     echo
     echo "We are going to modify config.toml with our own Ropsten and tbtc node"
 
