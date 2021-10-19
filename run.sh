@@ -21,6 +21,7 @@ fi
 # stop axelar core
 echo Stopping axelar-core container >&3
 sudo docker stop axelar-core
+sudo docker rm axelar-core
 echo "done" >&3
 echo >&3
 
@@ -51,24 +52,45 @@ fi
 
 exec 2>&4 1>&3
 
-echo "--> starting the node"
-if [[ "$reset" =~ "false" ]]; then    
-    sudo join/joinTestnet.sh --axelar-core ${CORE_VERSION} &>> testnet.log
-else
-    sudo join/joinTestnet.sh --axelar-core ${CORE_VERSION} --reset-chain  &>> testnet.log
+public_ip=$(curl -s ifconfig.me)
+echo "See your public IP: $public_ip, this will be used to update config.toml" >&3
+
+read -p "Press enter to continue, or type ENTERIP to reenter a new one: " reenterip
+
+if [ ! -z $reenterip ] && [ $reenterip == "ENTERIP" ]; then
+    read -p "Enter your public ip : " public_ip
+    test='([1-9]?[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])'
+    while [[ !($public_ip =~ ^$test\.$test\.$test\.$test$) ]]; do
+        read -p "invalid ip, pleeas re-enter : " public_ip 
+    done
 fi
+echo "final public ip used is $public_ip"
+
+sed -i "s/external_address = \"\"/external_address = \"$public_ip:26656\"/" ~/axelarate-community/join/config.toml
 
 
-if [[ -f ~/.axelar_testnet/shared/config.toml ]];
-                then
-                sudo chmod  -R a+r ~/.axelar_testnet/;
-                else
-		user=$(whoami)
-                sudo cp /root/.axelar_testnet/shared/config.toml /home/$user/config.toml;
-                fi
+if [[ "$reset" =~ "false" ]]; then
+    echo "--> starting the node"
+    sudo join/join-testnet.sh --axelar-core ${CORE_VERSION} &>> testnet.log
+else
+    echo "--> starting the node with reset"
+    echo "WARNING! This will erase all previously stored data. Your node will catch up from the beginning"
+    echo "Do you wish to proceed \"y/n\" ? "
+    sudo join/join-testnet.sh --axelar-core ${CORE_VERSION} --reset-chain  &>> testnet.log
+fi
 
 sed -n '10,32p' testnet.log
 
 echo 
 echo "Node is restarted"
 echo
+
+echo "backing up your keys in ~/axelar_backup"
+
+mkdir -p ~/axelar_backup
+sudo cp ~/.axelar_testnet/.core/config/priv_validator_key.json ~/axelar_backup/
+if [[ ! "$reset" =~ "false" ]]; then
+    cp testnet.log ~/axelar_backup/mnemonic.txt 
+fi
+
+echo "Backup completed, check ~/axelar_backup/"
