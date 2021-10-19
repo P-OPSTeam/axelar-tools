@@ -19,7 +19,7 @@ AXELAR_CORE_VERSION="$(curl -s https://raw.githubusercontent.com/axelarnetwork/a
 echo "done" >&3
 echo >&3
 
-echo "Clone Axerlar Community Github" >&3
+echo "Clone Axelar Community Github" >&3
 
 cd ~
 git clone https://github.com/axelarnetwork/axelarate-community.git
