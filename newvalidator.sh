@@ -89,7 +89,7 @@ echo Axelar TOFND version ${TOFND_VERSION}
 cd ~/axelarate-community
 
 echo "Launching validator (tofnd/vald)"
-sudo bash join/launchValidator.sh --axelar-core $CORE_VERSION --tofnd $TOFND_VERSION 
+sudo bash join/launch-validator.sh --axelar-core $CORE_VERSION --tofnd $TOFND_VERSION 
 
 echo "done"
 
