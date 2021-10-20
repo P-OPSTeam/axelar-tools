@@ -13,7 +13,7 @@ echo "done" >&3
 echo >&3
 
 # update repository's
-echo "Updating ubuntu Repository's" >&3
+echo "Updating ubuntu repository's" >&3
 sudo apt-get update
 echo "done" >&3
 echo >&3
@@ -98,7 +98,7 @@ cd ~/axelarate-community
 echo "done" >&3
 echo >&3
 
-echo "start the Axelar node" >&3
+echo "Start the Axelar node" >&3
 
 # test if the axelarate_default docker network is created
 echo "--> Test network creation" >&3
@@ -110,8 +110,8 @@ fi
 exec 2>&4 1>&3
  
 echo
-echo "prereq done, start option 2 in the menu"
+echo "Prereq done, start option 2 in the menu"
 echo
-read -n 1 -s -r -p "press any key to go back to the menu" 
+read -n 1 -s -r -p "Press any key to go back to the menu" 
 
 sudo bash $SCRIPTPATH/AxelarMenu.sh
