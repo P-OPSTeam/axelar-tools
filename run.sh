@@ -41,7 +41,7 @@ cd ~/axelarate-community
 echo "done" >&3
 echo >&3
 
-echo "start the Axelar node" >&3
+echo "Start the Axelar node" >&3
 
 # test if the axelarate_default docker network is created
 echo "--> Test network creation" >&3
@@ -64,16 +64,16 @@ if [ ! -z $reenterip ] && [ $reenterip == "ENTERIP" ]; then
         read -p "invalid ip, pleeas re-enter : " public_ip 
     done
 fi
-echo "final public ip used is $public_ip"
+echo "Final public ip used is $public_ip"
 
 sed -i "s/external_address = \"\"/external_address = \"$public_ip:26656\"/" ~/axelarate-community/join/config.toml
 
 
 if [[ "$reset" =~ "false" ]]; then
-    echo "--> starting the node"
+    echo "--> Starting the node"
     sudo join/join-testnet.sh --axelar-core ${CORE_VERSION} &>> testnet.log
 else
-    echo "--> starting the node with reset"
+    echo "--> Starting the node with reset"
     echo "WARNING! This will erase all previously stored data. Your node will catch up from the beginning"
     echo "Do you wish to proceed \"y/n\" ? "
     sudo join/join-testnet.sh --axelar-core ${CORE_VERSION} --reset-chain  &>> testnet.log
@@ -85,7 +85,7 @@ echo
 echo "Node is restarted"
 echo
 
-echo "backing up your keys in ~/axelar_backup"
+echo "Backing up your keys in ~/axelar_backup"
 
 mkdir -p ~/axelar_backup
 sudo cp ~/.axelar_testnet/.core/config/priv_validator_key.json ~/axelar_backup/
