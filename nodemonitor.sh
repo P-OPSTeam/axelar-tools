@@ -22,7 +22,7 @@ fi
 ###    if suppressing error messages is preferred, run as './nodemonitor.sh 2> /dev/null'
 
 ###    CONFIG    ##################################################################################################
-CONFIG="/root/.axelar_testnet/.core/config/config.toml"                # config.toml file for node, eg. $HOME/.gaia/config/config.toml
+CONFIG=""                # config.toml file for node, eg. $HOME/.gaia/config/config.toml
 ### optional:            #
 NPRECOMMITS="20"         # check last n precommits, can be 0 for no checking
 VALIDATORADDRESS=""      # if left empty default is from status call (validator)
@@ -99,13 +99,8 @@ nmsg_eth_endpoint_test_err="Eth endpoint test ended with error"
 nmsg_eth_endpoint_test_ok="Eth endpoint test is now ok !"
 nmsg_eth_endpoint_test_nok="Eth endpoint test just failed !"
 eth_endpoint_status=0 #eth endpoint status to print out to log file 
-################### END NOTIFICATION CONFIG ###################
 
-ETHNODE="$(sudo grep -A 1 '# Address of the ethereum RPC proxy' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
-if [ $? -ne 0 ]; then #something failed with the above command
-    echo "Failed to capture the eth node"
-    send_telegram_notification "Failed to capture the eth node"
-fi
+################### END NOTIFICATION CONFIG ###################
 
 send_telegram_notification() {
     if [ "$enable_notification" == "true" ]; then
@@ -187,6 +182,13 @@ if [ -z $CONFIG ]; then
     echo "please configure config.toml in script"
     exit 1
 fi
+
+ETHNODE="$(sudo grep -A 1 '# Address of the ethereum RPC proxy' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
+if [ $? -ne 0 ]; then #something failed with the above command
+    echo "Failed to capture the eth node"
+    send_telegram_notification "Failed to capture the eth node"
+fi
+
 url=$(sudo sed '/^\[rpc\]/,/^\[/!d;//d' $CONFIG | grep "^laddr\b" | awk -v FS='("tcp://|")' '{print $2}')
 chainid=$(jq -r '.result.node_info.network' <<<$(curl -s "$url"/status))
 if [ -z $url ]; then
