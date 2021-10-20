@@ -62,27 +62,27 @@ nmsg_nodestuck="Your Axelar node is now stuck"
 nmsg_node_no_longer_stuck="Your Axelar node is no longer stuck, Yeah !"
 
 #axelar-core version
-axelar_version_n="false" # true or false indicating whether the current version is correct
+axelar_version_n="true" # true or false indicating whether the current version is correct
 nmsg_axelar_version_ok="Your Axelar node version is ok now"
 nmsg_axelar_version_nok="Your Axelar node version is different from axelar repo"
 
 #axelar-core run (axelard)
-axelar_run_n="false" # true or false indicating whether axelard(axelar-core) is running or not
+axelar_run_n="true" # true or false indicating whether axelard(axelar-core) is running or not
 nmsg_axelar_run_ok="Your Axelar node is running ok now"
 nmsg_axelar_run_nok="Your Axelar node has just stop running, fix it !"
 
 #vald run
-vald_run_n="false" # true or false indicating whether tofnd is running or not
+vald_run_n="true" # true or false indicating whether tofnd is running or not
 nmsg_vald_run_ok="vald is running ok now"
 nmsg_vald_run_nok="vald has just stop running. We'll try to start the process and you'll see an ok message if that happens, if not please fix it"
 
 #tofnd run
-tofnd_run_n="false" # true or false indicating whether tofnd is running or not
+tofnd_run_n="true" # true or false indicating whether tofnd is running or not
 nmsg_tofnd_run_ok="tofnd is running ok now"
 nmsg_tofnd_run_nok="tofnd has just stop running. We'll try to start the process and you'll see an ok message if that happens, if not please fix it"
 
 #vald tofnd connectivity test
-vald_tofnd_ping_n="false" # true or false indicating connectivity test state
+vald_tofnd_ping_n="true" # true or false indicating connectivity test state
 nmsg_vald_tofnd_ping_ok="vald/tofnd connectivity is now ok"
 nmsg_vald_tofnd_ping_nok="vald/tofnd is currently failing, please check"
 
@@ -94,12 +94,19 @@ nmsg_broadcaster_balance_nok="Broadcaster balance is below the min defined of ${
 balance_status=0 #balance test status to print out to log file 
 
 #eth endpoint test
-eth_endpoint_test_n="false" # true or false indicating status of the eth_endpoint_test
+eth_endpoint_test_n="true" # true or false indicating status of the eth_endpoint_test
 nmsg_eth_endpoint_test_err="Eth endpoint test ended with error"
 nmsg_eth_endpoint_test_ok="Eth endpoint test is now ok !"
 nmsg_eth_endpoint_test_nok="Eth endpoint test just failed !"
 eth_endpoint_status=0 #eth endpoint status to print out to log file 
 
+#MPC eligibility test
+min_eligible_threshold=0.02 #2% total state are required to be eligible
+mpc_eligibility_test_n="true"
+nmsg_mpc_eligibility_test_err="MPC eligible test command failed with error"
+nmsg_mpc_eligibility_test_ok="MPC eligibility test now ok"
+nmsg_mpc_eligibility_test_nok="MPC eligibility test just failed !"
+mpc_eligibility_status=0 #mpc eligibility status to print out to log file 
 ################### END NOTIFICATION CONFIG ###################
 
 send_telegram_notification() {
@@ -141,7 +148,7 @@ check_broadcaster_balance() {
 }
 
 check_eth_endpoint() {
-    url_res=$(curl -sX POST ${ETHNODE} -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_syncing2","params":[],"id":1}' 2> /dev/null)
+    url_res=$(curl -sX POST ${ETHNODE} -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}' 2> /dev/null)
     #echo $url_res
     if [ $? -ne 0 ]; then #curl somehow failed
         eth_endpoint_status="error"  
@@ -166,6 +173,36 @@ check_eth_endpoint() {
     fi    
 }
 
+check_eligibility_MPC() {
+    total_voting_power=$(curl -s $url/dump_consensus_state | jq -r "[.result.round_state.validators.validators[].voting_power | tonumber] | add")
+    local res1=$?
+    self_voting_power=$(curl -s $url/dump_consensus_state | jq -r --arg VALIDATORADDRESS "$VALIDATORADDRESS" '.result.round_state.validators.validators[] | select(.address==$VALIDATORADDRESS) | {voting_power}' | jq -r ".voting_power")
+    local res2=$?
+
+    if [[ res1 -ne 0 || res2 -ne 0 ]]; then         
+        mpc_eligibility_status="error"
+        if [ $eth_endpoint_test_n == "true" ]; then #test was ok
+            send_telegram_notification "$nmsg_mpc_eligibility_test_err"
+            mpc_eligibility_test_n="false"
+        fi
+    fi
+
+    if [ $(echo "${min_eligible_threshold} <= (${self_voting_power} / ${total_voting_power})" | bc -l) -eq 1 ]; then
+        #self_voting_power is above min eligible threshold
+        mpc_eligibility_status="true"
+        if [ $mpc_eligibility_test_n == "false" ]; then #test was ok                
+            send_telegram_notification "$nmsg_mpc_eligibility_test_ok"            
+            mpc_eligibility_test_n="true"
+        fi
+    else
+        mpc_eligibility_status="false"
+        if [ $mpc_eligibility_test_n == "true" ]; then #test was not ok                
+            send_telegram_notification "$nmsg_mpc_eligibility_test_nok"            
+            mpc_eligibility_test_n="false"
+        fi
+    fi
+}
+
 if [ -z $CONFIG ]; then
     if [[ -f ~/.axelar_testnet/bin/axelard ]]; then
         CONFIG=~/.axelar_testnet/.core/config/config.toml;
@@ -173,7 +210,11 @@ if [ -z $CONFIG ]; then
         if [[ -f ~/.axelar_testnet/shared/config.toml ]]; then
             CONFIG=~/.axelar_testnet/shared/config.toml;
         else
-            CONFIG=~/config.toml
+            if [[ $(sudo test -f /root/.axelar_testnet/shared/config.toml) != 0 ]]; then
+                CONFIG=/root/.axelar_testnet/shared/config.toml;
+            else
+                CONFIG=$(pwd)/config.toml
+            fi
         fi
     fi
 fi
@@ -188,6 +229,8 @@ if [ $? -ne 0 ]; then #something failed with the above command
     echo "Failed to capture the eth node"
     send_telegram_notification "Failed to capture the eth node"
 fi
+
+echo "Eth node read is from config file is : $ETHNODE"
 
 url=$(sudo sed '/^\[rpc\]/,/^\[/!d;//d' $CONFIG | grep "^laddr\b" | awk -v FS='("tcp://|")' '{print $2}')
 chainid=$(jq -r '.result.node_info.network' <<<$(curl -s "$url"/status))
@@ -228,7 +271,7 @@ fi
 echo "validator address: $AXELARVALIDATORADDRESS"
 
 if [ "$CHECKPERSISTENTPEERS" -eq 1 ]; then
-    persistentpeers=$(sed '/^\[p2p\]/,/^\[/!d;//d' $CONFIG | grep "^persistent_peers\b" | awk -v FS='("|")' '{print $2}')
+    persistentpeers=$(sudo sed '/^\[p2p\]/,/^\[/!d;//d' $CONFIG | grep "^persistent_peers\b" | awk -v FS='("|")' '{print $2}')
     persistentpeerids=$(sed 's/,//g' <<<$(sed 's/@[^ ^,]\+/ /g' <<<$persistentpeers))
     totpersistentpeerids=$(wc -w <<<$persistentpeerids)
     npersistentpeersmatchcount=0
@@ -462,8 +505,10 @@ while true ; do
                 check_broadcaster_balance
 
                 check_eth_endpoint
+
+                check_eligibility_MPC
                 
-                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$balance_status eth_endpoint=$eth_endpoint_status"
+                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$balance_status eth_endpoint=$eth_endpoint_status mpc_eligibility=$mpc_eligibility_status"
             else
                 isvalidator="no"
                 validatorinfo="isvalidator=$isvalidator"
