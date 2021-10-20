@@ -12,13 +12,13 @@ while [[ "$wishtoupdate" != @(yes|no) ]]; do
 done
 
 if [[ "$wishtoupdate" == "yes" ]]; then
-    read -p "enter the location of your config.toml (/root/.axelar_testnet/shared or /home/yourUSER/.axelar_testnet/shared): " configloc
+    read -p "Enter the location of your config.toml (/root/.axelar_testnet/shared or /home/yourUSER/.axelar_testnet/shared): " configloc
     echo
     echo "We are going to modify config.toml with our own Ropsten and tbtc node"
 
     # removing current config
     sudo sed -i '/^# Address of the bitcoin RPC server/{n;d}' ${configloc}/config.toml
-    sudo sed -i '/^# Address of the ethereum RPC proxy/{n;d}' ${configloc}/config.toml
+    sudo sed -i '/^# Address of the ethereum RPC server/{n;d}' ${configloc}/config.toml
 
     # setting up btc rpc
     echo "Type in your btc node address (with double quotes):"
@@ -30,7 +30,7 @@ if [[ "$wishtoupdate" == "yes" ]]; then
     # setting up eth rpc
     echo "Type in your ETH Ropsten node address (with double quotes):"
     read ETH
-    sudo sed -i "/^# Address of the ethereum RPC proxy/a rpc_addr    = "$ETH"" ${configloc}/config.toml
+    sudo sed -i "/^# Address of the ethereum RPC server/a rpc_addr    = "$ETH"" ${configloc}/config.toml
 
     echo
     echo "Let's stop axelar-core since we are updated the config"
@@ -48,7 +48,7 @@ read -p "Name for your validator : " validatorname
 
 validator=$(sudo docker exec axelar-core axelard keys show validator -a)
 
-read -p "amount of selfstake axltest example: 90000000 (without ${denom}) : " uaxl
+read -p "Amount of selfstake axltest example: 90000000 (without ${denom}) : " uaxl
 
 #check selfstake has been funded
 sudo docker exec axelar-core axelard q bank balances ${validator} | grep amount > /dev/null 2>&1
@@ -60,7 +60,7 @@ else
 fi
 
 while [ $(echo "${balance} < ${uaxl}" | bc -l) -eq 1 ]; do 
-    echo "${validator} has ${balance} ${denom}. You need at least ${uaxl} ${denom}, press enter once funded completed"
+    echo "${validator} has ${balance} ${denom}. You need at least ${uaxl} ${denom}, press enter once you funded it"
     read waitentry
     balance=$(sudo docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2)
 done
@@ -68,7 +68,7 @@ echo "done"
 
 echo
 
-echo "Creating the validator with your self stake of ${uaxl} ${denom} (wait 10s for confirmation)"
+echo "Creating the validator with your selfstake of ${uaxl} ${denom} (wait 10s for confirmation)"
 
 axelarvalconspub=$(sudo docker exec axelar-core axelard tendermint show-validator)
 #axelarvaloper=$(sudo docker exec axelar-core sh -c "axelard keys show validator -a --bech val)
@@ -117,5 +117,5 @@ sudo docker exec -it axelar-core axelard tx snapshot register-proxy ${broadcaste
 echo "done"
 
 echo
-echo "validator has been setup, ask for extra uaxl from team members"
+echo "Validator has been setup, ask for extra uaxl from team members"
 
