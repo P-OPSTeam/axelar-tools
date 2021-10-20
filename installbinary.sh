@@ -28,7 +28,7 @@ echo "done" >&3
 echo >&3
 
 # Determining Directory's
-echo "Defining and creating directory's axelar node" >&3
+echo "Defining and creating directory's Axelar node" >&3
 GIT_ROOT="$HOME/axelarate-community"
 ROOT_DIRECTORY="$HOME/.axelar_testnet"
 mkdir -p "$ROOT_DIRECTORY"
