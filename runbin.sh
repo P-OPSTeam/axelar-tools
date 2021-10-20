@@ -18,7 +18,7 @@ git clone https://github.com/axelarnetwork/axelarate-community.git >/dev/null 2>
 cd ~/axelarate-community 
 
 
-echo "start the validator" 
+echo "Start the validator" 
 
 if [[ "$reset" =~ "false" ]]; 
 then
