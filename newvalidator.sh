@@ -42,42 +42,48 @@ fi
 
 echo
 
-echo "Setting up validator config"
+read -p "Do you need to create your validator, answer yes or no: " createvalidator
+while [[ "$createvalidator" != @(yes|no) ]]; do
+    read wishtocreate
+done
 
-read -p "Name for your validator : " validatorname
+if [[ "$createvalidator" == "yes" ]]; then
+    echo "Setting up validator config"
 
-validator=$(sudo docker exec axelar-core axelard keys show validator -a)
+    read -p "Name for your validator : " validatorname
 
-read -p "Amount of selfstake axltest example: 90000000 (without ${denom}) : " uaxl
+    validator=$(sudo docker exec axelar-core axelard keys show validator -a)
 
-#check selfstake has been funded
-sudo docker exec axelar-core axelard q bank balances ${validator} | grep amount > /dev/null 2>&1
+    read -p "Amount of selfstake axltest example: 90000000 (without ${denom}) : " uaxl
 
-if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
-    balance=0
-else
-    balance=$(sudo docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2)
+    #check selfstake has been funded
+    sudo docker exec axelar-core axelard q bank balances ${validator} | grep amount > /dev/null 2>&1
+
+    if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
+        balance=0
+    else
+        balance=$(sudo docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2)
+    fi
+
+    while [ $(echo "${balance} < ${uaxl}" | bc -l) -eq 1 ]; do 
+        echo "${validator} has ${balance} ${denom}. You need at least ${uaxl} ${denom}, press enter once you funded it"
+        read waitentry
+        balance=$(sudo docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2)
+    done
+    echo "done"
+    echo
+
+    echo "Creating the validator with your selfstake of ${uaxl} ${denom} (wait 10s for confirmation)"
+
+    axelarvalconspub=$(sudo docker exec axelar-core axelard tendermint show-validator)
+    #axelarvaloper=$(sudo docker exec axelar-core sh -c "axelard keys show validator -a --bech val)
+    sudo docker exec -it axelar-core axelard tx staking create-validator --yes --amount "${uaxl}uaxl" --moniker "$validatorname" --commission-rate="0.10" --commission-max-rate="0.20" --commission-max-change-rate="0.01" --min-self-delegation="1" --pubkey $axelarvalconspub --from validator -b block
+
+    sleep 10
+    echo "done"
+    echo
 fi
 
-while [ $(echo "${balance} < ${uaxl}" | bc -l) -eq 1 ]; do 
-    echo "${validator} has ${balance} ${denom}. You need at least ${uaxl} ${denom}, press enter once you funded it"
-    read waitentry
-    balance=$(sudo docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2)
-done
-echo "done"
-
-echo
-
-echo "Creating the validator with your selfstake of ${uaxl} ${denom} (wait 10s for confirmation)"
-
-axelarvalconspub=$(sudo docker exec axelar-core axelard tendermint show-validator)
-#axelarvaloper=$(sudo docker exec axelar-core sh -c "axelard keys show validator -a --bech val)
-sudo docker exec -it axelar-core axelard tx staking create-validator --yes --amount "${uaxl}uaxl" --moniker "$validatorname" --commission-rate="0.10" --commission-max-rate="0.20" --commission-max-change-rate="0.01" --min-self-delegation="1" --pubkey $axelarvalconspub --from validator -b block
-
-sleep 10
-echo "done"
-
-echo
 echo "Starting prereq docker containers"
 
 CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
@@ -88,8 +94,13 @@ echo Axelar TOFND version ${TOFND_VERSION}
 
 cd ~/axelarate-community
 
-echo "Launching validator (tofnd/vald)"
-sudo bash join/launch-validator.sh --axelar-core $CORE_VERSION --tofnd $TOFND_VERSION 
+echo "Launching/restarting validator (tofnd/vald)"
+sudo docker stop tofnd vald 2> /dev/null 
+sudo docker rm tofnd vald 2> /dev/null 
+sudo bash join/launch-validator.sh --axelar-core $CORE_VERSION --tofnd $TOFND_VERSION | tee launch-validator.log
+
+#TBD backup broadcaster mnemonic
+#TBD backup tofnd mnemonic tofnd mnemonic (~/.axelar_testnet/.tofnd/export)
 
 echo "done"
 
