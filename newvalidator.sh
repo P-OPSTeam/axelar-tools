@@ -14,24 +14,26 @@ while [[ "$wishtoupdate" != @(yes|no) ]]; do
 done
 
 if [[ "$wishtoupdate" == "yes" ]]; then
-    read -p "Enter the location of your config.toml (/root/.axelar_testnet/shared or /home/yourUSER/.axelar_testnet/shared): " configloc
+    read -p "Enter the location of your config.toml (/root/.axelar_testnet/shared or /home/$USER/.axelar_testnet/shared): " configloc
     echo
     echo "We are going to modify config.toml with our own Ropsten and tbtc node"
+    echo
+
+    # removing current config
+    sed -i '/^# Address of the bitcoin RPC server/{n;d}' ${configloc}/config.toml
+    sed -i '/^# Address of the ethereum RPC proxy/{n;d}' ${configloc}/config.toml
 
     # setting up btc rpc
-    echo "Type in your btc node address (without double quotes!):"
-    read btcendpoint
-    sed -i "s/rpc_addr    = \"http:\/\/axelar/rpc_addr    = \" \"$btcendpoint\"/" ~/axelarate-community/join/config.toml
-
+    read -p "Type in your btc node address (with double quotes): " btc
+    sed -i "/^# Address of the bitcoin RPC server/a rpc_addr    = "$btc"" ${configloc}/config.toml
     echo 
 
     # setting up eth rpc
-    echo "Type in your ETH Ropsten node address (without double quotes!):"
-    read ethendpoint
-    sed -i "s/rpc_addr    = \"https:\/\/ropsten/rpc_addr    = \" \"$ethendpoint\"/" ~/axelarate-community/join/config.toml
-
+    read -p "Type in your ETH Ropsten node address (with double quotes): " eth
+    sed -i "/^# Address of the ethereum RPC proxy/a rpc_addr    = "$eth"" ${configloc}/config.toml
     echo
-    echo "Let's stop axelar-core since we are updated the config"
+
+    echo "Let's stop axelar-core since we updated the config"
     docker stop axelar-core
     docker rm axelar-core 
     echo "Run the node"
