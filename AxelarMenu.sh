@@ -13,7 +13,7 @@ TITLE="Install menu"
 MENU="Choose one of the following options:"
 
 OPTIONS=(1 "install axelar requirements (docker, etc ..)"
-         2 "Rebuild only"
+         2 "Build/Rebuild only"
          3 "Rebuild with reset chain"
          4 "Reboot host"
          5 "Build and use your own BTC&ETH endpoint"
