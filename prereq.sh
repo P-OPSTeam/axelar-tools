@@ -63,7 +63,7 @@ id | grep docker
 if [[ $? -eq 1 ]]; then
   # add user to the docker group
   sudo usermod -aG docker $USER 
-  echo "Please exit the terminal, log back in and restart the installation" >&3
+  echo "Just added. Please exit the terminal, log back in and restart the installation" >&3
   #activate changes to the group docker (linux only)
   exit
 fi
@@ -90,7 +90,7 @@ echo >&3
 
 echo "Clone Axerlar Community Github" >&3
 # Remove repo for a clean git clone
-sudo rm -rf ~/axelarate-community/
+rm -rf ~/axelarate-community/
 
 cd ~
 git clone https://github.com/axelarnetwork/axelarate-community.git
@@ -98,10 +98,8 @@ cd ~/axelarate-community
 echo "done" >&3
 echo >&3
 
-echo "Start the Axelar node" >&3
-
 # test if the axelarate_default docker network is created
-echo "--> Test network creation" >&3
+echo "Making sure Axlear docker network is created" >&3
 docker network ls | grep axelarate_default > /dev/null
 if [[ $? -eq 1 ]]; then
     docker network create axelarate_default
@@ -114,4 +112,4 @@ echo "Prereq done, start option 2 in the menu"
 echo
 read -n 1 -s -r -p "Press any key to go back to the menu" 
 
-sudo bash $SCRIPTPATH/AxelarMenu.sh
+bash $SCRIPTPATH/AxelarMenu.sh

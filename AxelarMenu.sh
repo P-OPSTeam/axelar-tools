@@ -17,8 +17,8 @@ OPTIONS=(1 "install axelar requirements (docker, etc ..)"
          3 "Rebuild with reset chain"
          4 "Reboot host"
          5 "Build and use your own BTC&ETH endpoint"
-	 6 "Monitor the node via cli"
-	 7 "Exit menu")
+         6 "Monitor the node via cli"
+         7 "Exit menu")
 
 
 CHOICE=$(dialog --clear \
@@ -31,24 +31,23 @@ CHOICE=$(dialog --clear \
 
 clear
 case $CHOICE in
-            1)
-            bash $SCRIPTPATH/prereq.sh
-            ;;
-            2)
-	    bash $SCRIPTPATH/run.sh
-            ;;
-            3)
-            bash $SCRIPTPATH/run.sh reset
-            ;;
- 	    4)
-            bash $SCRIPTPATH/rebootserver.sh
-            ;;
-  	    5)
-            bash $SCRIPTPATH/newvalidator.sh
-            ;;
-	    6)
-            bash $SCRIPTPATH/nodemonitor.sh
-            ;;
-	    7) exit
-
+    1)
+        bash $SCRIPTPATH/prereq.sh
+        ;;
+    2)
+        bash $SCRIPTPATH/run.sh
+        ;;
+    3)
+        bash $SCRIPTPATH/run.sh reset
+        ;;
+    4)
+        bash $SCRIPTPATH/rebootserver.sh
+        ;;
+    5)
+        bash $SCRIPTPATH/newvalidator.sh
+        ;;
+    6)
+        bash $SCRIPTPATH/nodemonitor.sh
+        ;;
+    7) exit
 esac

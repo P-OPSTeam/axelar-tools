@@ -20,8 +20,8 @@ fi
 
 # stop axelar core
 echo Stopping axelar-core container >&3
-sudo docker stop axelar-core
-sudo docker rm axelar-core
+docker stop axelar-core
+docker rm axelar-core
 echo "done" >&3
 echo >&3
 
@@ -34,7 +34,7 @@ echo >&3
 echo ${CORE_VERSION}
 
 echo "Clone/Refresh Axerlar Community Github" >&3
-sudo rm -rf ~/axelarate-community/
+rm -rf ~/axelarate-community/
 cd ~
 git clone https://github.com/axelarnetwork/axelarate-community.git
 cd ~/axelarate-community
@@ -71,12 +71,12 @@ sed -i "s/external_address = \"\"/external_address = \"$public_ip:26656\"/" ~/ax
 
 if [[ "$reset" =~ "false" ]]; then
     echo "--> Starting the node"
-    sudo join/join-testnet.sh --axelar-core ${CORE_VERSION} &>> testnet.log
+    oin/join-testnet.sh --axelar-core ${CORE_VERSION} &>> testnet.log
 else
     echo "--> Starting the node with reset"
     echo "WARNING! This will erase all previously stored data. Your node will catch up from the beginning"
     echo "Do you wish to proceed \"y/n\" ? "
-    sudo join/join-testnet.sh --axelar-core ${CORE_VERSION} --reset-chain  &>> testnet.log
+    join/join-testnet.sh --axelar-core ${CORE_VERSION} --reset-chain  &>> testnet.log
 fi
 
 sed -n '10,32p' testnet.log
@@ -88,7 +88,7 @@ echo
 echo "Backing up your keys in ~/axelar_backup"
 
 mkdir -p ~/axelar_backup
-sudo cp ~/.axelar_testnet/.core/config/priv_validator_key.json ~/axelar_backup/
+cp ~/.axelar_testnet/.core/config/priv_validator_key.json ~/axelar_backup/
 if [[ ! "$reset" =~ "false" ]]; then
     cp testnet.log ~/axelar_backup/mnemonic.txt 
 fi
