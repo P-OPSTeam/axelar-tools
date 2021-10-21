@@ -18,7 +18,7 @@ if [[ "$wishtoupdate" == "yes" ]]; then
 
     # removing current config
     sudo sed -i '/^# Address of the bitcoin RPC server/{n;d}' ${configloc}/config.toml
-    sudo sed -i '/^# Address of the ethereum RPC server/{n;d}' ${configloc}/config.toml
+    sudo sed -i '/^# Address of the ethereum RPC proxy/{n;d}' ${configloc}/config.toml
 
     # setting up btc rpc
     echo "Type in your btc node address (with double quotes):"
@@ -30,7 +30,7 @@ if [[ "$wishtoupdate" == "yes" ]]; then
     # setting up eth rpc
     echo "Type in your ETH Ropsten node address (with double quotes):"
     read ETH
-    sudo sed -i "/^# Address of the ethereum RPC server/a rpc_addr    = "$ETH"" ${configloc}/config.toml
+    sudo sed -i "/^# Address of the ethereum RPC proxy/a rpc_addr    = "$ETH"" ${configloc}/config.toml
 
     echo
     echo "Let's stop axelar-core since we are updated the config"
