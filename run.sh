@@ -86,7 +86,7 @@ echo "Node is restarted"
 echo
 
 echo "Backing up your keys in ~/axelar_backup"
-
+sudo chown -R $USER:$USER ~/.axelar_testnet
 mkdir -p ~/axelar_backup
 cp ~/.axelar_testnet/.core/config/priv_validator_key.json ~/axelar_backup/
 if [[ ! "$reset" =~ "false" ]]; then
