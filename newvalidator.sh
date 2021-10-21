@@ -1,3 +1,5 @@
+#! /bin/bash
+
 denom=uaxl 
 
 echo "Determining script path" 
@@ -16,25 +18,22 @@ if [[ "$wishtoupdate" == "yes" ]]; then
     echo
     echo "We are going to modify config.toml with our own Ropsten and tbtc node"
 
-    # removing current config
-    sudo sed -i '/^# Address of the bitcoin RPC server/{n;d}' ${configloc}/config.toml
-    sudo sed -i '/^# Address of the ethereum RPC proxy/{n;d}' ${configloc}/config.toml
-
     # setting up btc rpc
-    echo "Type in your btc node address (with double quotes):"
-    read btc
-    sudo sed -i "/^# Address of the bitcoin RPC server/a rpc_addr    = "$btc"" ${configloc}/config.toml
+    echo "Type in your btc node address (without double quotes!):"
+    read btcendpoint
+    sed -i "s/rpc_addr    = \"http:\/\/axelar/rpc_addr    = \" \"$btcendpoint\"/" ~/axelarate-community/join/config.toml
 
     echo 
 
     # setting up eth rpc
-    echo "Type in your ETH Ropsten node address (with double quotes):"
-    read ETH
-    sudo sed -i "/^# Address of the ethereum RPC proxy/a rpc_addr    = "$ETH"" ${configloc}/config.toml
+    echo "Type in your ETH Ropsten node address (without double quotes!):"
+    read ethendpoint
+    sed -i "s/rpc_addr    = \"https:\/\/ropsten/rpc_addr    = \" \"$ethendpoint\"/" ~/axelarate-community/join/config.toml
 
     echo
     echo "Let's stop axelar-core since we are updated the config"
-    sudo docker stop axelar-core 
+    docker stop axelar-core
+    docker rm axelar-core 
     echo "Run the node"
     bash $SCRIPTPATH/run.sh
     echo "done"
@@ -52,32 +51,32 @@ if [[ "$createvalidator" == "yes" ]]; then
 
     read -p "Name for your validator : " validatorname
 
-    validator=$(sudo docker exec axelar-core axelard keys show validator -a)
+    validator=$(docker exec axelar-core axelard keys show validator -a)
 
     read -p "Amount of selfstake axltest example: 90000000 (without ${denom}) : " uaxl
 
     #check selfstake has been funded
-    sudo docker exec axelar-core axelard q bank balances ${validator} | grep amount > /dev/null 2>&1
+    docker exec axelar-core axelard q bank balances ${validator} | grep amount > /dev/null 2>&1
 
     if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
         balance=0
     else
-        balance=$(sudo docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2)
+        balance=$(docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2)
     fi
 
     while [ $(echo "${balance} < ${uaxl}" | bc -l) -eq 1 ]; do 
         echo "${validator} has ${balance} ${denom}. You need at least ${uaxl} ${denom}, press enter once you funded it"
         read waitentry
-        balance=$(sudo docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2)
+        balance=$(docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2)
     done
     echo "done"
     echo
 
     echo "Creating the validator with your selfstake of ${uaxl} ${denom} (wait 10s for confirmation)"
 
-    axelarvalconspub=$(sudo docker exec axelar-core axelard tendermint show-validator)
-    #axelarvaloper=$(sudo docker exec axelar-core sh -c "axelard keys show validator -a --bech val)
-    sudo docker exec -it axelar-core axelard tx staking create-validator --yes --amount "${uaxl}uaxl" --moniker "$validatorname" --commission-rate="0.10" --commission-max-rate="0.20" --commission-max-change-rate="0.01" --min-self-delegation="1" --pubkey $axelarvalconspub --from validator -b block
+    axelarvalconspub=$(docker exec axelar-core axelard tendermint show-validator)
+    #axelarvaloper=$(docker exec axelar-core sh -c "axelard keys show validator -a --bech val)
+    docker exec -it axelar-core axelard tx staking create-validator --yes --amount "${uaxl}${denom}" --moniker "$validatorname" --commission-rate="0.10" --commission-max-rate="0.20" --commission-max-change-rate="0.01" --min-self-delegation="1" --pubkey $axelarvalconspub --from validator -b block
 
     sleep 10
     echo "done"
@@ -95,9 +94,9 @@ echo Axelar TOFND version ${TOFND_VERSION}
 cd ~/axelarate-community
 
 echo "Launching/restarting validator (tofnd/vald)"
-sudo docker stop tofnd vald 2> /dev/null 
-sudo docker rm tofnd vald 2> /dev/null 
-sudo bash join/launch-validator.sh --axelar-core $CORE_VERSION --tofnd $TOFND_VERSION | tee launch-validator.log
+docker stop tofnd vald 2> /dev/null 
+docker rm tofnd vald 2> /dev/null 
+bash join/launch-validator.sh --axelar-core $CORE_VERSION --tofnd $TOFND_VERSION | tee launch-validator.log
 
 #TBD backup broadcaster mnemonic
 #TBD backup tofnd mnemonic tofnd mnemonic (~/.axelar_testnet/.tofnd/export)
@@ -107,24 +106,24 @@ echo "done"
 echo
 
 echo "Registering proxy"
-broadcaster=$(sudo docker exec vald sh -c "axelard keys show broadcaster -a")
+broadcaster=$(docker exec vald sh -c "axelard keys show broadcaster -a")
 #check broadcaster has some uaxl
 
-sudo docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount > /dev/null 2>&1
+docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount > /dev/null 2>&1
 
 if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
     balance=0
 else
-    balance=$(sudo docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount | cut -d '"' -f 2)
+    balance=$(docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount | cut -d '"' -f 2)
 fi
 
 while [ $(echo "${balance} <= 0" | bc -l) -eq 1 ]; do 
     echo "${broadcaster} has 0 ${denom}. Please fund it, press enter once done"
     read waitentry
-    balance=$(sudo docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount | cut -d '"' -f 2)
+    balance=$(docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount | cut -d '"' -f 2)
 done
 
-sudo docker exec -it axelar-core axelard tx snapshot register-proxy ${broadcaster} --from validator -y
+docker exec -it axelar-core axelard tx snapshot register-proxy ${broadcaster} --from validator -y
 echo "done"
 
 echo
