@@ -79,32 +79,6 @@ echo >&3
 # install jq
 sudo apt-get install jq -y
 
-# run the validator
-# Determining Axelar versions
-echo "Determining latest Axelar version" >&3
-CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
-echo "done" >&3
-echo >&3
-
-# echo ${CORE_VERSION}
-
-echo "Clone Axerlar Community Github" >&3
-# Remove repo for a clean git clone
-rm -rf ~/axelarate-community/
-
-cd ~
-git clone https://github.com/axelarnetwork/axelarate-community.git
-cd ~/axelarate-community
-echo "done" >&3
-echo >&3
-
-# test if the axelarate_default docker network is created
-echo "Making sure Axlear docker network is created" >&3
-docker network ls | grep axelarate_default > /dev/null
-if [[ $? -eq 1 ]]; then
-    docker network create axelarate_default
-fi
-
 exec 2>&4 1>&3
  
 echo
