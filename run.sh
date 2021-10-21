@@ -71,7 +71,7 @@ sed -i "s/external_address = \"\"/external_address = \"$public_ip:26656\"/" ~/ax
 
 if [[ "$reset" =~ "false" ]]; then
     echo "--> Starting the node"
-    oin/join-testnet.sh --axelar-core ${CORE_VERSION} &>> testnet.log
+    join/join-testnet.sh --axelar-core ${CORE_VERSION} &>> testnet.log
 else
     echo "--> Starting the node with reset"
     echo "WARNING! This will erase all previously stored data. Your node will catch up from the beginning"
