@@ -61,8 +61,7 @@ curl -fsSL https://get.docker.com/rootless | sh
 
 echo "--> Make sure services are started" >&3
 # make sure docker services are started
-userid=$(id -u)
-systemctl --user start docker 
+systemctl --user start docker
 systemctl --user enable docker
 sudo loginctl enable-linger $(whoami)
 
@@ -70,11 +69,12 @@ echo "--> Setting path values" >&3
 # Setting path values for doocker
 export export PATH="/home/$(whoami)/bin:$PATH"
 echo $PATH >&3
-export DOCKER_HOST="unix:///run/user/$userid/docker.sock"
-echo $DOCKER_HOST
+export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock
+echo $DOCKER_HOST >&3
 
 echo "done" >&3
 echo >&3
+
 
 exec 2>&4 1>&3
  
