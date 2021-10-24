@@ -93,8 +93,6 @@ echo Axelar TOFND version ${TOFND_VERSION}
 cd ~/axelarate-community
 
 echo "Launching/restarting validator (tofnd/vald)"
-docker stop tofnd vald 2> /dev/null 
-docker rm tofnd vald 2> /dev/null 
 bash join/launch-validator.sh --axelar-core $CORE_VERSION --tofnd $TOFND_VERSION | tee launch-validator.log
 
 #TBD backup broadcaster mnemonic
