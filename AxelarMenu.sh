@@ -1,6 +1,12 @@
 #!/bin/bash
 sudo apt update > /dev/null 2>&1
-sudo apt install dialog -y -qq > /dev/null 1>&2
+REQUIRED_PKG="dialog"
+PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "install ok installed")
+echo Checking for $REQUIRED_PKG: $PKG_OK
+if [ "" = "$PKG_OK" ]; then
+    echo "No $REQUIRED_PKG. Setting up $REQUIRED_PKG."
+    sudo apt-get --yes install $REQUIRED_PKG
+fi
 
 SCRIPT=`realpath -s $0`
 SCRIPTPATH=`dirname $SCRIPT`
