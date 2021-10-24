@@ -68,9 +68,9 @@ sudo loginctl enable-linger $(whoami)
 
 echo "--> Setting path values" >&3
 # Setting path values for doocker
-export export PATH=/home/$(whoami)/bin:$PATH
+export export PATH="/home/$(whoami)/bin:$PATH"
 echo $PATH >&3
-export DOCKER_HOST=unix:///run/user/$userid/docker.sock
+export DOCKER_HOST="unix:///run/user/$userid/docker.sock"
 echo $DOCKER_HOST
 
 echo "done" >&3
