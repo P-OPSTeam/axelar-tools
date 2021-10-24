@@ -24,27 +24,28 @@ sudo apt-get upgrade -y
 echo "done" >&3
 echo >&3
 
-# install docker dependencies
-echo "Installing dependencies for docker" >&3
-sudo apt-get install \
-    apt-transport-https \
-    ca-certificates \
-    curl \
-    gnupg \
-    lsb-release -y
-echo "done" >&3
-echo >&3
-
-echo "Setup docker repo" >&3
-# Curl docker GPG key
-if [[ ! -e "/usr/share/keyrings/docker-archive-keyring.gpg" ]]; then
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg > /dev/null 2>&1
+###    packages required: jq, bc
+REQUIRED_PKG="bc"
+PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "install ok installed")
+echo Checking for $REQUIRED_PKG: $PKG_OK
+if [ "" = "$PKG_OK" ]; then
+    echo "No $REQUIRED_PKG. Setting up $REQUIRED_PKG."
+    sudo apt-get --yes install $REQUIRED_PKG
 fi
 
-# setup docker repo
-echo \
-  "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null 2>&1
+REQUIRED_PKG="jq"
+PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "install ok installed")
+echo Checking for $REQUIRED_PKG: $PKG_OK
+if [ "" = "$PKG_OK" ]; then
+    echo "No $REQUIRED_PKG. Setting up $REQUIRED_PKG."
+    sudo apt-get --yes install $REQUIRED_PKG
+fi
+
+# install docker dependencies
+echo "Installing dependencies for docker" >&3
+sudo apt install uidmap
+echo "done" >&3
+echo >&3
 
 # update repository's
 sudo apt-get update
@@ -56,28 +57,19 @@ echo "Installing docker" >&3
 # Install docker Engine
 
 echo "--> Install" >&3
-sudo apt-get install docker-compose docker-ce docker-ce-cli containerd.io -y
-
-echo "--> Add current user to docker group if necessary" >&3
-id | grep docker 
-if [[ $? -eq 1 ]]; then
-  # add user to the docker group
-  sudo usermod -aG docker $USER 
-  echo "Just added. Please exit the terminal, log back in and restart the installation" >&3
-  #activate changes to the group docker (linux only)
-  exit
-fi
+curl -fsSL https://get.docker.com/rootless | sh
 
 echo "--> Make sure services are started" >&3
 # make sure docker services are started
-sudo systemctl enable docker.service 
-sudo systemctl enable containerd.service
+userid=$(id -u)
+systemctl --user start docker 
+systemctl --user enable docker
+sudo loginctl enable-linger $(whoami)
+export export PATH=/home/$(whoami)/bin:$PATH
+export DOCKER_HOST=unix:///run/user/$userid/docker.sock
 
 echo "done" >&3
 echo >&3
-
-# install jq
-sudo apt-get install jq -y
 
 exec 2>&4 1>&3
  
