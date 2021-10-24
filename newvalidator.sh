@@ -33,11 +33,8 @@ if [[ "$wishtoupdate" == "yes" ]]; then
     sed -i "/^# Address of the ethereum RPC proxy/a rpc_addr    = "$eth"" ${configloc}/config.toml
     echo
 
-    echo "Let's stop axelar-core since we updated the config"
-    docker stop axelar-core
-    docker rm axelar-core 
-    echo "Run the node"
-    bash $SCRIPTPATH/run.sh
+    echo "Let's restart axelar-core since we updated the config"
+    docker restart axelar-core
     echo "done"
 fi
 
