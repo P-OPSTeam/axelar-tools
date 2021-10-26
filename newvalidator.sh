@@ -24,13 +24,13 @@ if [[ "$wishtoupdate" == "yes" ]]; then
     sed -i '/^# Address of the ethereum RPC proxy/{n;d}' ${configloc}/config.toml
 
     # setting up btc rpc
-    read -p "Type in your btc node address (with double quotes): " btc
-    sed -i "/^# Address of the bitcoin RPC server/a rpc_addr    = "$btc"" ${configloc}/config.toml
+    read -p "Type in your btc node address: " btc
+    sed -i "/^# Address of the bitcoin RPC server/a rpc_addr    = \""$btc"\"" ${configloc}/config.toml
     echo 
 
     # setting up eth rpc
-    read -p "Type in your ETH Ropsten node address (with double quotes): " eth
-    sed -i "/^# Address of the ethereum RPC proxy/a rpc_addr    = "$eth"" ${configloc}/config.toml
+    read -p "Type in your ETH Ropsten node address: " eth
+    sed -i "/^# Address of the ethereum RPC proxy/a rpc_addr    = \""$eth"\"" ${configloc}/config.toml
     echo
 
     echo "Let's restart axelar-core since we updated the config"
