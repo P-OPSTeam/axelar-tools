@@ -71,10 +71,11 @@ export PATH="/home/$(whoami)/bin:$PATH"
 echo $PATH >&3
 export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock
 echo $DOCKER_HOST >&3
+sed -i -e '$aexport DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock' ~/.profile
+echo "Added Docker host path to .profile"
 
 echo "done" >&3
 echo >&3
-
 
 exec 2>&4 1>&3
  
