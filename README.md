@@ -19,3 +19,7 @@ Run chmod u+x AxelarMenu.sh then run ./AxelarMenu.sh and choose an option on scr
 5 "Build and use your own BTC&ETH endpont" - replaces endpoints and registers a validator (prereq is options 1 and 2)
 
 7 "Monitor the node via cli" - monitoring for your node and validator
+
+To use these scripts in windows 10/11 please use WSL 2
+wsl.exe --install
+After this there will be a ubuntu shell where you can git pull and start.
