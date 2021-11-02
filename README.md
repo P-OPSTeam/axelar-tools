@@ -10,15 +10,16 @@ Run chmod u+x AxelarMenu.sh then run ./AxelarMenu.sh and choose an option on scr
 
 1 "Create Axelar Node and install requirements (docker, etc ..)
 
-2 "Rebuild only" - builds your node
+2 "Rebuild with reset chain" - builds your node and resets everything
 
-3 "Rebuild with reset chain" - builds your node and resets everything
+3 "Rebuild only" - builds your node
 
 4 "Reboot host" - restart your machine
 
-5 "Build and use your own BTC&ETH endpont" - replaces endpoints and registers a validator (prepreq is options 1 and 2)
+5 "Build and use your own BTC&ETH endpont" - replaces endpoints and registers a validator (prereq is options 1 and 2)
 
 7 "Monitor the node via cli" - monitoring for your node and validator
 
-
-Option 1 is only to be used on a new install!
+To use these scripts in windows 10/11 please use WSL 2
+"wsl.exe --install"
+After this there will be a ubuntu shell where you can git pull and start.
