@@ -18,7 +18,7 @@ if [[ $EUID -eq 0 ]];
     then
     echo "Do not run this as the root user, create a new user via the command adduser" >&3
     exit 1;
-    else
+fi
 
 # update repository's
 echo "Updating ubuntu repository's" >&3
@@ -93,5 +93,3 @@ echo
 read -n 1 -s -r -p "Press any key to go back to the menu" 
 
 bash $SCRIPTPATH/AxelarMenu.sh
-
-fi
