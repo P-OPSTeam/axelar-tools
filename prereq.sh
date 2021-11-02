@@ -16,7 +16,7 @@ echo >&3
 echo "Checking logged in user" >&3
 if [[ $EUID -eq 0 ]]; 
     then
-    echo "Do not run this as the root user, create a new user via the command adduser"
+    echo "Do not run this as the root user, create a new user via the command adduser" >&3
     exit 1;
     else
 
