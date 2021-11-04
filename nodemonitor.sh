@@ -54,7 +54,6 @@ synced_n="catchingup"  # notification state either synced of catchingup (value p
 nmsg_synced="Your Axelar node is now in synced"
 nmsg_unsynced="Your Axelar node is no longer in synced"
 
-
 #node stuck
 lastblockheight=0
 node_stuck_n="false" # true or false indicating the notification state of a node stuck
@@ -99,6 +98,13 @@ nmsg_eth_endpoint_test_err="Eth endpoint test ended with error"
 nmsg_eth_endpoint_test_ok="Eth endpoint test is now ok !"
 nmsg_eth_endpoint_test_nok="Eth endpoint test just failed !"
 eth_endpoint_status=0 #eth endpoint status to print out to log file 
+
+#btc endpoint test
+btc_endpoint_test_n="true" # true or false indicating status of the eth_endpoint_test
+nmsg_btc_endpoint_test_err="Btc endpoint test ended with error"
+nmsg_btc_endpoint_test_ok="Btc endpoint test is now ok !"
+nmsg_btc_endpoint_test_nok="Btc endpoint test just failed !"
+btc_endpoint_status=0 #Btc endpoint status to print out to log file 
 
 #MPC eligibility test
 min_eligible_threshold=0.02 #2% total state are required to be eligible
@@ -173,6 +179,32 @@ check_eth_endpoint() {
     fi    
 }
 
+check_btc_endpoint() {
+    url_res=$(curl -sX POST ${BTCNODE} -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"getblockchaininfo","params":[],"id":1}' | jq .result 2> /dev/null)
+    #echo $url_res
+    if [ $? -ne 0 ]; then #curl somehow failed
+        btc_endpoint_status="error"  
+        if [ $btc_endpoint_test_n == "true" ]; then #test was ok
+            send_telegram_notification "$nmsg_btc_endpoint_test_err"
+            btc_endpoint_test_n="false"
+        fi
+    else
+        if [[ $url_res =~ "error" ]]; then
+            btc_endpoint_status="fail" 
+            if [ $btc_endpoint_test_n == "true" ]; then #test was ok                
+                send_telegram_notification "$nmsg_btc_endpoint_test_nok"
+                btc_endpoint_test_n="false"
+            fi
+        else  
+            btc_endpoint_status="success"
+            if [ $btc_endpoint_test_n == "false" ]; then #test was not ok
+                send_telegram_notification "$nmsg_btc_endpoint_test_ok"
+                btc_endpoint_test_n="true"
+            fi
+        fi
+    fi    
+}
+
 check_eligibility_MPC() {
     total_voting_power=$(curl -s $url/dump_consensus_state | jq -r "[.result.round_state.validators.validators[].voting_power | tonumber] | add")
     local res1=$?
@@ -230,7 +262,15 @@ if [ $? -ne 0 ]; then #something failed with the above command
     send_telegram_notification "Failed to capture the eth node"
 fi
 
-echo "Eth node read is from config file is : $ETHNODE"
+echo "Eth node read from config file is : $ETHNODE"
+
+BTCNODE="$(sudo grep -A 1 '# Address of the bitcoin RPC server' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
+if [ $? -ne 0 ]; then #something failed with the above command
+    echo "Failed to capture the btc node"
+    send_telegram_notification "Failed to capture the btc node"
+fi
+
+echo "btc node read from config file is : $BTCNODE"
 
 url=$(sudo sed '/^\[rpc\]/,/^\[/!d;//d' $CONFIG | grep "^laddr\b" | awk -v FS='("tcp://|")' '{print $2}')
 chainid=$(jq -r '.result.node_info.network' <<<$(curl -s "$url"/status))
@@ -506,9 +546,11 @@ while true ; do
 
                 check_eth_endpoint
 
+                check_btc_endpoint
+
                 check_eligibility_MPC
                 
-                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$balance_status eth_endpoint=$eth_endpoint_status mpc_eligibility=$mpc_eligibility_status"
+                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$balance_status eth_endpoint=$eth_endpoint_status btc_endpoint=$btc_endpoint_status mpc_eligibility=$mpc_eligibility_status"
             else
                 isvalidator="no"
                 validatorinfo="isvalidator=$isvalidator"
