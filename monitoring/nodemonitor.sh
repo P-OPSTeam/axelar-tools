@@ -59,11 +59,13 @@ lastblockheight=0
 node_stuck_n="false" # true or false indicating the notification state of a node stuck
 nmsg_nodestuck="Your Axelar node is now stuck"
 nmsg_node_no_longer_stuck="Your Axelar node is no longer stuck, Yeah !"
+node_stuck_status="NA" #node stucktest status to print out to log file
 
 #axelar-core version
 axelar_version_n="true" # true or false indicating whether the current version is correct
 nmsg_axelar_version_ok="Your Axelar node version is ok now"
 nmsg_axelar_version_nok="Your Axelar node version is different from axelar repo"
+axelar_version_status="NA" #Axelar core version test status to print out to log file
 
 #axelar-core run (axelard)
 axelar_run_n="true" # true or false indicating whether axelard(axelar-core) is running or not
@@ -74,37 +76,40 @@ nmsg_axelar_run_nok="Your Axelar node has just stop running, fix it !"
 vald_run_n="true" # true or false indicating whether tofnd is running or not
 nmsg_vald_run_ok="vald is running ok now"
 nmsg_vald_run_nok="vald has just stop running. We'll try to start the process and you'll see an ok message if that happens, if not please fix it"
+vald_run_status="NA" #vald test status to print out to log file 
 
 #tofnd run
 tofnd_run_n="true" # true or false indicating whether tofnd is running or not
 nmsg_tofnd_run_ok="tofnd is running ok now"
 nmsg_tofnd_run_nok="tofnd has just stop running. We'll try to start the process and you'll see an ok message if that happens, if not please fix it"
+tofnd_run_status="NA" #vald test status to print out to log file 
 
 #vald tofnd connectivity test
 vald_tofnd_ping_n="true" # true or false indicating connectivity test state
 nmsg_vald_tofnd_ping_ok="vald/tofnd connectivity is now ok"
 nmsg_vald_tofnd_ping_nok="vald/tofnd is currently failing, please check"
+vald_tofnd_ping_status="NA" #vvald tofnd connectivity test status to print out to log file 
 
 #broadcaster balance test
 broadcaster_min_balance=0.1
 broadcaster_balance_n="false" # true or false indicating status of the broadcaster balance test
 nmsg_broadcaster_balance_ok="Broadcaster balance is now ok"
 nmsg_broadcaster_balance_nok="Broadcaster balance is below the min defined of ${broadcaster_min_balance}"
-balance_status=0 #balance test status to print out to log file 
+bc_balance_status="NA" #balance test status to print out to log file 
 
 #eth endpoint test
 eth_endpoint_test_n="true" # true or false indicating status of the eth_endpoint_test
 nmsg_eth_endpoint_test_err="Eth endpoint test ended with error"
 nmsg_eth_endpoint_test_ok="Eth endpoint test is now ok !"
 nmsg_eth_endpoint_test_nok="Eth endpoint test just failed !"
-eth_endpoint_status=0 #eth endpoint status to print out to log file 
+eth_endpoint_status="NA" #eth endpoint status to print out to log file 
 
 #btc endpoint test
 btc_endpoint_test_n="true" # true or false indicating status of the eth_endpoint_test
 nmsg_btc_endpoint_test_err="Btc endpoint test ended with error"
 nmsg_btc_endpoint_test_ok="Btc endpoint test is now ok !"
 nmsg_btc_endpoint_test_nok="Btc endpoint test just failed !"
-btc_endpoint_status=0 #Btc endpoint status to print out to log file 
+btc_endpoint_status="NA" #Btc endpoint status to print out to log file 
 
 #MPC eligibility test
 min_eligible_threshold=0.02 #2% total state are required to be eligible
@@ -112,7 +117,7 @@ mpc_eligibility_test_n="true"
 nmsg_mpc_eligibility_test_err="MPC eligible test command failed with error"
 nmsg_mpc_eligibility_test_ok="MPC eligibility test now ok"
 nmsg_mpc_eligibility_test_nok="MPC eligibility test just failed !"
-mpc_eligibility_status=0 #mpc eligibility status to print out to log file 
+mpc_eligibility_status="NA" #mpc eligibility status to print out to log file 
 ################### END NOTIFICATION CONFIG ###################
 
 send_telegram_notification() {
@@ -132,13 +137,13 @@ check_broadcaster_balance() {
     if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
         #echo "Failed to capture balance, please manually run : axelard q bank balances ${broadcaster} | grep amount"
         send_telegram_notification "Failed to capture balance, please manually run : axelard q bank balances ${broadcaster} | grep amount"
-        balance_status="error"
+        bc_balance_status="ERR"
     else
         balance=$(sudo docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount | cut -d '"' -f 2)  
 
         if [ $(echo "${balance} <= ${broadcaster_min_balance}" | bc -l) -eq 1 ]; then #balance is <= broadcaster_min_balance
             msg="${broadcaster} current balance is $balance."
-            balance_status="BelowMin($balance)"
+            bc_balance_status="NOK($balance)"
             if [ $broadcaster_balance_n == "true" ]; then #broadcaster was ok 
                 send_telegram_notification "$nmsg_broadcaster_balance_nok. $msg"
                 broadcaster_balance_n="false"
@@ -148,7 +153,7 @@ check_broadcaster_balance() {
                 send_telegram_notification "$nmsg_broadcaster_balance_ok with $balance"
                 broadcaster_balance_n="true"
             fi
-            balance_status="OK($balance)"
+            bc_balance_status="OK($balance)"
         fi
     fi
 }
@@ -157,20 +162,20 @@ check_eth_endpoint() {
     url_res=$(curl -sX POST ${ETHNODE} -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}' 2> /dev/null)
     #echo $url_res
     if [ $? -ne 0 ]; then #curl somehow failed
-        eth_endpoint_status="error"  
+        eth_endpoint_status="ERR"  
         if [ $eth_endpoint_test_n == "true" ]; then #test was ok
             send_telegram_notification "$nmsg_eth_endpoint_test_err"
             eth_endpoint_test_n="false"
         fi
     else
         if [[ $url_res =~ "error" ]]; then
-            eth_endpoint_status="fail" 
-            if [ $eth_endpoint_test_n == "true" ]; then #test was ok                
+            eth_endpoint_status="NOK" 
+            if [ $eth_endpoint_test_n == "true" ]; then #test was ok
                 send_telegram_notification "$nmsg_eth_endpoint_test_nok"
                 eth_endpoint_test_n="false"
             fi
         else  
-            eth_endpoint_status="success"
+            eth_endpoint_status="OK"
             if [ $eth_endpoint_test_n == "false" ]; then #test was not ok
                 send_telegram_notification "$nmsg_eth_endpoint_test_ok"
                 eth_endpoint_test_n="true"
@@ -183,20 +188,20 @@ check_btc_endpoint() {
     url_res=$(curl -sX POST ${BTCNODE} -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"getblockchaininfo","params":[],"id":1}' | jq .result 2> /dev/null)
     #echo $url_res
     if [ $? -ne 0 ]; then #curl somehow failed
-        btc_endpoint_status="error"  
+        btc_endpoint_status="ERR"  
         if [ $btc_endpoint_test_n == "true" ]; then #test was ok
             send_telegram_notification "$nmsg_btc_endpoint_test_err"
             btc_endpoint_test_n="false"
         fi
     else
         if [[ $url_res =~ "error" ]]; then
-            btc_endpoint_status="fail" 
+            btc_endpoint_status="NOK" 
             if [ $btc_endpoint_test_n == "true" ]; then #test was ok                
                 send_telegram_notification "$nmsg_btc_endpoint_test_nok"
                 btc_endpoint_test_n="false"
             fi
         else  
-            btc_endpoint_status="success"
+            btc_endpoint_status="OK"
             if [ $btc_endpoint_test_n == "false" ]; then #test was not ok
                 send_telegram_notification "$nmsg_btc_endpoint_test_ok"
                 btc_endpoint_test_n="true"
@@ -212,7 +217,7 @@ check_eligibility_MPC() {
     local res2=$?
 
     if [[ res1 -ne 0 || res2 -ne 0 ]]; then         
-        mpc_eligibility_status="error"
+        mpc_eligibility_status="ERR"
         if [ $eth_endpoint_test_n == "true" ]; then #test was ok
             send_telegram_notification "$nmsg_mpc_eligibility_test_err"
             mpc_eligibility_test_n="false"
@@ -221,15 +226,15 @@ check_eligibility_MPC() {
 
     if [ $(echo "${min_eligible_threshold} <= (${self_voting_power} / ${total_voting_power})" | bc -l) -eq 1 ]; then
         #self_voting_power is above min eligible threshold
-        mpc_eligibility_status="true"
-        if [ $mpc_eligibility_test_n == "false" ]; then #test was ok                
-            send_telegram_notification "$nmsg_mpc_eligibility_test_ok"            
+        mpc_eligibility_status="OK"
+        if [ $mpc_eligibility_test_n == "false" ]; then #test was ok
+            send_telegram_notification "$nmsg_mpc_eligibility_test_ok"
             mpc_eligibility_test_n="true"
         fi
     else
-        mpc_eligibility_status="false"
-        if [ $mpc_eligibility_test_n == "true" ]; then #test was not ok                
-            send_telegram_notification "$nmsg_mpc_eligibility_test_nok"            
+        mpc_eligibility_status="NOK"
+        if [ $mpc_eligibility_test_n == "true" ]; then #test was not ok
+            send_telegram_notification "$nmsg_mpc_eligibility_test_nok"
             mpc_eligibility_test_n="false"
         fi
     fi
@@ -259,7 +264,8 @@ fi
 ETHNODE="$(sudo grep -A 1 '# Address of the ethereum RPC proxy' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
 if [ $? -ne 0 ]; then #something failed with the above command
     echo "Failed to capture the eth node"
-    send_telegram_notification "Failed to capture the eth node"
+    send_telegram_notification "nodemonitor exited : Failed to capture the eth node"
+    exit 1
 fi
 
 echo "Eth node read from config file is : $ETHNODE"
@@ -267,7 +273,8 @@ echo "Eth node read from config file is : $ETHNODE"
 BTCNODE="$(sudo grep -A 1 '# Address of the bitcoin RPC server' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
 if [ $? -ne 0 ]; then #something failed with the above command
     echo "Failed to capture the btc node"
-    send_telegram_notification "Failed to capture the btc node"
+    send_telegram_notification "nodemonitor exited : Failed to capture the btc node"
+    exit 1
 fi
 
 echo "btc node read from config file is : $BTCNODE"
@@ -275,6 +282,7 @@ echo "btc node read from config file is : $BTCNODE"
 url=$(sudo sed '/^\[rpc\]/,/^\[/!d;//d' $CONFIG | grep "^laddr\b" | awk -v FS='("tcp://|")' '{print $2}')
 chainid=$(jq -r '.result.node_info.network' <<<$(curl -s "$url"/status))
 if [ -z $url ]; then
+    send_telegram_notification "nodemonitor exited : please configure config.toml in script correctly"
     echo "please configure config.toml in script correctly"
     exit 1
 fi
@@ -396,16 +404,18 @@ while true ; do
         # testing Axelar version
         if [ $(docker inspect -f '{{.Config.Image}}' axelar-core) = "axelarnet/axelar-core:$CORE_VERSION" ]; then
             echo "$CORE_VERSION is latest";
+            axelar_version_status="latest"
             if [ $axelar_version_n == "false" ]; then #version was not ok
                 send_telegram_notification "$nmsg_axelar_version_ok"
                 axelar_version_n="true"
             fi
         else
-            echo "Not latest, consider upgrading to the new axelar-core version $CORE_VERSION";
+            echo "Not latest, consider upgrading to the new axelar-core version $CORE_VERSION"
+            axelar_version_status="need_update"
             if [ $axelar_version_n == "true" ]; then #version was ok
                 send_telegram_notification "$nmsg_axelar_version_nok"
                 axelar_version_n="false"
-            fi            
+            fi
         fi
 
         # Testing axelar-core container is running
@@ -432,13 +442,15 @@ while true ; do
             # Checking Vald Container is running
             echo -n "Is Vald running: "
             if [ $(docker inspect -f '{{.State.Running}}' vald) = "true" ]; then 
-                echo "Yes";
+                echo "Yes"
+                vald_run_status="OK"
                 if [ $vald_run_n == "false" ]; then #vald was stopped
                     send_telegram_notification "$nmsg_vald_run_ok"
                     vald_run_n="true"
                 fi   
             else
                 echo "No"
+                vald_run_status="NOK"
                 if [ $vald_run_n == "true" ]; then #tofnd was running
                     vald_run_n="false"
                     send_telegram_notification "$nmsg_vald_run_nok"
@@ -451,12 +463,14 @@ while true ; do
             echo -n "Is tofnd running: "
             if [ $(docker inspect -f '{{.State.Running}}' tofnd) = "true" ]; then
                 echo "Yes"
+                tofnd_run_status="OK"
                 if [ $tofnd_run_n == "false" ]; then #tofnd was stopped
                     send_telegram_notification "$nmsg_tofnd_run_ok"
                     tofnd_run_n="true"
                 fi                
             else
                 echo "No"
+                tofnd_run_status="NOK"
                 if [ $tofnd_run_n == "true" ]; then #tofnd was running
                     tofnd_run_n="false"
                     send_telegram_notification "$nmsg_tofnd_run_nok"
@@ -550,30 +564,34 @@ while true ; do
 
                 check_eligibility_MPC
                 
-                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$balance_status eth_endpoint=$eth_endpoint_status btc_endpoint=$btc_endpoint_status mpc_eligibility=$mpc_eligibility_status"
+                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$bc_balance_status eth_endpoint=$eth_endpoint_status btc_endpoint=$btc_endpoint_status mpc_eligibility=$mpc_eligibility_status vald_run=$vald_run_status tofnd_run=$tofnd_run_status vald_tofnd_ping=$vald_tofnd_ping_status"
             else
                 isvalidator="no"
                 validatorinfo="isvalidator=$isvalidator"
             fi
         fi
-        status="$catchingup"
-        now=$(date --rfc-3339=seconds)
-        blockheightfromnow=$(expr $(date +%s -d "$now") - $(date +%s -d $blocktime))
-        variables="status=$status blockheight=$blockheight tfromnow=$blockheightfromnow npeers=$npeers npersistentpeersoff=$npersistentpeersoff $validatorinfo"
 
         # test if last block saved and new block height are the same
         if [ $lastblockheight -eq $blockheight ]; then #block are the same
             if [ $node_stuck_n == "false" ]; then # node_stuck notification state was false
                 node_stuck_n="true"
                 send_telegram_notification "$nmsg_nodestuck"
+                node_stuck_status="NO"
             fi
         else #new node block is different
             if [ $node_stuck_n == "true" ]; then # mean it was previously stuck
                 node_stuck_n="false"
                 send_telegram_notification "$nmsg_node_no_longer_stuck"
+                node_stuck_status="YES"
             fi
             lastblockheight=$blockheight
         fi
+
+        #finalize the log output
+        status="$catchingup"
+        now=$(date --rfc-3339=seconds)
+        blockheightfromnow=$(expr $(date +%s -d "$now") - $(date +%s -d $blocktime))
+        variables="status=$status blockheight=$blockheight node_stuck=$node_stuck_status tfromnow=$blockheightfromnow npeers=$npeers npersistentpeersoff=$npersistentpeersoff axelard_version=$axelar_version_status $validatorinfo"
     else
         status="error"
         now=$(date --rfc-3339=seconds)

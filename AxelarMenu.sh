@@ -53,7 +53,7 @@ case $CHOICE in
         bash $SCRIPTPATH/newvalidator.sh
         ;;
     6)
-        bash $SCRIPTPATH/nodemonitor.sh
+        bash $SCRIPTPATH/monitoring/nodemonitor.sh
         ;;
     7) exit
 esac
