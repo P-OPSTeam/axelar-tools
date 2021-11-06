@@ -68,6 +68,21 @@ echo "Final public ip used is $public_ip"
 
 sed -i "s/external_address = \"\"/external_address = \"$public_ip:26656\"/" ~/axelarate-community/join/config.toml
 
+# setting up btc rpc
+read -p "Type in your btc node address: " btc
+btc="$(<<< "$btc" sed -e 's`[][\\/.*^$]`\\&`g')" #escaping sed special characters
+sed -i "s/<your-bitcoin-rpc-and-port>/$btc/" ~/axelarate-community/join/config.toml
+echo 
+
+# setting up eth rpc
+read -p "Type in your ETH Ropsten node address: " eth
+eth="$(<<< "$eth" sed -e 's`[][\\/.*^$]`\\&`g')" #escaping sed special characters
+sed -i "s/<your-ethereum-rpc>/$eth/" ~/axelarate-community/join/config.toml
+echo
+
+echo "Note that if the eth/btc endpoint is not setup correctly, your container may not start."
+
+echo
 
 if [[ "$reset" =~ "false" ]]; then
     echo "--> Starting the node"
