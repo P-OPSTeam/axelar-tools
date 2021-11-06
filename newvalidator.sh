@@ -8,38 +8,6 @@ SCRIPTPATH=`dirname $SCRIPT`
 echo "done"
 echo
 
-read -p "Do you wish to update your config.toml, answer yes or no: " wishtoupdate
-while [[ "$wishtoupdate" != @(yes|no) ]]; do
-    read wishtoupdate
-done
-
-if [[ "$wishtoupdate" == "yes" ]]; then
-    read -p "Enter the location of your config.toml (/root/.axelar_testnet/shared or /home/$USER/.axelar_testnet/shared): " configloc
-    echo
-    echo "We are going to modify config.toml with our own Ropsten and tbtc node"
-    echo
-
-    # removing current config
-    sed -i '/^# Address of the bitcoin RPC server/{n;d}' ${configloc}/config.toml
-    sed -i '/^# Address of the ethereum RPC proxy/{n;d}' ${configloc}/config.toml
-
-    # setting up btc rpc
-    read -p "Type in your btc node address: " btc
-    sed -i "/^# Address of the bitcoin RPC server/a rpc_addr    = \""$btc"\"" ${configloc}/config.toml
-    echo 
-
-    # setting up eth rpc
-    read -p "Type in your ETH Ropsten node address: " eth
-    sed -i "/^# Address of the ethereum RPC proxy/a rpc_addr    = \""$eth"\"" ${configloc}/config.toml
-    echo
-
-    echo "Let's restart axelar-core since we updated the config"
-    docker restart axelar-core
-    echo "done"
-fi
-
-echo
-
 read -p "Do you need to create your validator, answer yes or no: " createvalidator
 while [[ "$createvalidator" != @(yes|no) ]]; do
     read wishtocreate
