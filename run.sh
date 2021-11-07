@@ -33,11 +33,18 @@ echo >&3
 
 echo ${CORE_VERSION}
 
+# Get the axelarate-community tag
+echo "Get axelarate-community tag" >&3
+AXEL_TAG=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep axelarate-community | cut -d \` -f 4)
+echo "done" >&3
+echo >&3
+
 echo "Clone/Refresh Axerlar Community Github" >&3
 rm -rf ~/axelarate-community/
 cd ~
 git clone https://github.com/axelarnetwork/axelarate-community.git
 cd ~/axelarate-community
+git checkout $AXEL_TAG
 echo "done" >&3
 echo >&3
 
