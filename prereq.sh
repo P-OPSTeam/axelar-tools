@@ -88,6 +88,5 @@ echo >&3
 exec 2>&4 1>&3
  
 echo
-echo "Prereq done, please exit then rerun AxelarMenu.sh now with option 2"
+echo "Prereq done, please  logout of your terminal then rerun AxelarMenu.sh now with option 2"
 echo
-read -n 1 -s -r -p "Press any key to exit. Please logout of your terminal and login back."
