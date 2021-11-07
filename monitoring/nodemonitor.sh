@@ -130,16 +130,16 @@ send_telegram_notification() {
 
 # checking on broadcaster
 check_broadcaster_balance() {
-    broadcaster=$(sudo docker exec vald sh -c "axelard keys show broadcaster -a")
+    broadcaster=$(docker exec vald sh -c "axelard keys show broadcaster -a")
 
-    sudo docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount > /dev/null 2>&1
+    docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount > /dev/null 2>&1
 
     if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
         #echo "Failed to capture balance, please manually run : axelard q bank balances ${broadcaster} | grep amount"
         send_telegram_notification "Failed to capture balance, please manually run : axelard q bank balances ${broadcaster} | grep amount"
         bc_balance_status="ERR"
     else
-        balance=$(sudo docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount | cut -d '"' -f 2)  
+        balance=$(docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount | cut -d '"' -f 2)  
 
         if [ $(echo "${balance} <= ${broadcaster_min_balance}" | bc -l) -eq 1 ]; then #balance is <= broadcaster_min_balance
             msg="${broadcaster} current balance is $balance."
@@ -455,7 +455,7 @@ while true ; do
                     vald_run_n="false"
                     send_telegram_notification "$nmsg_vald_run_nok"
                     # let's try to fix the problem once
-                    sudo docker container restart vald
+                    docker container restart vald
                 fi
             fi
 
@@ -475,12 +475,12 @@ while true ; do
                     tofnd_run_n="false"
                     send_telegram_notification "$nmsg_tofnd_run_nok"
                     # let's try to fix the problem once
-                    sudo docker container restart tofnd
+                    docker container restart tofnd
                 fi
             fi
 
             echo -n "Is there connectivity between vald/tofnd : "
-            if [ $(sudo docker exec -ti vald axelard tofnd-ping --tofnd-host tofnd | tr -d '\r') == "Pong!" ]; then
+            if [ $(docker exec -ti vald axelard tofnd-ping --tofnd-host tofnd | tr -d '\r') == "Pong!" ]; then
                 echo "Yes"
                 if [ $vald_tofnd_ping_n == "false" ]; then #vald_tofnd_ping_n was failing
                     send_telegram_notification "$nmsg_vald_tofnd_ping_ok"
