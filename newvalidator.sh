@@ -8,6 +8,16 @@ SCRIPTPATH=`dirname $SCRIPT`
 echo "done"
 echo
 
+catchingup=$(jq -r '.result.sync_info.catching_up' <<<$(curl -s "http://localhost:26657/status"))
+
+while [[ $catchingup == "true" ]]; do
+    echo "Your node is NOT fully synced yet"
+    echo "we'll wait 30s and retry"
+    echo
+    sleep 30
+    catchingup=$(jq -r '.result.sync_info.catching_up' <<<$(curl -s "http://localhost:26657/status"))
+done
+
 read -p "Do you need to create your validator, answer yes or no: " createvalidator
 while [[ "$createvalidator" != @(yes|no) ]]; do
     read wishtocreate
@@ -28,13 +38,16 @@ if [[ "$createvalidator" == "yes" ]]; then
     if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
         balance=0
     else
-        balance=$(docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2)
+        balance=$(docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2  > /dev/null 2>&1)
     fi
 
     while [ $(echo "${balance} < ${uaxl}" | bc -l) -eq 1 ]; do 
         echo "${validator} has ${balance} ${denom}. You need at least ${uaxl} ${denom}, press enter once you funded it"
         read waitentry
-        balance=$(docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2)
+        balance=$(docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2 > /dev/null 2>&1)
+        if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
+            balance=0
+        fi
     done
     echo "done"
     echo
