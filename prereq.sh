@@ -88,8 +88,6 @@ echo >&3
 exec 2>&4 1>&3
  
 echo
-echo "Prereq done, start option 2 in the menu"
+echo "Prereq done, please exit then rerun AxelarMenu.sh now with option 2"
 echo
-read -n 1 -s -r -p "Press any key to go back to the menu" 
-
-bash $SCRIPTPATH/AxelarMenu.sh
+read -n 1 -s -r -p "Press any key to exit. Please logout of your terminal and login back."
