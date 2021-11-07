@@ -28,7 +28,7 @@ echo >&3
 # Determining Axelar versions
 echo "Determining latest Axelar version" >&3
 CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
-echo "done" >&3
+echo "Current Axelar Core version is $CORE_VERSION" >&3
 echo >&3
 
 echo ${CORE_VERSION}
@@ -36,7 +36,7 @@ echo ${CORE_VERSION}
 # Get the axelarate-community tag
 echo "Get axelarate-community tag" >&3
 AXEL_TAG=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep axelarate-community | cut -d \` -f 4)
-echo "done" >&3
+echo "Current tag is $AXEL_TAG" >&3
 echo >&3
 
 echo "Clone/Refresh Axerlar Community Github" >&3
@@ -51,11 +51,12 @@ echo >&3
 echo "Start the Axelar node" >&3
 
 # test if the axelarate_default docker network is created
-echo "--> Test network creation" >&3
+echo "--> Create docker network if necessary" >&3
 docker network ls | grep axelarate_default
 if [[ $? -eq 1 ]]; then
     docker network create axelarate_default
 fi
+echo "done" >&3
 
 exec 2>&4 1>&3
 
@@ -71,7 +72,7 @@ if [ ! -z $reenterip ] && [ $reenterip == "ENTERIP" ]; then
         read -p "invalid ip, pleeas re-enter : " public_ip 
     done
 fi
-echo "Final public ip used is $public_ip"
+echo "Final public ip used is $public_ip" >&3
 
 sed -i "s/external_address = \"\"/external_address = \"$public_ip:26656\"/" ~/axelarate-community/join/config.toml
 
@@ -87,7 +88,7 @@ eth="$(<<< "$eth" sed -e 's`[][\\/.*^$]`\\&`g')" #escaping sed special character
 sed -i "s/<your-ethereum-rpc>/$eth/" ~/axelarate-community/join/config.toml
 echo
 
-echo "Note that if the eth/btc endpoint is not setup correctly, your container may not start."
+echo "Note that if the eth/btc endpoint is not setup correctly, your container may not start." >&3
 
 echo
 
@@ -101,11 +102,23 @@ else
     join/join-testnet.sh --axelar-core ${CORE_VERSION} --reset-chain  &>> testnet.log
 fi
 
+# Test if axelar-core container is running
+axelar_is_running=$(docker inspect -f '{{.State.Running}}' axelar-core)
+if [ $? -eq 0 ]; then
+    if [ $axelar_is_running = "true" ]; then
+        echo "Yes";
+    else 
+        echo "Axelar-core container failed to start, please retry";
+        exit 1
+    fi
+else
+    echo "Axelar-core container failed to start, please check testnet.log and retry";
+    exit 1
+fi
+
 sed -n '10,32p' testnet.log
 
-echo 
-echo "Node is restarted"
-echo
+echo "Node is started" >3
 
 echo "Backing up your keys in ~/axelar_backup"
 sudo chown -R $USER:$USER ~/.axelar_testnet

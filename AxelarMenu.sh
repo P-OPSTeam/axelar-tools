@@ -19,10 +19,10 @@ TITLE="Install menu"
 MENU="Choose one of the following options:"
 
 OPTIONS=(1 "install axelar requirements (docker, etc ..)"
-         2 "Build/Rebuild with reset chain"
-         3 "Rebuild only"
+         2 "Build (first time) or Rebuild (update) only"
+         3 "Build/Rebuild with reset chain"
          4 "Reboot host"
-         5 "Build and use your own BTC&ETH endpoint"
+         5 "Build your validator"
          6 "Monitor the node via cli"
          7 "Exit menu")
 
@@ -41,10 +41,10 @@ case $CHOICE in
         bash $SCRIPTPATH/prereq.sh
         ;;
     2)
-        bash $SCRIPTPATH/run.sh reset
+        bash $SCRIPTPATH/run.sh 
         ;;
     3)
-        bash $SCRIPTPATH/run.sh
+        bash $SCRIPTPATH/run.sh reset
         ;;
     4)
         bash $SCRIPTPATH/rebootserver.sh
