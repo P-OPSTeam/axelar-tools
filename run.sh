@@ -129,8 +129,15 @@ echo "Node is started" >3
 echo "Backing up your keys in ~/axelar_backup"
 sudo chown -R $USER:$USER ~/.axelar_testnet
 mkdir -p ~/axelar_backup
+
 cp ~/.axelar_testnet/.core/config/priv_validator_key.json ~/axelar_backup/
+
 if [[ ! "$reset" =~ "false" ]]; then
+    cp testnet.log ~/axelar_backup/mnemonic.txt 
+fi
+
+#so when we do a backup after a normal run for the 1st time
+if [ -f ~/axelar_backup/mnemonic.txt ]; then 
     cp testnet.log ~/axelar_backup/mnemonic.txt 
 fi
 
