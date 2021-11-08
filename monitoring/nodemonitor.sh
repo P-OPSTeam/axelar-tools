@@ -482,12 +482,14 @@ while true ; do
             echo -n "Is there connectivity between vald/tofnd : "
             if [ $(docker exec -ti vald axelard tofnd-ping --tofnd-host tofnd | tr -d '\r') == "Pong!" ]; then
                 echo "Yes"
+                vald_tofnd_ping_status="OK"
                 if [ $vald_tofnd_ping_n == "false" ]; then #vald_tofnd_ping_n was failing
                     send_telegram_notification "$nmsg_vald_tofnd_ping_ok"
                     vald_tofnd_ping_n="true"
                 fi  
             else
                 echo "No"
+                vald_tofnd_ping_status="NOK"
                 if [ $vald_tofnd_ping_n == "true" ]; then #vald_tofnd_ping_n was working
                     send_telegram_notification "$nmsg_vald_tofnd_ping_nok"
                     vald_tofnd_ping_n="false"
@@ -573,16 +575,16 @@ while true ; do
 
         # test if last block saved and new block height are the same
         if [ $lastblockheight -eq $blockheight ]; then #block are the same
+            node_stuck_status="NO"
             if [ $node_stuck_n == "false" ]; then # node_stuck notification state was false
                 node_stuck_n="true"
                 send_telegram_notification "$nmsg_nodestuck"
-                node_stuck_status="NO"
             fi
         else #new node block is different
+            node_stuck_status="YES"
             if [ $node_stuck_n == "true" ]; then # mean it was previously stuck
                 node_stuck_n="false"
-                send_telegram_notification "$nmsg_node_no_longer_stuck"
-                node_stuck_status="YES"
+                send_telegram_notification "$nmsg_node_no_longer_stuck"                
             fi
             lastblockheight=$blockheight
         fi
