@@ -575,13 +575,13 @@ while true ; do
 
         # test if last block saved and new block height are the same
         if [ $lastblockheight -eq $blockheight ]; then #block are the same
-            node_stuck_status="NO"
+            node_stuck_status="YES"
             if [ $node_stuck_n == "false" ]; then # node_stuck notification state was false
                 node_stuck_n="true"
                 send_telegram_notification "$nmsg_nodestuck"
             fi
         else #new node block is different
-            node_stuck_status="YES"
+            node_stuck_status="NO"
             if [ $node_stuck_n == "true" ]; then # mean it was previously stuck
                 node_stuck_n="false"
                 send_telegram_notification "$nmsg_node_no_longer_stuck"                
