@@ -261,7 +261,7 @@ if [ -z $CONFIG ]; then
     exit 1
 fi
 
-ETHNODE="$(sudo grep -A 1 '# Address of the ethereum RPC proxy' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
+ETHNODE="$(sudo grep -A 1 '# Address of the ethereum RPC server' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
 if [ $? -ne 0 ]; then #something failed with the above command
     echo "Failed to capture the eth node"
     send_telegram_notification "nodemonitor exited : Failed to capture the eth node"

@@ -77,16 +77,17 @@ echo "Final public ip used is $public_ip" >&3
 sed -i "s/external_address = \"\"/external_address = \"$public_ip:26656\"/" ~/axelarate-community/join/config.toml
 
 # setting up btc rpc
-read -p "Type in your btc node address: " btc
-btc="$(<<< "$btc" sed -e 's`[][\\/.*^$]`\\&`g')" #escaping sed special characters
-sed -i "s/<your-bitcoin-rpc-and-port>/$btc/" ~/axelarate-community/join/config.toml
-echo 
+sed -i '/^# Address of the bitcoin RPC server/{n;N;d}' ~/axelarate-community/join/config.toml
+read -p "Type in your btc node address with double quotes: " btc
+sed -i "/^# Address of the bitcoin RPC server/a rpc_addr    = "$btc"" ~/axelarate-community/join/config.toml
+echo
 
 # setting up eth rpc
-read -p "Type in your ETH Ropsten node address: " eth
-eth="$(<<< "$eth" sed -e 's`[][\\/.*^$]`\\&`g')" #escaping sed special characters
-sed -i "s/<your-ethereum-rpc>/$eth/" ~/axelarate-community/join/config.toml
+sed -i '/^# Address of the ethereum RPC server/{n;N;d}' ~/axelarate-community/join/config.toml
+read -p "Type in your ETH Ropsten node address with double quotes: " eth
+sed -i "/^# Address of the ethereum RPC server/a rpc_addr    = "$eth"" ~/axelarate-community/join/config.toml
 echo
+
 
 echo "Note that if the eth/btc endpoint is not setup correctly, your container may not start." >&3
 
