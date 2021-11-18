@@ -37,6 +37,8 @@ if [[ "$createvalidator" == "yes" ]]; then
     sed -i "/^# Address of the ethereum RPC server/a rpc_addr    = "$eth"" ~/.axelar_testnet/shared/config.toml
     echo
 
+    docker restart axelar-core
+
     echo "Setting up validator config"
 
     read -p "Name for your validator : " validatorname
