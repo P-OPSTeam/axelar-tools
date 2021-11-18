@@ -9,6 +9,7 @@ These are scripts for automating the installation of the axelar-core.
 ## Prerequisite
 
 Make sure you are not using root when running the scripts.
+Create a user with adduser and add this same user to the sudo group with the following command "usermod -aG sudo "username" "
 
 ## Let's start
 
