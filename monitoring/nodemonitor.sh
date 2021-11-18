@@ -261,24 +261,6 @@ if [ -z $CONFIG ]; then
     exit 1
 fi
 
-ETHNODE="$(sudo grep -A 1 '# Address of the ethereum RPC server' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
-if [ $? -ne 0 ]; then #something failed with the above command
-    echo "Failed to capture the eth node"
-    send_telegram_notification "nodemonitor exited : Failed to capture the eth node"
-    exit 1
-fi
-
-echo "Eth node read from config file is : $ETHNODE"
-
-BTCNODE="$(sudo grep -A 1 '# Address of the bitcoin RPC server' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
-if [ $? -ne 0 ]; then #something failed with the above command
-    echo "Failed to capture the btc node"
-    send_telegram_notification "nodemonitor exited : Failed to capture the btc node"
-    exit 1
-fi
-
-echo "btc node read from config file is : $BTCNODE"
-
 url=$(sudo sed '/^\[rpc\]/,/^\[/!d;//d' $CONFIG | grep "^laddr\b" | awk -v FS='("tcp://|")' '{print $2}')
 chainid=$(jq -r '.result.node_info.network' <<<$(curl -s "$url"/status))
 if [ -z $url ]; then
@@ -314,6 +296,33 @@ fi
 if [ -z $AXELARVALIDATORADDRESS ]; then
     echo "rpc appears to be down, start script again when data can be obtained"
     exit 1
+fi
+
+# Checking validator RPC endpoints status
+consdump=$(curl -s "$url"/dump_consensus_state)
+validators=$(jq -r '.result.round_state.validators[]' <<<$consdump)
+isvalidator=$(grep -c "$VALIDATORADDRESS" <<<$validators)
+
+if [ "$isvalidator" != "0" ]; then
+
+        ETHNODE="$(sudo grep -A 1 '# Address of the ethereum RPC server' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
+        if [ $? -ne 0 ]; then #something failed with the above command
+        echo "Failed to capture the eth node"
+        send_telegram_notification "nodemonitor exited : Failed to capture the eth node"
+        exit 1
+        fi
+
+        echo "Eth node read from config file is : $ETHNODE"
+
+        BTCNODE="$(sudo grep -A 1 '# Address of the bitcoin RPC server' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
+        if [ $? -ne 0 ]; then #something failed with the above command
+        echo "Failed to capture the btc node"
+        send_telegram_notification "nodemonitor exited : Failed to capture the btc node"
+        exit 1
+        fi
+
+        echo "btc node read from config file is : $BTCNODE"
+
 fi
 
 echo "validator address: $AXELARVALIDATORADDRESS"
