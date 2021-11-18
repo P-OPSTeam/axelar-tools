@@ -26,15 +26,15 @@ done
 if [[ "$createvalidator" == "yes" ]]; then
 
      # setting up btc rpc
-    sed -i '/^# Address of the bitcoin RPC server/{n;N;d}' ~/axelarate-community/join/config.toml
+    sed -i '/^# Address of the bitcoin RPC server/{n;N;d}' ~/.axelar_testnet/shared/config.toml
     read -p "Type in your btc node address with double quotes: " btc
-    sed -i "/^# Address of the bitcoin RPC server/a rpc_addr    = "$btc"" ~/axelarate-community/join/config.toml
+    sed -i "/^# Address of the bitcoin RPC server/a rpc_addr    = "$btc"" ~/.axelar_testnet/shared/config.toml
     echo
 
     # setting up eth rpc
-    sed -i '/^# Address of the ethereum RPC server/{n;N;d}' ~/axelarate-community/join/config.toml
+    sed -i '/^# Address of the ethereum RPC server/{n;N;d}' ~/.axelar_testnet/shared/config.toml
     read -p "Type in your ETH Ropsten node address with double quotes: " eth
-    sed -i "/^# Address of the ethereum RPC server/a rpc_addr    = "$eth"" ~/axelarate-community/join/config.toml
+    sed -i "/^# Address of the ethereum RPC server/a rpc_addr    = "$eth"" ~/.axelar_testnet/shared/config.toml
     echo
 
     echo "Setting up validator config"
