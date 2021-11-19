@@ -488,22 +488,23 @@ while true ; do
                 fi
             fi
 
-            echo -n "Is there connectivity between vald/tofnd : "
-            if [ $(docker exec -ti vald axelard tofnd-ping --tofnd-host tofnd | tr -d '\r') == "Pong!" ]; then
-                echo "Yes"
-                vald_tofnd_ping_status="OK"
-                if [ $vald_tofnd_ping_n == "false" ]; then #vald_tofnd_ping_n was failing
-                    send_telegram_notification "$nmsg_vald_tofnd_ping_ok"
-                    vald_tofnd_ping_n="true"
-                fi  
-            else
-                echo "No"
-                vald_tofnd_ping_status="NOK"
-                if [ $vald_tofnd_ping_n == "true" ]; then #vald_tofnd_ping_n was working
-                    send_telegram_notification "$nmsg_vald_tofnd_ping_nok"
-                    vald_tofnd_ping_n="false"
-                fi
-            fi
+            echo "Is there connectivity between vald/tofnd : "
+            docker exec -ti vald axelard health-check --tofnd-host tofnd --operator-addr $(cat ~/.axelar_testnet/shared/validator.bech) --node http://axelar-core:26657
+	    #if [ $(docker exec -ti vald axelard tofnd-ping --tofnd-host tofnd | tr -d '\r') == "Pong!" ]; then
+             #   echo "Yes"
+              #  vald_tofnd_ping_status="OK"
+               # if [ $vald_tofnd_ping_n == "false" ]; then #vald_tofnd_ping_n was failing
+                #    send_telegram_notification "$nmsg_vald_tofnd_ping_ok"
+                 #   vald_tofnd_ping_n="true"
+               # fi  
+            #else
+             #   echo "No"
+              #  vald_tofnd_ping_status="NOK"
+               # if [ $vald_tofnd_ping_n == "true" ]; then #vald_tofnd_ping_n was working
+                #    send_telegram_notification "$nmsg_vald_tofnd_ping_nok"
+                 #   vald_tofnd_ping_n="false"
+               # fi
+           # fi
         fi
     fi
 
