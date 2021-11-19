@@ -23,6 +23,55 @@ while [[ "$createvalidator" != @(yes|no) ]]; do
     read wishtocreate
 done
 
+echo "Starting prereq docker containers"
+
+CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
+echo Axelar Core version : ${CORE_VERSION}
+
+TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep tofnd | cut -d \` -f 4)
+echo Axelar TOFND version ${TOFND_VERSION}
+
+cd ~/axelarate-community
+
+echo "Launching/restarting validator (tofnd/vald)"
+docker container stop tofnd vald 2> /dev/null
+docker container rm tofnd vald 2> /dev/null
+bash join/launch-validator-tools.sh --axelar-core $CORE_VERSION --tofnd $TOFND_VERSION | tee launch-validator.log
+
+#TBD backup broadcaster mnemonic
+#TBD backup tofnd mnemonic tofnd mnemonic (~/.axelar_testnet/.tofnd/export)
+
+echo "done"
+
+echo
+
+echo "Registering proxy"
+broadcaster=$(docker exec vald sh -c "axelard keys show broadcaster -a")
+#check broadcaster has some uaxl
+
+docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount 2> /dev/null
+
+if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
+    balance=0
+else
+    balance=$(docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount | cut -d '"' -f 2 2> /dev/null)
+    if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
+        balance=0
+    fi
+fi
+
+while [ $(echo "${balance} <= 0" | bc -l) -eq 1 ]; do 
+    echo "${broadcaster} has 0 ${denom}. Please fund it with at least 5000000uxl, press enter once done"
+    read waitentry
+    balance=$(docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount | cut -d '"' -f 2 2> /dev/null)
+    if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
+        balance=0
+    fi
+done
+
+docker exec -it axelar-core axelard tx snapshot register-proxy ${broadcaster} --from validator -y
+echo "done"
+
 if [[ "$createvalidator" == "yes" ]]; then
 
      # setting up btc rpc
@@ -37,7 +86,12 @@ if [[ "$createvalidator" == "yes" ]]; then
     sed -i "/^# Address of the ethereum RPC server/a rpc_addr    = $eth" ~/.axelar_testnet/shared/config.toml
     echo
 
-    docker restart axelar-core
+    # enabling start with eth bridge
+    sed -i 's/start-with-bridge = false/start-with-bridge = true/g' ~/.axelar_testnet/shared/config.toml
+    echo "eth bridge enabled"
+    echo
+
+    docker restart axelar-core tofnd vald
 
     echo "Setting up validator config"
 
@@ -78,55 +132,8 @@ if [[ "$createvalidator" == "yes" ]]; then
     echo
 fi
 
-echo "Starting prereq docker containers"
-
-CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
-echo Axelar Core version : ${CORE_VERSION}
-
-TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep tofnd | cut -d \` -f 4)
-echo Axelar TOFND version ${TOFND_VERSION}
-
-cd ~/axelarate-community
-
-echo "Launching/restarting validator (tofnd/vald)"
-docker container stop tofnd vald 2> /dev/null
-docker container rm tofnd vald 2> /dev/null
-bash join/launch-validator-tools.sh --axelar-core $CORE_VERSION --tofnd $TOFND_VERSION | tee launch-validator.log
-
-#TBD backup broadcaster mnemonic
-#TBD backup tofnd mnemonic tofnd mnemonic (~/.axelar_testnet/.tofnd/export)
-
-echo "done"
-
 echo
+echo "checking health off the validator" 
+docker exec -ti vald axelard health-check --tofnd-host tofnd --operator-addr $(cat ~/.axelar_testnet/shared/validator.bech) --node http://axelar-core:26657
 
-echo "Registering proxy"
-broadcaster=$(docker exec vald sh -c "axelard keys show broadcaster -a")
-#check broadcaster has some uaxl
-
-docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount 2> /dev/null
-
-if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
-    balance=0
-else
-    balance=$(docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount | cut -d '"' -f 2 2> /dev/null)
-    if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
-        balance=0
-    fi
-fi
-
-while [ $(echo "${balance} <= 0" | bc -l) -eq 1 ]; do 
-    echo "${broadcaster} has 0 ${denom}. Please fund it, press enter once done"
-    read waitentry
-    balance=$(docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount | cut -d '"' -f 2 2> /dev/null)
-    if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
-        balance=0
-    fi
-done
-
-docker exec -it axelar-core axelard tx snapshot register-proxy ${broadcaster} --from validator -y
-echo "done"
-
-echo
 echo "Validator has been setup, ask for extra uaxl from team members"
-
