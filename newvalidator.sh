@@ -93,6 +93,12 @@ if [[ "$createvalidator" == "yes" ]]; then
 
     docker restart axelar-core tofnd vald
 
+    # enable chain maintainer ETH
+    echo "ETH chain maintainer startup"
+    docker exec vald axelard tx nexus register-chain-maintainer ethereum --from broadcaster --node http://axelar-core:26657
+    echo "ETH chain maintainer enabled"
+    echo
+
     echo "Setting up validator config"
 
     read -p "Name for your validator : " validatorname
