@@ -290,7 +290,7 @@ then
     if [[ -f ~/.axelar_testnet/bin/axelard ]]; then 
         AXELARVALIDATORADDRESS=$(~/.axelar_testnet/bin/axelard keys show validator --bech val -a --home ~/.axelar_testnet/.core);
     else 
-        AXELARVALIDATORADDRESS=$(docker exec -it axelar-core axelard keys show validator --bech val -a);
+        AXELARVALIDATORADDRESS=$(docker exec axelar-core axelard keys show validator --bech val -a);
     fi
 fi
 if [ -z $AXELARVALIDATORADDRESS ]; then
