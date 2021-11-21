@@ -32,7 +32,7 @@ sudo apt-get upgrade -y
 echo "done" >&3
 echo >&3
 
-###    packages required: jq, bc
+###    packages required: jq, bc, iptables
 REQUIRED_PKG="bc"
 PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "install ok installed")
 echo Checking for $REQUIRED_PKG: $PKG_OK
@@ -42,6 +42,14 @@ if [ "" = "$PKG_OK" ]; then
 fi
 
 REQUIRED_PKG="jq"
+PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "install ok installed")
+echo Checking for $REQUIRED_PKG: $PKG_OK
+if [ "" = "$PKG_OK" ]; then
+    echo "No $REQUIRED_PKG. Setting up $REQUIRED_PKG."
+    sudo apt-get --yes install $REQUIRED_PKG
+fi
+
+REQUIRED_PKG="iptables"
 PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "install ok installed")
 echo Checking for $REQUIRED_PKG: $PKG_OK
 if [ "" = "$PKG_OK" ]; then
