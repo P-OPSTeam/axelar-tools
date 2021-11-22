@@ -121,12 +121,12 @@ mkdir -p ~/axelar_backup
 cp ~/.axelar_testnet/.core/config/priv_validator_key.json ~/axelar_backup/
 
 if [[ ! "$reset" =~ "false" ]]; then
-    cp testnet.log ~/axelar_backup/mnemonic.txt 
+    cp testnet.log ~/axelar_backup/validator-mnemonic.txt 
 fi
 
 #so when we do a backup after a normal run for the 1st time
-if [ -f ~/axelar_backup/mnemonic.txt ]; then 
-    cp testnet.log ~/axelar_backup/mnemonic.txt 
+if [ -f ~/axelar_backup/validator-mnemonic.txt ]; then 
+    cp testnet.log ~/axelar_backup/validator-mnemonic.txt 
 fi
 
 echo "Backup completed, check ~/axelar_backup/"

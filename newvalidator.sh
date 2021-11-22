@@ -143,3 +143,7 @@ echo "checking health off the validator"
 docker exec -ti vald axelard health-check --tofnd-host tofnd --operator-addr $(cat ~/.axelar_testnet/shared/validator.bech) --node http://axelar-core:26657
 
 echo "Validator has been setup, ask for extra uaxl from team members"
+
+echo "backup mnemonic broadcaster"
+cp ~/axelarate-community/launch-validator.log ~/axelar_backup/broadcaster-mnemonic.txt
+echo "Backup completed, check ~/axelar_backup/"
