@@ -88,12 +88,12 @@ echo
 
 if [[ "$reset" =~ "false" ]]; then
     echo "--> Starting the node"
-    join/join-testnet.sh --axelar-core ${CORE_VERSION} &>> testnet.log
+    join/join-testnet.sh --axelar-core ${CORE_VERSION} &> testnet.log
 else
     echo "--> Starting the node with reset"
     echo "WARNING! This will erase all previously stored data. Your node will catch up from the beginning"
     echo "Do you wish to proceed \"y/n\" ? "
-    join/join-testnet.sh --axelar-core ${CORE_VERSION} --reset-chain  &>> testnet.log
+    join/join-testnet.sh --axelar-core ${CORE_VERSION} --reset-chain  &> testnet.log
 fi
 
 # Test if axelar-core container is running
