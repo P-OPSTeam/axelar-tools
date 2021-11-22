@@ -90,6 +90,12 @@ nmsg_vald_tofnd_ping_ok="vald/tofnd connectivity is now ok"
 nmsg_vald_tofnd_ping_nok="vald/tofnd is currently failing, please check"
 vald_tofnd_ping_status="NA" #vvald tofnd connectivity test status to print out to log file 
 
+#Health check test
+Health_check_n="true" # true or false indicating connectivity test state
+msg_Health_check_ok="Health check is ok"
+msg_Health_check_nok="Health check is not ok, please check"
+Health_check_status="NA" #Health check status to print out to log file
+
 #broadcaster balance test
 broadcaster_min_balance=0.1
 broadcaster_balance_n="false" # true or false indicating status of the broadcaster balance test
@@ -488,11 +494,26 @@ while true ; do
                 fi
             fi
 
-            echo "Is there connectivity between vald/tofnd : "
-            docker exec -ti vald axelard health-check --tofnd-host tofnd --operator-addr $(cat ~/.axelar_testnet/shared/validator.bech) --node http://axelar-core:26657
+            echo -n "health-check is : "
+            docker exec -ti vald axelard health-check --tofnd-host tofnd --operator-addr $(cat ~/.axelar_testnet/shared/validator.bech) --node http://axelar-core:26657 > monitoring/healthcheck.log
+            if grep -q -F "failed" "monitoring/healthcheck.log"; then
+                echo 'not ok'
+                Health_check_status="NOK"
+                if [ $Health_check_n == "true" ]; then
+                send_telegram_notification "$msg_Health_check_nok"
+                Health_check_n="false"
+                fi   
+             else
+                echo 'ok'
+                Health_check_status="OK"
+                if [ $Health_check_n == "false" ]; then
+                send_telegram_notification "$msg_Health_check_nok"
+                Health_check_n="true"
+                fi   
+            fi
 	    #if [ $(docker exec -ti vald axelard tofnd-ping --tofnd-host tofnd | tr -d '\r') == "Pong!" ]; then
              #   echo "Yes"
-              #  vald_tofnd_ping_status="OK"
+              #  Health_check_status="OK"
                # if [ $vald_tofnd_ping_n == "false" ]; then #vald_tofnd_ping_n was failing
                 #    send_telegram_notification "$nmsg_vald_tofnd_ping_ok"
                  #   vald_tofnd_ping_n="true"
@@ -576,7 +597,7 @@ while true ; do
 
                 check_eligibility_MPC
                 
-                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$bc_balance_status eth_endpoint=$eth_endpoint_status btc_endpoint=$btc_endpoint_status mpc_eligibility=$mpc_eligibility_status vald_run=$vald_run_status tofnd_run=$tofnd_run_status vald_tofnd_ping=$vald_tofnd_ping_status"
+                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$bc_balance_status eth_endpoint=$eth_endpoint_status btc_endpoint=$btc_endpoint_status mpc_eligibility=$mpc_eligibility_status vald_run=$vald_run_status tofnd_run=$tofnd_run_status Health_check=$Health_check_status"
             else
                 isvalidator="no"
                 validatorinfo="isvalidator=$isvalidator"
