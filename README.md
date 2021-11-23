@@ -17,6 +17,12 @@ useradd -s /bin/bash -d /home/${USER}/ -m -G sudo ${USER}
 echo "${USER}     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 ```
 
+then set a password for the user
+
+```bash
+passwd $USER
+```
+
 ## Let's start
 
 Make sure you are NOT using root when running the scripts below. You must be logged in with the user created previously:
