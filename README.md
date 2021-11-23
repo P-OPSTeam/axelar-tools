@@ -8,10 +8,18 @@ These are scripts for automating the installation of the axelar-core.
 
 ## Prerequisite
 
-Make sure you are not using root when running the scripts.
-Create a user with adduser and add this same user to the sudo group with the following command "usermod -aG sudo "username" "
+Logged in as root, create a new user, add it to sudo group and to the sudoers file using the commands below. 
+In this example we are using "pops" as user:
+
+```bash
+USER=pops
+useradd -s /bin/bash -d /home/${USER}/ -m -G sudo ${USER}
+echo "${USER}     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+```
 
 ## Let's start
+
+Make sure you are NOT using root when running the scripts below. You must be logged in with the user created previously:
 
 ```bash
 git clone https://github.com/pops-one/axelar-tools.git
@@ -19,7 +27,7 @@ cd axelar-tools && chmod u+x AxelarMenu.sh
 ./AxelarMenu.sh
 ```
 
-in the menu you will have to use option 1) first then exit the terminal, and after relogin use option 2.
+In the menu you will have to use option 1) first, then exit the terminal, log in again and then use option 2.
 
 here are the current options :
 
