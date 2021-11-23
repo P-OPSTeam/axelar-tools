@@ -74,6 +74,8 @@ After=network-online.target
 
 [Service]
 Type=simple
+Restart=always
+RestartSec=1
 ExecStart=/bin/bash -c '. "\$0" && exec "\$@"' /home/$USER/.profile /home/$USER/axelar-tools/monitoring/nodemonitor.sh
 
 [Install]
