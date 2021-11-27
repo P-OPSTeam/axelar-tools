@@ -111,11 +111,18 @@ nmsg_eth_endpoint_test_nok="Eth endpoint test just failed !"
 eth_endpoint_status="NA" #eth endpoint status to print out to log file 
 
 #btc endpoint test
-btc_endpoint_test_n="true" # true or false indicating status of the eth_endpoint_test
+btc_endpoint_test_n="true" # true or false indicating status of the avax_endpoint_test
 nmsg_btc_endpoint_test_err="Btc endpoint test ended with error"
 nmsg_btc_endpoint_test_ok="Btc endpoint test is now ok !"
 nmsg_btc_endpoint_test_nok="Btc endpoint test just failed !"
 btc_endpoint_status="NA" #Btc endpoint status to print out to log file 
+
+#avax endpoint test
+avax_endpoint_test_n="true" # true or false indicating status of the avax_endpoint_test
+nmsg_avax_endpoint_test_err="Avalanche endpoint test ended with error"
+nmsg_avax_endpoint_test_ok="Avalanche endpoint test is now ok !"
+nmsg_avax_endpoint_test_nok="Avalanche endpoint test just failed !"
+avax_endpoint_status="NA" #Avax endpoint status to print out to log file 
 
 #MPC eligibility test
 min_eligible_threshold=0.02 #2% total state are required to be eligible
@@ -211,6 +218,32 @@ check_btc_endpoint() {
             if [ $btc_endpoint_test_n == "false" ]; then #test was not ok
                 send_telegram_notification "$nmsg_btc_endpoint_test_ok"
                 btc_endpoint_test_n="true"
+            fi
+        fi
+    fi    
+}
+
+check_avax_endpoint() {
+    url_res=$(curl -X POST --data '{"jsonrpc": "2.0", "method": "eth_getBalance", "params": ["0xf3ce1887178d73aa90c98bc6be36bdc195ccb48d", "latest" ], "id": 1}' -H 'content-type:application/json;' $AVAXNODE 2> /dev/null)
+    #echo $url_res
+    if [ $? -ne 0 ]; then #curl somehow failed
+        avax_endpoint_status="ERR"  
+        if [ $avax_endpoint_test_n == "true" ]; then #test was ok
+            send_telegram_notification "$nmsg_avax_endpoint_test_err"
+            eth_endpoint_test_n="false"
+        fi
+    else
+        if [[ $url_res =~ "error" ]]; then
+            avax_endpoint_status="NOK" 
+            if [ $avax_endpoint_test_n == "true" ]; then #test was ok
+                send_telegram_notification "$nmsg_avax_endpoint_test_nok"
+                avax_endpoint_test_n="false"
+            fi
+        else  
+            avax_endpoint_status="OK"
+            if [ $avax_endpoint_test_n == "false" ]; then #test was not ok
+                send_telegram_notification "$nmsg_avax_endpoint_test_ok"
+                avax_endpoint_test_n="true"
             fi
         fi
     fi    
@@ -328,6 +361,15 @@ if [ "$isvalidator" != "0" ]; then
         fi
 
         echo "btc node read from config file is : $BTCNODE"
+
+        AVAXNODE="$(sudo grep -A 1 '# Address of the avalanche RPC server' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
+        if [ $? -ne 0 ]; then #something failed with the above command
+        echo "Failed to capture the btc node"
+        send_telegram_notification "nodemonitor exited : Failed to capture the btc node"
+        exit 1
+        fi
+
+        echo "avax node read from config file is : $AVAXNODE"
 
 fi
 
@@ -595,9 +637,11 @@ while true ; do
 
                 check_btc_endpoint
 
+                check_avax_endpoint
+
                 check_eligibility_MPC
                 
-                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$bc_balance_status eth_endpoint=$eth_endpoint_status btc_endpoint=$btc_endpoint_status mpc_eligibility=$mpc_eligibility_status vald_run=$vald_run_status tofnd_run=$tofnd_run_status Health_check=$Health_check_status"
+                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$bc_balance_status eth_endpoint=$eth_endpoint_status btc_endpoint=$btc_endpoint_status avax_endpoint=$avax_endpoint_status mpc_eligibility=$mpc_eligibility_status vald_run=$vald_run_status tofnd_run=$tofnd_run_status Health_check=$Health_check_status"
             else
                 isvalidator="no"
                 validatorinfo="isvalidator=$isvalidator"
