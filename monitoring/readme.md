@@ -106,3 +106,19 @@ If doing any changes to the files after it was first started do:
 ```bash
 systemctl --user daemon-reload
 ```
+
+check the nodemonitor log
+
+```bash
+journalctl --user -fu axelar-nodemonitor
+```
+
+Update the nodemonitor.sh
+
+```bash
+git stash
+git pull
+git stash pop
+systemctl --user stop axelar-nodemonitor
+systemctl --user start axelar-nodemonitor
+```
