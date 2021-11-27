@@ -91,11 +91,18 @@ if [[ "$createvalidator" == "yes" ]]; then
     echo "eth bridge enabled"
     echo
 
+    # setting up Avalanche bridge
+    sed -i "/start-with-bridge = true/a[[axelar_bridge_evm]]\n\n# Chain name\nname = "Avalanche"\n\n# Address of the avalanche RPC server\nrpc_addr    = \n\n# chain maintainers should set start-with-bridge to true\nstart-with-bridge = true" ~/.axelar_testnet/shared/config.toml
+    sed -i '/^# Address of the avalanche RPC server/{n;d}' ~/.axelar_testnet/shared/config.toml
+    read -p "Type in your Avalanche testnet node address with double quotes: " avax
+    sed -i "/^# Address of the avalanche RPC server/a rpc_addr    = $avax" ~/.axelar_testnet/shared/config.toml
+    echo
+
     docker restart axelar-core tofnd vald
 
     # enable chain maintainer ETH
     echo "ETH chain maintainer startup"
-    docker exec vald axelard tx nexus register-chain-maintainer ethereum --from broadcaster --node http://axelar-core:26657
+    docker exec vald axelard tx nexus register-chain-maintainer ethereum avalanche --from broadcaster --node http://axelar-core:26657
     echo "ETH chain maintainer enabled"
     echo
 
