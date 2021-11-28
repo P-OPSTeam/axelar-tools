@@ -537,7 +537,7 @@ while true ; do
             fi
 
             echo -n "health-check is : "
-            docker exec -ti vald axelard health-check --tofnd-host tofnd --operator-addr $(cat ~/.axelar_testnet/shared/validator.bech) --node http://axelar-core:26657 > /home/$USER/axelar-tools/monitoring/healthcheck.log
+            docker exec vald axelard health-check --tofnd-host tofnd --operator-addr $(cat ~/.axelar_testnet/shared/validator.bech) --node http://axelar-core:26657 > /home/$USER/axelar-tools/monitoring/healthcheck.log
             if grep -q -F "failed" "/home/$USER/axelar-tools/monitoring/healthcheck.log"; then
                 echo 'not ok'
                 Health_check_status="NOK"
