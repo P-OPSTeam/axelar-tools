@@ -58,6 +58,7 @@ The following example shows how the service file will look like when running in 
 The service assumes:
 
 * you have the script placed in your **_$HOME/axelar-tools/monitoring_** directory
+* run chmod +x /home/$USER/axelar-tools/monitoring/nodemonitor.sh
 * you used the rootless docker installation in the same repo
 
 Please be aware to run the service as the user that has sufficient right to access this directory (normally this will be the user that one used to logon to the system). Best practice would be to create a separate user for the monitoring service, but this guide doesn't cover that!
