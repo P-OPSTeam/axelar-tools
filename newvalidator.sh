@@ -46,6 +46,7 @@ echo "done"
 echo
 
 echo "Registering proxy"
+echo
 broadcaster=$(docker exec vald sh -c "axelard keys show broadcaster -a")
 #check broadcaster has some uaxl
 
@@ -69,26 +70,28 @@ while [ $(echo "${balance} <= 0" | bc -l) -eq 1 ]; do
     fi
 done
 
-validator=$(docker exec axelar-core axelard keys show validator -a)
-#check selfstake has been funded
+validator=$(docker exec axelar-core sh -c "axelard keys show validator -a")
+#check validator has some uaxl
+
 docker exec axelar-core axelard q bank balances ${validator} | grep amount 2> /dev/null
 
 if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
+    balance=0
+else
+    balance=$(docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2 2> /dev/null)
+    if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
         balance=0
-    else
-        balance=$(docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2 2> /dev/null)
+    fi
 fi
 
-while [ $(echo "${balance} < ${uaxl}" | bc -l) -eq 1 ]; do 
-        echo "${validator} has ${balance} ${denom}. You need at least ${uaxl} ${denom}, press enter once you funded it"
-        read waitentry
-        balance=$(docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2 2> /dev/null)
-        if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
-            balance=0
-        fi
+while [ $(echo "${balance} <= 0" | bc -l) -eq 1 ]; do 
+    echo "${broadcaster} has 0 ${denom}. Please use faucet to fund it, press enter once done"
+    read waitentry
+    balance=$(docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2 2> /dev/null)
+    if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
+        balance=0
+    fi
 done
-echo "done"
-echo
 
 docker exec -it axelar-core axelard tx snapshot register-proxy ${broadcaster} --from validator -y
 echo "done"
