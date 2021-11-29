@@ -69,6 +69,27 @@ while [ $(echo "${balance} <= 0" | bc -l) -eq 1 ]; do
     fi
 done
 
+validator=$(docker exec axelar-core axelard keys show validator -a)
+#check selfstake has been funded
+docker exec axelar-core axelard q bank balances ${validator} | grep amount > /dev/null 2>&1
+
+if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
+        balance=0
+    else
+        balance=$(docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2 2> /dev/null)
+fi
+
+while [ $(echo "${balance} < ${uaxl}" | bc -l) -eq 1 ]; do 
+        echo "${validator} has ${balance} ${denom}. You need at least ${uaxl} ${denom}, press enter once you funded it"
+        read waitentry
+        balance=$(docker exec axelar-core axelard q bank balances ${validator} | grep amount | cut -d '"' -f 2 2> /dev/null)
+        if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
+            balance=0
+        fi
+done
+echo "done"
+echo
+
 docker exec -it axelar-core axelard tx snapshot register-proxy ${broadcaster} --from validator -y
 echo "done"
 
