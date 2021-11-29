@@ -71,7 +71,7 @@ done
 
 validator=$(docker exec axelar-core axelard keys show validator -a)
 #check selfstake has been funded
-docker exec axelar-core axelard q bank balances ${validator} | grep amount > /dev/null 2>&1
+docker exec axelar-core axelard q bank balances ${validator} | grep amount 2> /dev/null
 
 if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
         balance=0
@@ -113,11 +113,16 @@ if [[ "$createvalidator" == "yes" ]]; then
     echo
 
     # setting up Avalanche bridge
-    sed -i "/start-with-bridge = true/a[[axelar_bridge_evm]]\n\n# Chain name\nname = "Avalanche"\n\n# Address of the avalanche RPC server\nrpc_addr    = \n\n# chain maintainers should set start-with-bridge to true\nstart-with-bridge = true" ~/axelarate-community/join/config.toml
+    Avalanche=$"name = \"Avalanche\""
+    sed -i "/start-with-bridge = true/a[[axelar_bridge_evm]]\n\n# Chain name Avalanche\nname = "Avalanche"\n\n# Address of the avalanche RPC server\nrpc_addr    = \n\n# chain maintainers should set start-with-bridge to true\nstart-with-bridge = true" ~/axelarate-community/join/config.toml
+    sed -i '/^# Chain name Avalanche/{n;d}' ~/axelarate-community/join/config.toml
+    sed -i "/^# Chain name Avalanche/a $Avalanche" ~/axelarate-community/join/config.toml
     sed -i '/^# Address of the avalanche RPC server/{n;d}' ~/axelarate-community/join/config.toml
     read -p "Type in your Avalanche testnet node address with double quotes: " avax
     sed -i "/^# Address of the avalanche RPC server/a rpc_addr    = $avax" ~/axelarate-community/join/config.toml
     echo
+
+    cp ~/axelarate-community/join/config.toml ~/.axelar_testnet/shared/config.toml
 
     docker restart axelar-core tofnd vald
 
