@@ -36,6 +36,8 @@ TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarat
 echo "Current Axelar Core version is $TOFND_VERSION" >&3
 echo >&3
 
+exec 2>&4 1>&3
+
 # starting Axelar-core
 echo "Starting axelar core container"
 cd ~/axelarate-community/
