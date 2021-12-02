@@ -124,15 +124,17 @@ if [[ "$createvalidator" == "yes" ]]; then
     read -p "Type in your Avalanche testnet node address with double quotes: " avax
     sed -i "/^# Address of the avalanche RPC server/a rpc_addr    = $avax" ~/axelarate-community/join/config.toml
     echo
+    echo "avalanche bridge enabled"
+    echo
 
     cp ~/axelarate-community/join/config.toml ~/.axelar_testnet/shared/config.toml
 
     docker restart axelar-core tofnd vald
 
     # enable chain maintainer ETH
-    echo "ETH chain maintainer startup"
+    echo "ETH and Avalanche chain maintainer startup"
     docker exec vald axelard tx nexus register-chain-maintainer ethereum avalanche --from broadcaster --node http://axelar-core:26657
-    echo "ETH chain maintainer enabled"
+    echo "ETH and Avalanche chain maintainer enabled"
     echo
 
     echo "Setting up validator config"
