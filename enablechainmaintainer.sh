@@ -1,8 +1,10 @@
 #! /bin/bash
 
 echo "Start enabling chainmaintainer"
+echo
 echo "Notice: every chain requires an own  entry"
 echo "If a wrong address is send in, your node won't come up"
+echo
 
 read -p "Do you want to add ethereum as a chain-maintainer, answer yes or no: " ethereum
 while [[ "$ethereum" != @(yes|no) ]]; do
@@ -98,10 +100,10 @@ if [[ "$polygon" == "yes" ]]; then
 
 fi
 
-# enable chain maintainer ETH
-echo "ETH and Avalanche chain maintainer startup"
+# enable chain maintainer
+echo "chain maintainers startup"
 docker exec vald axelard tx nexus register-chain-maintainer $ethereum $avalanche $fantom $moonbeam $polygon --from broadcaster --node http://axelar-core:26657
-echo "ETH and Avalanche chain maintainer enabled"
+echo "chain maintainers enabled"
 echo
 
 sleep 5
