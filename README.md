@@ -47,4 +47,8 @@ here are the current options :
 
 5. "Build your validator" - Build and register a validator (prereq are options 1 and 2)
 
-6. "Monitor the node via cli" - monitoring for your node and validator
+6. "Enable chainmaintainers"
+
+7. "Upgrade validator"
+
+8. "Monitor the node via cli" - monitoring for your node and validator
