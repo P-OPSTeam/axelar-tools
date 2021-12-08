@@ -55,7 +55,7 @@ case $CHOICE in
         bash $SCRIPTPATH/newvalidator.sh
         ;;
     6)
-        bash $SCRIPTPATH/enablechainmaintainers.sh
+        bash $SCRIPTPATH/enablechainmaintainer.sh
         ;;
     7)
         bash $SCRIPTPATH/upgradevalidator.sh
