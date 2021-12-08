@@ -11,9 +11,9 @@ fi
 SCRIPT=`realpath -s $0`
 SCRIPTPATH=`dirname $SCRIPT`
 
-HEIGHT=15
+HEIGHT=17
 WIDTH=60
-CHOICE_HEIGHT=15
+CHOICE_HEIGHT=17
 BACKTITLE="Axelar"
 TITLE="Install menu"
 MENU="Choose one of the following options:"
