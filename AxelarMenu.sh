@@ -23,8 +23,10 @@ OPTIONS=(1 "install axelar requirements (docker, etc ..)"
          3 "Build/Rebuild with reset chain"
          4 "Reboot host"
          5 "Build your validator"
-         6 "Monitor the node via cli"
-         7 "Exit menu")
+         6 "Enable chainmaintainers"
+         7 "Upgrade validator"
+         8 "Monitor the node via cli"
+         9 "Exit menu")
 
 
 CHOICE=$(dialog --clear \
@@ -53,7 +55,13 @@ case $CHOICE in
         bash $SCRIPTPATH/newvalidator.sh
         ;;
     6)
+        bash $SCRIPTPATH/enablechainmaintainers.sh
+        ;;
+    7)
+        bash $SCRIPTPATH/upgradevalidator.sh
+        ;;
+    8)
         bash $SCRIPTPATH/monitoring/nodemonitor.sh
         ;;
-    7) exit
+    9) exit
 esac
