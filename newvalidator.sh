@@ -25,10 +25,10 @@ done
 
 echo "Starting prereq docker containers"
 
-CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
+CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/resources/testnet-releases.md | grep axelar-core | cut -d \` -f 4)
 echo Axelar Core version : ${CORE_VERSION}
 
-TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep tofnd | cut -d \` -f 4)
+TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/resources/testnet-releases.md  | grep tofnd | cut -d \` -f 4)
 echo Axelar TOFND version ${TOFND_VERSION}
 
 cd ~/axelarate-community
