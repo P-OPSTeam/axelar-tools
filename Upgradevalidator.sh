@@ -26,13 +26,13 @@ echo
 
 # Determining Axelar versions
 echo "Determining latest Axelar version" >&3
-CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
+CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/resources/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
 echo "Current Axelar Core version is $CORE_VERSION" >&3
 echo >&3
 
 # Determining Axelar versions
 echo "Determining latest Axelar version" >&3
-TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/testnet-releases.md  | grep tofnd | cut -d \` -f 4)
+TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/documentation/docs/resources/testnet-releases.md  | grep tofnd | cut -d \` -f 4)
 echo "Current Axelar Core version is $TOFND_VERSION" >&3
 echo >&3
 
