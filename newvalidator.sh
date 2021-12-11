@@ -147,4 +147,4 @@ echo "backup mnemonic broadcaster"
 cp ~/axelarate-community/launch-validator.log ~/axelar_backup/broadcaster-mnemonic.txt
 echo "Backup completed, check ~/axelar_backup/"
 echo
-echo "If you want to be a chain-maintainer run option "
+echo "If you want to be a chain-maintainer run option 6"
