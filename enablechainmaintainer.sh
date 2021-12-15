@@ -100,17 +100,61 @@ if [[ "$polygon" == "yes" ]]; then
 
 fi
 
+echo "restarting vald and tofnd"
+docker stop vald tofnd
+
+cd ~/axelarate-community/
+
+./join/launch-validator-tools.sh
+
+echo "done"
+echo
+
+echo "check EVM bridge enabled"
+docker logs -f vald 2>&1 | grep "EVM bridge for chain"
+echo
+
 # enable chain maintainer
 echo "chain maintainers startup"
-docker exec vald axelard tx nexus register-chain-maintainer ${ethereum} ${avalanche} ${fantom} ${moonbeam} ${polygon} --from broadcaster --node http://axelar-core:26657
+if [[ "$ethereum" == "ethereum" ]]; then
+echo "active"
+docker exec vald axelard tx nexus register-chain-maintainer ethereum --from broadcaster --node http://axelar-core:26657
+else 
+echo "ethereum not maintained"
+fi
+
+if [[ "$avalanche" == "avalanche" ]]; then
+echo "active"
+docker exec vald axelard tx nexus register-chain-maintainer avalanche --from broadcaster --node http://axelar-core:26657
+else 
+echo "avalanche not maintained"
+fi
+
+if [[ "$fantom" == "fantom" ]]; then
+echo "active"
+docker exec vald axelard tx nexus register-chain-maintainer fantom --from broadcaster --node http://axelar-core:26657
+else 
+echo "fantom not maintained"
+fi
+
+if [[ "$moonbeam" == "moonbeam" ]]; then
+echo "active"
+docker exec vald axelard tx nexus register-chain-maintainer moonbeam --from broadcaster --node http://axelar-core:26657
+else 
+echo "moonbeam not maintained"
+fi
+
+if [[ "$polygon" == "polygon" ]]; then
+echo "active"
+docker exec vald axelard tx nexus register-chain-maintainer polygon --from broadcaster --node http://axelar-core:26657
+else 
+echo "polygon not maintained"
+fi
+
 echo "chain maintainers enabled"
 echo
 
 sleep 5
-
-cp ~/axelarate-community/join/config.toml ~/.axelar_testnet/shared/config.toml 
-
-docker restart axelar-core vald tofnd
 
 echo
 echo "Containers restarted"
