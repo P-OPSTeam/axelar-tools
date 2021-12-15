@@ -344,30 +344,54 @@ isvalidator=$(grep -c "$VALIDATORADDRESS" <<<$validators)
 
 if [ "$isvalidator" != "0" ]; then
 
-        ETHNODE="$(sudo grep -A 1 '# Address of the ethereum RPC server' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
+        ETHNODE="$(sudo grep -A 1 'name = "Ethereum"' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
         if [ $? -ne 0 ]; then #something failed with the above command
-        echo "Failed to capture the eth node"
-        send_telegram_notification "nodemonitor exited : Failed to capture the eth node"
-        fi
-
+        echo "No eth node specified"
+        send_telegram_notification "nodemonitor exited : No eth node specified"
+        else
         echo "Eth node read from config file is : $ETHNODE"
-
-        BTCNODE="$(sudo grep -A 1 '# Address of the bitcoin RPC server' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
-        if [ $? -ne 0 ]; then #something failed with the above command
-        echo "Failed to capture the btc node"
-        send_telegram_notification "nodemonitor exited : Failed to capture the btc node"
         fi
 
-        echo "btc node read from config file is : $BTCNODE"
+        #BTCNODE="$(sudo grep -A 1 '# Address of the bitcoin RPC server' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
+        #if [ $? -ne 0 ]; then #something failed with the above command
+        #echo "Failed to capture the btc node"
+        #send_telegram_notification "nodemonitor exited : Failed to capture the btc node"
+        #fi
 
-        AVAXNODE="$(sudo grep -A 1 '# Address of the avalanche RPC server' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
+        #echo "btc node read from config file is : $BTCNODE"
+
+        AVAXNODE="$(sudo grep -A 1 'name = "Avalanche"' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
         if [ $? -ne 0 ]; then #something failed with the above command
-        echo "Failed to capture the btc node"
-        send_telegram_notification "nodemonitor exited : Failed to capture the btc node"
-        fi
-
+        echo "No avax node specified"
+        send_telegram_notification "nodemonitor exited : No avax node specified"
+        else
         echo "avax node read from config file is : $AVAXNODE"
+        fi
 
+        FANTOMNODE="$(sudo grep -A 1 'name = "Fantom"' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
+        if [ $? -ne 0 ]; then #something failed with the above command
+        echo "No fantom node specified"
+        send_telegram_notification "nodemonitor exited : No fantom node specified"
+        else
+        echo "fantom node read from config file is : $FANTOMNODE"
+        fi
+
+        MOONBEAMNODE="$(sudo grep -A 1 'name = "Moonbeam"' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
+        if [ $? -ne 0 ]; then #something failed with the above command
+        echo "No moonbeam node specified"
+        send_telegram_notification "nodemonitor exited : No moonbeam node specified"
+        else 
+        echo "moonbeam node read from config file is : $MOONBEAMNODE"
+        fi
+
+        POLYGONNODE="$(sudo grep -A 1 'name = "Polygon"' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
+        if [ $? -ne 0 ]; then #something failed with the above command
+        echo "No polygon node specified"
+        send_telegram_notification "nodemonitor exited : No polygon node specified"
+        else 
+        echo "polygon node read from config file is : $POLYGONNODE"
+        fi
+        
 fi
 
 echo "validator address: $AXELARVALIDATORADDRESS"
