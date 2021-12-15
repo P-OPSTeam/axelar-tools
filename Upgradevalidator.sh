@@ -45,6 +45,12 @@ cd ~/axelarate-community/
 echo "done"
 echo 
 
+# restoring old config file
+echo "restoring old config file regarding chainmaintainers"
+cp -r ~/.axelar_testnet_backup/shared/config.toml ~/axelarate-community/join/config.toml
+echo "done"
+echo
+
 # starting validator-tools
 echo "starting vald and tofnd"
 cd ~/axelarate-community/
