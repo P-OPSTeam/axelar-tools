@@ -348,7 +348,6 @@ if [ "$isvalidator" != "0" ]; then
         if [ $? -ne 0 ]; then #something failed with the above command
         echo "Failed to capture the eth node"
         send_telegram_notification "nodemonitor exited : Failed to capture the eth node"
-        exit 1
         fi
 
         echo "Eth node read from config file is : $ETHNODE"
@@ -357,7 +356,6 @@ if [ "$isvalidator" != "0" ]; then
         if [ $? -ne 0 ]; then #something failed with the above command
         echo "Failed to capture the btc node"
         send_telegram_notification "nodemonitor exited : Failed to capture the btc node"
-        exit 1
         fi
 
         echo "btc node read from config file is : $BTCNODE"
@@ -366,7 +364,6 @@ if [ "$isvalidator" != "0" ]; then
         if [ $? -ne 0 ]; then #something failed with the above command
         echo "Failed to capture the btc node"
         send_telegram_notification "nodemonitor exited : Failed to capture the btc node"
-        exit 1
         fi
 
         echo "avax node read from config file is : $AVAXNODE"
