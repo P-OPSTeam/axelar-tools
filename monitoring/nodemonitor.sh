@@ -344,7 +344,7 @@ isvalidator=$(grep -c "$VALIDATORADDRESS" <<<$validators)
 
 if [ "$isvalidator" != "0" ]; then
 
-        ETHNODE="$(sudo grep -A 1 'name = "Ethereum"' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
+        ETHNODE="$(sudo grep -A 1 'name = "\Ethereum\"' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
         if [ $? -ne 0 ]; then #something failed with the above command
         echo "No eth node specified"
         send_telegram_notification "nodemonitor exited : No eth node specified"
