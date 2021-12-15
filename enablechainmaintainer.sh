@@ -102,7 +102,7 @@ fi
 
 # enable chain maintainer
 echo "chain maintainers startup"
-docker exec vald axelard tx nexus register-chain-maintainer $ethereum $avalanche $fantom $moonbeam $polygon --from broadcaster --node http://axelar-core:26657
+docker exec vald axelard tx nexus register-chain-maintainer ${ethereum} ${avalanche} ${fantom} ${moonbeam} ${polygon} --from broadcaster --node http://axelar-core:26657
 echo "chain maintainers enabled"
 echo
 
