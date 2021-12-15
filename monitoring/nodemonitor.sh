@@ -344,7 +344,7 @@ isvalidator=$(grep -c "$VALIDATORADDRESS" <<<$validators)
 
 if [ "$isvalidator" != "0" ]; then
 
-        ETHNODE="$(sudo grep -A 1 'name = "\Ethereum\"' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
+        ETHNODE="$(sudo grep -A 1 'name = "\Ethereum\"' ${CONFIG} | tail -n 1  | grep -oP '(?<=").*?(?=")')"
         if [ $? -ne 0 ]; then #something failed with the above command
         echo "No eth node specified"
         send_telegram_notification "nodemonitor exited : No eth node specified"
@@ -360,7 +360,7 @@ if [ "$isvalidator" != "0" ]; then
 
         #echo "btc node read from config file is : $BTCNODE"
 
-        AVAXNODE="$(sudo grep -A 1 'name = "Avalanche"' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
+        AVAXNODE="$(sudo grep -A 1 'name = "Avalanche"' ${CONFIG} | tail -n 1  | grep -oP '(?<=").*?(?=")')"
         if [ $? -ne 0 ]; then #something failed with the above command
         echo "No avax node specified"
         send_telegram_notification "nodemonitor exited : No avax node specified"
@@ -368,7 +368,7 @@ if [ "$isvalidator" != "0" ]; then
         echo "avax node read from config file is : $AVAXNODE"
         fi
 
-        FANTOMNODE="$(sudo grep -A 1 'name = "Fantom"' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
+        FANTOMNODE="$(sudo grep -A 1 'name = "Fantom"' ${CONFIG} | tail -n 1  | grep -oP '(?<=").*?(?=")')"
         if [ $? -ne 0 ]; then #something failed with the above command
         echo "No fantom node specified"
         send_telegram_notification "nodemonitor exited : No fantom node specified"
@@ -376,7 +376,7 @@ if [ "$isvalidator" != "0" ]; then
         echo "fantom node read from config file is : $FANTOMNODE"
         fi
 
-        MOONBEAMNODE="$(sudo grep -A 1 'name = "Moonbeam"' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
+        MOONBEAMNODE="$(sudo grep -A 1 'name = "Moonbeam"' ${CONFIG} | tail -n 1  | grep -oP '(?<=").*?(?=")')"
         if [ $? -ne 0 ]; then #something failed with the above command
         echo "No moonbeam node specified"
         send_telegram_notification "nodemonitor exited : No moonbeam node specified"
@@ -384,7 +384,7 @@ if [ "$isvalidator" != "0" ]; then
         echo "moonbeam node read from config file is : $MOONBEAMNODE"
         fi
 
-        POLYGONNODE="$(sudo grep -A 1 'name = "Polygon"' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
+        POLYGONNODE="$(sudo grep -A 1 'name = "Polygon"' ${CONFIG} | tail -n 1  | grep -oP '(?<=").*?(?=")')"
         if [ $? -ne 0 ]; then #something failed with the above command
         echo "No polygon node specified"
         send_telegram_notification "nodemonitor exited : No polygon node specified"
