@@ -62,7 +62,7 @@ else
 fi
 
 while [ $(echo "${balance} <= 0" | bc -l) -eq 1 ]; do 
-    echo "${broadcaster} has 0 ${denom}. Please fund it with at least 5000000uxl, press enter once done"
+    echo "${broadcaster} has 0 ${denom}. Please fund it with at least 100000000uxl, that's 2x faucet request, press enter once done"
     read waitentry
     balance=$(docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount | cut -d '"' -f 2 2> /dev/null)
     if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1

@@ -118,35 +118,35 @@ echo
 echo "chain maintainers startup"
 if [[ "$ethereum" == "ethereum" ]]; then
 echo "active"
-docker exec vald axelard tx nexus register-chain-maintainer ethereum --from broadcaster --node http://axelar-core:26657
+docker exec vald axelard tx nexus register-chain-maintainer ethereum --from broadcaster --node http://axelar-core:26657 --gas auto --gas-adjustment 1.2
 else 
 echo "ethereum not maintained"
 fi
 
 if [[ "$avalanche" == "avalanche" ]]; then
 echo "active"
-docker exec vald axelard tx nexus register-chain-maintainer avalanche --from broadcaster --node http://axelar-core:26657
+docker exec vald axelard tx nexus register-chain-maintainer avalanche --from broadcaster --node http://axelar-core:26657 --gas auto --gas-adjustment 1.2
 else 
 echo "avalanche not maintained"
 fi
 
 if [[ "$fantom" == "fantom" ]]; then
 echo "active"
-docker exec vald axelard tx nexus register-chain-maintainer fantom --from broadcaster --node http://axelar-core:26657
+docker exec vald axelard tx nexus register-chain-maintainer fantom --from broadcaster --node http://axelar-core:26657 --gas auto --gas-adjustment 1.2
 else 
 echo "fantom not maintained"
 fi
 
 if [[ "$moonbeam" == "moonbeam" ]]; then
 echo "active"
-docker exec vald axelard tx nexus register-chain-maintainer moonbeam --from broadcaster --node http://axelar-core:26657
+docker exec vald axelard tx nexus register-chain-maintainer moonbeam --from broadcaster --node http://axelar-core:26657 --gas auto --gas-adjustment 1.2
 else 
 echo "moonbeam not maintained"
 fi
 
 if [[ "$polygon" == "polygon" ]]; then
 echo "active"
-docker exec vald axelard tx nexus register-chain-maintainer polygon --from broadcaster --node http://axelar-core:26657
+docker exec vald axelard tx nexus register-chain-maintainer polygon --from broadcaster --node http://axelar-core:26657 --gas auto --gas-adjustment 1.2
 else 
 echo "polygon not maintained"
 fi
