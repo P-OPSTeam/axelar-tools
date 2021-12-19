@@ -110,9 +110,9 @@ cd ~/axelarate-community/
 echo "done"
 echo
 
-echo "check EVM bridge enabled"
-docker logs -f vald 2>&1 | grep "EVM bridge for chain"
-echo
+# echo "check EVM bridge enabled"
+# docker logs -f vald | grep "EVM bridge for chain" &> dockerlog.log
+# echo
 
 # enable chain maintainer
 echo "chain maintainers startup"
