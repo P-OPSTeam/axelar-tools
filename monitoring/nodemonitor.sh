@@ -656,8 +656,6 @@ while true ; do
 
                 check_eth_endpoint
 
-                check_btc_endpoint
-
                 check_avax_endpoint
 
                 check_eligibility_MPC
