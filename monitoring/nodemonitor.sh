@@ -124,6 +124,27 @@ nmsg_avax_endpoint_test_ok="Avalanche endpoint test is now ok !"
 nmsg_avax_endpoint_test_nok="Avalanche endpoint test just failed !"
 avax_endpoint_status="NA" #Avax endpoint status to print out to log file 
 
+#fantom endpoint test
+fantom_endpoint_test_n="true" # true or false indicating status of the fantom_endpoint_test
+nmsg_fantom_endpoint_test_err="Fantom endpoint test ended with error"
+nmsg_fantom_endpoint_test_ok="Fantom endpoint test is now ok !"
+nmsg_fantom_endpoint_test_nok="Fantom endpoint test just failed !"
+fantom_endpoint_status="NA" #fantom endpoint status to print out to log file 
+
+#moonbeam endpoint test
+moonbeam_endpoint_test_n="true" # true or false indicating status of the moonbeam_endpoint_test
+nmsg_moonbeam_endpoint_test_err="moonbeam endpoint test ended with error"
+nmsg_moonbeam_endpoint_test_ok="moonbeam endpoint test is now ok !"
+nmsg_moonbeam_endpoint_test_nok="moonbeam endpoint test just failed !"
+moonbeam_endpoint_status="NA" #moonbeam endpoint status to print out to log file 
+
+#polygon endpoint test
+polygon_endpoint_test_n="true" # true or false indicating status of the polygon_endpoint_test
+nmsg_polygon_endpoint_test_err="polygon endpoint test ended with error"
+nmsg_polygon_endpoint_test_ok="polygon endpoint test is now ok !"
+nmsg_polygon_endpoint_test_nok="polygon endpoint test just failed !"
+polygon_endpoint_status="NA" #polygon endpoint status to print out to log file 
+
 #MPC eligibility test
 min_eligible_threshold=0.02 #2% total state are required to be eligible
 mpc_eligibility_test_n="true"
@@ -230,7 +251,7 @@ check_avax_endpoint() {
         avax_endpoint_status="ERR"  
         if [ $avax_endpoint_test_n == "true" ]; then #test was ok
             send_telegram_notification "$nmsg_avax_endpoint_test_err"
-            eth_endpoint_test_n="false"
+            avax_endpoint_test_n="false"
         fi
     else
         if [[ $url_res =~ "error" ]]; then
@@ -244,6 +265,84 @@ check_avax_endpoint() {
             if [ $avax_endpoint_test_n == "false" ]; then #test was not ok
                 send_telegram_notification "$nmsg_avax_endpoint_test_ok"
                 avax_endpoint_test_n="true"
+            fi
+        fi
+    fi    
+}
+
+check_fantom_endpoint() {
+    url_res=$(curl -X POST --data '{"jsonrpc": "2.0", "method": "eth_getBalance", "params": ["0xf3ce1887178d73aa90c98bc6be36bdc195ccb48d", "latest" ], "id": 1}' -H 'content-type:application/json;' $FANTOMNODE 2> /dev/null)
+    #echo $url_res
+    if [ $? -ne 0 ]; then #curl somehow failed
+        fantom_endpoint_status="ERR"  
+        if [ $fantom_endpoint_test_n == "true" ]; then #test was ok
+            send_telegram_notification "$nmsg_fantom_endpoint_test_err"
+            fantom_endpoint_test_n="false"
+        fi
+    else
+        if [[ $url_res =~ "error" ]]; then
+            fantom_endpoint_status="NOK" 
+            if [ $fantom_endpoint_test_n == "true" ]; then #test was ok
+                send_telegram_notification "$nmsg_fantom_endpoint_test_nok"
+                fantom_endpoint_test_n="false"
+            fi
+        else  
+            fantom_endpoint_status="OK"
+            if [ $fantom_endpoint_test_n == "false" ]; then #test was not ok
+                send_telegram_notification "$nmsg_fantom_endpoint_test_ok"
+                fantom_endpoint_test_n="true"
+            fi
+        fi
+    fi    
+}
+
+check_moonbeam_endpoint() {
+    url_res=$(curl -X POST --data '{"jsonrpc": "2.0", "method": "eth_getBalance", "params": ["0xf3ce1887178d73aa90c98bc6be36bdc195ccb48d", "latest" ], "id": 1}' -H 'content-type:application/json;' $MOONBEAMNODE 2> /dev/null)
+    #echo $url_res
+    if [ $? -ne 0 ]; then #curl somehow failed
+        moonbeam_endpoint_status="ERR"  
+        if [ $moonbeam_endpoint_test_n == "true" ]; then #test was ok
+            send_telegram_notification "$nmsg_moonbeam_endpoint_test_err"
+            moonbeam_endpoint_test_n="false"
+        fi
+    else
+        if [[ $url_res =~ "error" ]]; then
+            moonbeam_endpoint_status="NOK" 
+            if [ $moonbeam_endpoint_test_n == "true" ]; then #test was ok
+                send_telegram_notification "$nmsg_moonbeam_endpoint_test_nok"
+                moonbeam_endpoint_test_n="false"
+            fi
+        else  
+            moonbeam_endpoint_status="OK"
+            if [ $moonbeam_endpoint_test_n == "false" ]; then #test was not ok
+                send_telegram_notification "$nmsg_moonbeam_endpoint_test_ok"
+                moonbeam_endpoint_test_n="true"
+            fi
+        fi
+    fi    
+}
+
+check_polygon_endpoint() {
+    url_res=$(curl -X POST --data '{"jsonrpc": "2.0", "method": "eth_getBalance", "params": ["0xf3ce1887178d73aa90c98bc6be36bdc195ccb48d", "latest" ], "id": 1}' -H 'content-type:application/json;' $POLYGONNODE 2> /dev/null)
+    #echo $url_res
+    if [ $? -ne 0 ]; then #curl somehow failed
+        polygon_endpoint_status="ERR"  
+        if [ $polygon_endpoint_test_n == "true" ]; then #test was ok
+            send_telegram_notification "$nmsg_polygon_endpoint_test_err"
+            polygon_endpoint_test_n="false"
+        fi
+    else
+        if [[ $url_res =~ "error" ]]; then
+            polygon_endpoint_status="NOK" 
+            if [ $polygon_endpoint_test_n == "true" ]; then #test was ok
+                send_telegram_notification "$nmsg_polygon_endpoint_test_nok"
+                polygon_endpoint_test_n="false"
+            fi
+        else  
+            polygon_endpoint_status="OK"
+            if [ $polygon_endpoint_test_n == "false" ]; then #test was not ok
+                send_telegram_notification "$nmsg_polygon_endpoint_test_ok"
+                polygon_endpoint_test_n="true"
             fi
         fi
     fi    
@@ -658,9 +757,15 @@ while true ; do
 
                 check_avax_endpoint
 
+                check_fantom_endpoint
+
+                check_moonbeam_endpoint
+
+                check_polygon_endpoint
+
                 check_eligibility_MPC
                 
-                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$bc_balance_status eth_endpoint=$eth_endpoint_status btc_endpoint=$btc_endpoint_status avax_endpoint=$avax_endpoint_status mpc_eligibility=$mpc_eligibility_status vald_run=$vald_run_status tofnd_run=$tofnd_run_status Health_check=$Health_check_status"
+                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$bc_balance_status eth_endpoint=$eth_endpoint_status avax_endpoint=$avax_endpoint_status fantom_endpoint=$fantom_endpoint_status moonbeam_endpoint=$moonbeam_endpoint_status polygon_endpoint=$polygon_endpoint_status mpc_eligibility=$mpc_eligibility_status vald_run=$vald_run_status tofnd_run=$tofnd_run_status Health_check=$Health_check_status"
             else
                 isvalidator="no"
                 validatorinfo="isvalidator=$isvalidator"
