@@ -69,8 +69,8 @@ sed -i "s/external_address = \"\"/external_address = \"$public_ip:26656\"/" ~/ax
 
 echo "Note that if the eth/btc endpoint is not setup correctly, your container may not start." >&3
 
-if grep "sleep 5" join/join-testnet.sh; then
-    echo "sleep exist in join-testnet.sh" ; 
+if grep "sleep 5" scripts/docker.sh; then
+    echo "sleep exist in docker.sh" ; 
 	else 
 	sed -i '/^VALIDATOR=$(docker exec axelar-core sh -c "axelard keys show validator -a --bech val")/i sleep 5' scripts/docker.sh;
 fi
