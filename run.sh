@@ -65,26 +65,26 @@ if [ ! -z $reenterip ] && [ $reenterip == "ENTERIP" ]; then
 fi
 echo "Final public ip used is $public_ip" >&3
 
-sed -i "s/external_address = \"\"/external_address = \"$public_ip:26656\"/" ~/axelarate-community/join/config.toml
+sed -i "s/external_address = \"\"/external_address = \"$public_ip:26656\"/" ~/axelarate-community/configuration/config.toml
 
 echo "Note that if the eth/btc endpoint is not setup correctly, your container may not start." >&3
 
 if grep "sleep 5" join/join-testnet.sh; then
     echo "sleep exist in join-testnet.sh" ; 
 	else 
-	sed -i '/^VALIDATOR=$(docker exec axelar-core sh -c "axelard keys show validator -a --bech val")/i sleep 5' join/join-testnet.sh;
+	sed -i '/^VALIDATOR=$(docker exec axelar-core sh -c "axelard keys show validator -a --bech val")/i sleep 5' scripts/docker.sh;
 fi
 
 echo
 
 if [[ "$reset" =~ "false" ]]; then
     echo "--> Starting the node"
-    join/join-testnet.sh --axelar-core ${CORE_VERSION} &> testnet.log
+    scripts/docker.sh --axelar-core ${CORE_VERSION} &> testnet.log
 else
     echo "--> Starting the node with reset"
     echo "WARNING! This will erase all previously stored data. Your node will catch up from the beginning"
     echo "Do you wish to proceed \"y/n\" ? "
-    join/join-testnet.sh --axelar-core ${CORE_VERSION} --reset-chain  &> testnet.log
+    scripts/docker.sh --axelar-core ${CORE_VERSION} --reset-chain  &> testnet.log
 fi
 
 # Test if axelar-core container is running

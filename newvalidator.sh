@@ -36,7 +36,7 @@ echo Axelar TOFND version ${TOFND_VERSION}
 echo "Launching/restarting validator (tofnd/vald)"
 docker container stop tofnd vald 2> /dev/null
 docker container rm tofnd vald 2> /dev/null
-bash join/launch-validator-tools.sh --axelar-core $CORE_VERSION --tofnd $TOFND_VERSION | tee launch-validator.log
+bash scripts/validator-tools-docker.sh --axelar-core $CORE_VERSION --tofnd $TOFND_VERSION | tee launch-validator.log
 
 #TBD backup broadcaster mnemonic
 #TBD backup tofnd mnemonic tofnd mnemonic (~/.axelar_testnet/.tofnd/export)
