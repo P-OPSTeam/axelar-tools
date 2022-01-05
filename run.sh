@@ -25,28 +25,19 @@ docker rm axelar-core
 echo "done" >&3
 echo >&3
 
+# Determining Axelar versions
+echo "Determining latest Axelar version" >&3
+CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/resources/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
+echo "Current Axelar Core version is $CORE_VERSION" >&3
+echo >&3
+
+echo ${CORE_VERSION}
+
 echo "Clone/Refresh Axerlar Community Github" >&3
 rm -rf ~/axelarate-community/
 cd ~
 git clone https://github.com/axelarnetwork/axelarate-community.git
 cd ~/axelarate-community
-
-# Get the axelarate-community tag
-echo "Get axelarate-community tag" >&3
-AXEL_TAG=$(git describe --tags --abbrev=0)
-echo "Current tag is $AXEL_TAG" >&3
-echo >&3
-git checkout $AXEL_TAG
-echo "done" >&3
-echo >&3
-
-# Determining Axelar versions
-echo "Determining latest Axelar version" >&3
-CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/$AXEL_TAG/documentation/docs/resources/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
-echo "Current Axelar Core version is $CORE_VERSION" >&3
-echo >&3
-
-echo ${CORE_VERSION}
 
 echo "Start the Axelar node" >&3
 

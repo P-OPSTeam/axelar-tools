@@ -27,18 +27,10 @@ echo "Starting prereq docker containers"
 
 cd ~/axelarate-community
 
-echo "Get axelarate-community tag" >&3
-AXEL_TAG=$(git describe --tags --abbrev=0)
-echo "Current tag is $AXEL_TAG" >&3
-echo >&3
-git checkout $AXEL_TAG
-echo "done" >&3
-echo >&3
-
-CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/$AXEL_TAG/documentation/docs/resources/testnet-releases.md | grep axelar-core | cut -d \` -f 4)
+CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/resources/testnet-releases.md | grep axelar-core | cut -d \` -f 4)
 echo Axelar Core version : ${CORE_VERSION}
 
-TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/$AXEL_TAG/documentation/docs/resources/testnet-releases.md  | grep tofnd | cut -d \` -f 4)
+TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/resources/testnet-releases.md  | grep tofnd | cut -d \` -f 4)
 echo Axelar TOFND version ${TOFND_VERSION}
 
 echo "Launching/restarting validator (tofnd/vald)"
