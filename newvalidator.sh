@@ -36,7 +36,14 @@ echo Axelar TOFND version ${TOFND_VERSION}
 echo "Launching/restarting validator (tofnd/vald)"
 docker container stop tofnd vald 2> /dev/null
 docker container rm tofnd vald 2> /dev/null
-bash scripts/validator-tools-docker.sh --axelar-core $CORE_VERSION --tofnd $TOFND_VERSION | tee launch-validator.log
+echo
+
+read -p "Enter your KEYRING PASSWORD, without it docker won't start : " KEYRING
+echo
+read -p "Enter your TOFND PASSWORD, without it docker won't start : " TOFND
+echo
+
+KEYRING_PASSWORD=$KEYRING TOFND_PASSWORD=$TOFND scripts/validator-tools-docker.sh --axelar-core $CORE_VERSION --tofnd $TOFND_VERSION | tee launch-validator.log
 
 #TBD backup broadcaster mnemonic
 #TBD backup tofnd mnemonic tofnd mnemonic (~/.axelar_testnet/.tofnd/export)
