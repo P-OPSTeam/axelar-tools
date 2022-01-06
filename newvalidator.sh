@@ -43,7 +43,7 @@ echo
 read -p "Enter your TOFND PASSWORD, without it docker won't start : " TOFND
 echo
 
-KEYRING_PASSWORD=$KEYRING TOFND_PASSWORD=$TOFND scripts/validator-tools-docker.sh --axelar-core $CORE_VERSION --tofnd $TOFND_VERSION | tee launch-validator.log
+KEYRING_PASSWORD=$KEYRING TOFND_PASSWORD=$TOFND scripts/validator-tools-docker.sh --axelar-core-version $CORE_VERSION --tofnd-version $TOFND_VERSION | tee launch-validator.log
 
 #TBD backup broadcaster mnemonic
 #TBD backup tofnd mnemonic tofnd mnemonic (~/.axelar_testnet/.tofnd/export)
