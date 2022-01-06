@@ -75,16 +75,19 @@ if grep "sleep 5" scripts/docker.sh; then
 	sed -i '/^VALIDATOR=$(docker exec axelar-core sh -c "axelard keys show validator -a --bech val")/i sleep 5' scripts/docker.sh;
 fi
 
+read -p "Enter your KEYRING PASSWORD, without it docker won't start : " KEYRING
+sed -i '/^# shellcheck disable=SC2154/i KEYRING_PASSWORD=$KEYRING' scripts/docker.sh;
+
 echo
 
 if [[ "$reset" =~ "false" ]]; then
     echo "--> Starting the node"
-    scripts/docker.sh --axelar-core ${CORE_VERSION} &> testnet.log
+    scripts/node.sh --environment docker --axelar-core ${CORE_VERSION} &> testnet.log
 else
     echo "--> Starting the node with reset"
     echo "WARNING! This will erase all previously stored data. Your node will catch up from the beginning"
     echo "Do you wish to proceed \"y/n\" ? "
-    scripts/docker.sh --axelar-core ${CORE_VERSION} --reset-chain  &> testnet.log
+    scripts/node.sh --environment docker --axelar-core-version ${CORE_VERSION} --reset-chain  &> testnet.log
 fi
 
 # Test if axelar-core container is running
