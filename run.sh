@@ -80,12 +80,12 @@ echo
 
 if [[ "$reset" =~ "false" ]]; then
     echo "--> Starting the node"
-    KEYRING_PASSWORD=$KEYRING scripts/node.sh --environment docker --axelar-core-version ${CORE_VERSION} &> testnet.log
+    KEYRING_PASSWORD=$KEYRING scripts/node.sh --environment docker --axelar-core-version ${CORE_VERSION}
 else
     echo "--> Starting the node with reset"
     echo "WARNING! This will erase all previously stored data. Your node will catch up from the beginning"
     echo "Do you wish to proceed \"y/n\" ? "
-    KEYRING_PASSWORD=$KEYRING scripts/node.sh --environment docker --axelar-core-version ${CORE_VERSION} --reset-chain  &> testnet.log
+    KEYRING_PASSWORD=$KEYRING scripts/node.sh --environment docker --axelar-core-version ${CORE_VERSION} --reset-chain
 fi
 
 # Test if axelar-core container is running
