@@ -400,9 +400,9 @@ if [ -z $CONFIG ]; then
     exit 1
 fi
 
-if [ -z $KEYRING_PASSWORD]; then
+if [ -z $KEYRING_PASSWORD ]; then
     echo "Please enter the password one time below, if setting up as a service fill the field in the script"
-    read "Enter your password for polling the keys :" KEYRING_PASSWORD
+    read -p "Enter your password for polling the keys :" KEYRING_PASSWORD
 fi
 
 url=$(sudo sed '/^\[rpc\]/,/^\[/!d;//d' $CONFIG | grep "^laddr\b" | awk -v FS='("tcp://|")' '{print $2}')
