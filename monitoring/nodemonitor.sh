@@ -26,7 +26,7 @@ CONFIG=""                # config.toml file for node, eg. $HOME/.gaia/config/con
 ### optional:            #
 NPRECOMMITS="20"         # check last n precommits, can be 0 for no checking
 VALIDATORADDRESS=""      # if left empty default is from status call (validator)
-AXELAR_PASSWORD=""       # if left empty monitoring won't work
+KEYRING_PASSWORD=""      # if left empty monitoring won't work
 AXELARVALIDATORADDRESS="" #if left empty default is from status call (axelar validator)
 CHECKPERSISTENTPEERS="1" # if 1 the number of disconnected persistent peers is checked (when persistent peers are configured in config.toml)
 VALIDATORMETRICS="on"    # metrics for validator node
@@ -395,14 +395,14 @@ if [ -z $CONFIG ]; then
     fi
 fi
 
-if [ -z $KEYRING_PASSWORD]; then
-    echo "Please enter the password one time below, if setting up as a service fill the field in the script"
-    read "Enter your password for polling the keys :" KEYRING_PASSWORD
-fi
-
 if [ -z $CONFIG ]; then
     echo "please configure config.toml in script"
     exit 1
+fi
+
+if [ -z $KEYRING_PASSWORD]; then
+    echo "Please enter the password one time below, if setting up as a service fill the field in the script"
+    read "Enter your password for polling the keys :" KEYRING_PASSWORD
 fi
 
 url=$(sudo sed '/^\[rpc\]/,/^\[/!d;//d' $CONFIG | grep "^laddr\b" | awk -v FS='("tcp://|")' '{print $2}')
