@@ -165,16 +165,16 @@ send_telegram_notification() {
 
 # checking on broadcaster
 check_broadcaster_balance() {
-    broadcaster=$(docker exec vald sh -c "axelard keys show broadcaster -a")
+    broadcaster=$(docker exec vald sh -c "echo $KEYRING_PASSWORD | axelard keys show broadcaster -a")
 
-    docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount > /dev/null 2>&1
+    docker exec axelar-core sh -c "echo $KEYRING_PASSWORD | axelard q bank balances ${broadcaster} "| grep amount > /dev/null 2>&1
 
     if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
         #echo "Failed to capture balance, please manually run : axelard q bank balances ${broadcaster} | grep amount"
         send_telegram_notification "Failed to capture balance, please manually run : axelard q bank balances ${broadcaster} | grep amount"
         bc_balance_status="ERR"
     else
-        balance=$(docker exec axelar-core axelard q bank balances ${broadcaster} | grep amount | cut -d '"' -f 2)  
+        balance=$(docker exec axelar-core sh -c "echo $KEYRING_PASSWORD | axelard q bank balances ${broadcaster} "| grep amount | cut -d '"' -f 2)  
 
         if [ $(echo "${balance} <= ${broadcaster_min_balance}" | bc -l) -eq 1 ]; then #balance is <= broadcaster_min_balance
             msg="${broadcaster} current balance is $balance."
