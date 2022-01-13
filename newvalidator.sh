@@ -136,8 +136,9 @@ if [[ "$createvalidator" == "yes" ]]; then
     echo "Creating the validator with your selfstake of ${uaxl} ${denom} (wait 10s for confirmation)"
 
     axelarvalconspub=$(docker exec axelar-core sh -c "echo $KEYRING | axelard tendermint show-validator")
+    --pubkey="$(axelard tendermint show-validator)"
     #axelarvaloper=$(docker exec axelar-core sh -c "echo $KEYRING | "axelard keys show validator -a --bech val)
-    docker exec -it axelar-core sh -c "echo $KEYRING | axelard tx staking create-validator --yes --amount "${uaxl}${denom}" --moniker "$validatorname" --commission-rate="0.10" --commission-max-rate="0.20" --commission-max-change-rate="0.01" --min-self-delegation="1" --pubkey $axelarvalconspub --from validator -b block"
+    docker exec -it axelar-core sh -c "echo $KEYRING | axelard tx staking create-validator --yes --amount "${uaxl}${denom}" --moniker "$validatorname" --commission-rate="0.10" --commission-max-rate="0.20" --commission-max-change-rate="0.01" --min-self-delegation="1" --pubkey=$axelarvalconspub --from validator -b block"
 
     sleep 10
     echo "done"
