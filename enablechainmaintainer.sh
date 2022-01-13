@@ -7,6 +7,8 @@ echo "If a wrong address is send in, your node won't come up"
 echo
 
 read -p "Enter your KEYRING PASSWORD, without it you can't enable chains : " KEYRING
+echo
+read -p "Enter your TOFND PASSWORD, without it you can't enable chains : " TOFND
 
 read -p "Do you want to add ethereum as a chain-maintainer, answer yes or no: " ethereum
 while [[ "$ethereum" != @(yes|no) ]]; do
@@ -107,7 +109,7 @@ docker stop vald tofnd
 
 cd ~/axelarate-community/
 
-./scripts/validator-tools-docker.sh
+KEYRING_PASSWORD=$KEYRING TOFND_PASSWORD=$TOFND ./scripts/validator-tools-docker.sh
 
 echo "done"
 echo
