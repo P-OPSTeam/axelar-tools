@@ -573,7 +573,7 @@ while true ; do
         # Checking axelard process running
         if pgrep axelard >/dev/null; then
             echo "Is axelard binary running: Yes";
-            send_telegram_notification "$nmsg_axelar_run_ok"
+            # send_telegram_notification "$nmsg_axelar_run_ok"
             axelar_run_n="true"
         else
             echo "Is axelard binary running: No, please rerun node.sh";
@@ -591,7 +591,7 @@ while true ; do
             if pgrep tofnd >/dev/null; then
                 echo "Is tofnd proces running: Yes";
                 tofnd_run_status="OK"
-                send_telegram_notification "$nmsg_tofnd_run_ok"
+                # send_telegram_notification "$nmsg_tofnd_run_ok"
                 tofnd_run_n="true"
             else
                 echo "Is tofnd process running: no, make sure it runs";
