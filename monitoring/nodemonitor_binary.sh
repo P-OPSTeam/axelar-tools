@@ -57,106 +57,106 @@ DISCORD_URL="<ENTER YOUR DISCORD WEBHOOK>"
 #variable below avoid spams for the same notification state along with their notification message
 #catchup
 synced_n="catchingup"  # notification state either synced of catchingup (value possible catchingup/synced)
-nmsg_synced="Your Axelar node is now in synced"
-nmsg_unsynced="Your Axelar node is no longer in synced"
+nmsg_synced="$HOSTNAME: Your Axelar node is now in synced"
+nmsg_unsynced="$HOSTNAME: Your Axelar node is no longer in synced"
 
 #node stuck
 lastblockheight=0
 node_stuck_n="false" # true or false indicating the notification state of a node stuck
-nmsg_nodestuck="Your Axelar node is now stuck"
-nmsg_node_no_longer_stuck="Your Axelar node is no longer stuck, Yeah !"
+nmsg_nodestuck="$HOSTNAME: Your Axelar node is now stuck"
+nmsg_node_no_longer_stuck="$HOSTNAME: Your Axelar node is no longer stuck, Yeah !"
 node_stuck_status="NA" #node stucktest status to print out to log file
 
 #axelar-core version
 axelar_version_n="true" # true or false indicating whether the current version is correct
-nmsg_axelar_version_ok="Your Axelar node version is ok now"
-nmsg_axelar_version_nok="Your Axelar node version is different from axelar repo"
+nmsg_axelar_version_ok="$HOSTNAME: Your Axelar node version is ok now"
+nmsg_axelar_version_nok="$HOSTNAME: Your Axelar node version is different from axelar repo"
 axelar_version_status="NA" #Axelar core version test status to print out to log file
 
 #axelar-core run (axelard)
 axelar_run_n="true" # true or false indicating whether axelard(axelar-core) is running or not
-nmsg_axelar_run_ok="Your Axelar node is running ok now"
-nmsg_axelar_run_nok="Your Axelar node has just stop running, fix it !"
+nmsg_axelar_run_ok="$HOSTNAME: Your Axelar node is running ok now"
+nmsg_axelar_run_nok="$HOSTNAME: Your Axelar node has just stop running, fix it !"
 
 #vald run
 vald_run_n="true" # true or false indicating whether tofnd is running or not
-nmsg_vald_run_ok="vald is running ok now"
-nmsg_vald_run_nok="vald has just stop running. We'll try to start the process and you'll see an ok message if that happens, if not please fix it"
+nmsg_vald_run_ok="$HOSTNAME: vald is running ok now"
+nmsg_vald_run_nok="$HOSTNAME: vald has just stop running. We'll try to start the process and you'll see an ok message if that happens, if not please fix it"
 vald_run_status="NA" #vald test status to print out to log file 
 
 #tofnd run
 tofnd_run_n="true" # true or false indicating whether tofnd is running or not
-nmsg_tofnd_run_ok="tofnd is running ok now"
-nmsg_tofnd_run_nok="tofnd has just stop running. We'll try to start the process and you'll see an ok message if that happens, if not please fix it"
+nmsg_tofnd_run_ok="$HOSTNAME: tofnd is running ok now"
+nmsg_tofnd_run_nok="$HOSTNAME: tofnd has just stop running. We'll try to start the process and you'll see an ok message if that happens, if not please fix it"
 tofnd_run_status="NA" #vald test status to print out to log file 
 
 #vald tofnd connectivity test
 vald_tofnd_ping_n="true" # true or false indicating connectivity test state
-nmsg_vald_tofnd_ping_ok="vald/tofnd connectivity is now ok"
-nmsg_vald_tofnd_ping_nok="vald/tofnd is currently failing, please check"
+nmsg_vald_tofnd_ping_ok="$HOSTNAME: vald/tofnd connectivity is now ok"
+nmsg_vald_tofnd_ping_nok="$HOSTNAME: vald/tofnd is currently failing, please check"
 vald_tofnd_ping_status="NA" #vvald tofnd connectivity test status to print out to log file 
 
 #Health check test
 Health_check_n="true" # true or false indicating connectivity test state
-msg_Health_check_ok="Health check is ok"
-msg_Health_check_nok="Health check is not ok, please check"
+msg_Health_check_ok="$HOSTNAME: Health check is ok"
+msg_Health_check_nok="$HOSTNAME: Health check is not ok, please check"
 Health_check_status="NA" #Health check status to print out to log file
 
 #broadcaster balance test
 broadcaster_min_balance=0.1
 broadcaster_balance_n="false" # true or false indicating status of the broadcaster balance test
-nmsg_broadcaster_balance_ok="Broadcaster balance is now ok"
-nmsg_broadcaster_balance_nok="Broadcaster balance is below the min defined of ${broadcaster_min_balance}"
+nmsg_broadcaster_balance_ok="$HOSTNAME: Broadcaster balance is now ok"
+nmsg_broadcaster_balance_nok="$HOSTNAME: Broadcaster balance is below the min defined of ${broadcaster_min_balance}"
 bc_balance_status="NA" #balance test status to print out to log file 
 
 #eth endpoint test
 eth_endpoint_test_n="true" # true or false indicating status of the eth_endpoint_test
-nmsg_eth_endpoint_test_err="Eth endpoint test ended with error"
-nmsg_eth_endpoint_test_ok="Eth endpoint test is now ok !"
-nmsg_eth_endpoint_test_nok="Eth endpoint test just failed !"
+nmsg_eth_endpoint_test_err="$HOSTNAME: Eth endpoint test ended with error"
+nmsg_eth_endpoint_test_ok="$HOSTNAME: Eth endpoint test is now ok !"
+nmsg_eth_endpoint_test_nok="$HOSTNAME: Eth endpoint test just failed !"
 eth_endpoint_status="NA" #eth endpoint status to print out to log file 
 
 #btc endpoint test
 btc_endpoint_test_n="true" # true or false indicating status of the avax_endpoint_test
-nmsg_btc_endpoint_test_err="Btc endpoint test ended with error"
-nmsg_btc_endpoint_test_ok="Btc endpoint test is now ok !"
-nmsg_btc_endpoint_test_nok="Btc endpoint test just failed !"
+nmsg_btc_endpoint_test_err="$HOSTNAME: Btc endpoint test ended with error"
+nmsg_btc_endpoint_test_ok="$HOSTNAME: Btc endpoint test is now ok !"
+nmsg_btc_endpoint_test_nok="$HOSTNAME: Btc endpoint test just failed !"
 btc_endpoint_status="NA" #Btc endpoint status to print out to log file 
 
 #avax endpoint test
 avax_endpoint_test_n="true" # true or false indicating status of the avax_endpoint_test
-nmsg_avax_endpoint_test_err="Avalanche endpoint test ended with error"
-nmsg_avax_endpoint_test_ok="Avalanche endpoint test is now ok !"
-nmsg_avax_endpoint_test_nok="Avalanche endpoint test just failed !"
+nmsg_avax_endpoint_test_err="$HOSTNAME: Avalanche endpoint test ended with error"
+nmsg_avax_endpoint_test_ok="$HOSTNAME: Avalanche endpoint test is now ok !"
+nmsg_avax_endpoint_test_nok="$HOSTNAME: Avalanche endpoint test just failed !"
 avax_endpoint_status="NA" #Avax endpoint status to print out to log file 
 
 #fantom endpoint test
 fantom_endpoint_test_n="true" # true or false indicating status of the fantom_endpoint_test
-nmsg_fantom_endpoint_test_err="Fantom endpoint test ended with error"
-nmsg_fantom_endpoint_test_ok="Fantom endpoint test is now ok !"
-nmsg_fantom_endpoint_test_nok="Fantom endpoint test just failed !"
+nmsg_fantom_endpoint_test_err="$HOSTNAME: Fantom endpoint test ended with error"
+nmsg_fantom_endpoint_test_ok="$HOSTNAME: Fantom endpoint test is now ok !"
+nmsg_fantom_endpoint_test_nok="$HOSTNAME: Fantom endpoint test just failed !"
 fantom_endpoint_status="NA" #fantom endpoint status to print out to log file 
 
 #moonbeam endpoint test
 moonbeam_endpoint_test_n="true" # true or false indicating status of the moonbeam_endpoint_test
-nmsg_moonbeam_endpoint_test_err="moonbeam endpoint test ended with error"
-nmsg_moonbeam_endpoint_test_ok="moonbeam endpoint test is now ok !"
-nmsg_moonbeam_endpoint_test_nok="moonbeam endpoint test just failed !"
+nmsg_moonbeam_endpoint_test_err="$HOSTNAME: moonbeam endpoint test ended with error"
+nmsg_moonbeam_endpoint_test_ok="$HOSTNAME: moonbeam endpoint test is now ok !"
+nmsg_moonbeam_endpoint_test_nok="$HOSTNAME: moonbeam endpoint test just failed !"
 moonbeam_endpoint_status="NA" #moonbeam endpoint status to print out to log file 
 
 #polygon endpoint test
 polygon_endpoint_test_n="true" # true or false indicating status of the polygon_endpoint_test
-nmsg_polygon_endpoint_test_err="polygon endpoint test ended with error"
-nmsg_polygon_endpoint_test_ok="polygon endpoint test is now ok !"
-nmsg_polygon_endpoint_test_nok="polygon endpoint test just failed !"
+nmsg_polygon_endpoint_test_err="$HOSTNAME: polygon endpoint test ended with error"
+nmsg_polygon_endpoint_test_ok="$HOSTNAME: polygon endpoint test is now ok !"
+nmsg_polygon_endpoint_test_nok="$HOSTNAME: polygon endpoint test just failed !"
 polygon_endpoint_status="NA" #polygon endpoint status to print out to log file 
 
 #MPC eligibility test
 min_eligible_threshold=0.02 #2% total state are required to be eligible
 mpc_eligibility_test_n="true"
-nmsg_mpc_eligibility_test_err="MPC eligible test command failed with error"
-nmsg_mpc_eligibility_test_ok="MPC eligibility test now ok"
-nmsg_mpc_eligibility_test_nok="MPC eligibility test just failed !"
+nmsg_mpc_eligibility_test_err="$HOSTNAME: MPC eligible test command failed with error"
+nmsg_mpc_eligibility_test_ok="$HOSTNAME: MPC eligibility test now ok"
+nmsg_mpc_eligibility_test_nok="$HOSTNAME: MPC eligibility test just failed !"
 mpc_eligibility_status="NA" #mpc eligibility status to print out to log file 
 ################### END NOTIFICATION CONFIG ###################
 
