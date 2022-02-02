@@ -675,7 +675,7 @@ while true ; do
                 echo 'ok'
                 Health_check_status="OK"
                 if [ $Health_check_n == "false" ]; then
-                send_telegram_notification "$msg_Health_check_nok"
+                send_telegram_notification "$msg_Health_check_ok"
                 Health_check_n="true"
                 fi   
             fi
