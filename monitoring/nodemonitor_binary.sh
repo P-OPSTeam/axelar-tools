@@ -166,10 +166,10 @@ send_notification() {
     if [ "$enable_notification" == "true" ]; then
         message=$1
         
-        if [ "enable_telegram" == "true" ]; then
+        if [ "$enable_telegram" == "true" ]; then
             curl -s -X POST https://api.telegram.org/${BOT_ID}/sendMessage -d parse_mode=html -d chat_id=${CHAT_ID=} -d text="<b>$(hostname)</b> - $(date) : ${message}" > /dev/null 2>&1
         fi
-        if [ "enable_discord" == "true" ]; then
+        if [ "$enable_discord" == "true" ]; then
             curl -s -X POST $DISCORD_URL -H "Content-Type: application/json" -d "{\"content\": \"${message}\"}" > /dev/null 2>&1
         fi
     fi
