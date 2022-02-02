@@ -46,9 +46,13 @@ noColor='\033[0m'        # no color
 
 ################### NOTIFICATION CONFIG ###################
 enable_notification="true" #true of false
-#TELEGRAM
+# TELEGRAM
+enable_telegram="false"
 BOT_ID="bot<ENTER_YOURBOT_ID>"
 CHAT_ID="<ENTER YOUR CHAT_ID>"
+# DISCORD
+enable_discord="false"
+DISCORD_URL="<ENTER YOUR DISCORD WEBHOOK>"
 
 #variable below avoid spams for the same notification state along with their notification message
 #catchup
@@ -156,11 +160,18 @@ nmsg_mpc_eligibility_test_nok="MPC eligibility test just failed !"
 mpc_eligibility_status="NA" #mpc eligibility status to print out to log file 
 ################### END NOTIFICATION CONFIG ###################
 
-send_telegram_notification() {
+echo "Notification enabled on telegram : ${enable_telegram} / on discord : ${enable_discord}"
+
+send_notification() {
     if [ "$enable_notification" == "true" ]; then
         message=$1
         
-        curl -s -X POST https://api.telegram.org/${BOT_ID}/sendMessage -d parse_mode=html -d chat_id=${CHAT_ID=} -d text="<b>$(hostname)</b> - $(date) : ${message}" > /dev/null 2>&1
+        if [ "enable_telegram" == "true" ]; then
+            curl -s -X POST https://api.telegram.org/${BOT_ID}/sendMessage -d parse_mode=html -d chat_id=${CHAT_ID=} -d text="<b>$(hostname)</b> - $(date) : ${message}" > /dev/null 2>&1
+        fi
+        if [ "enable_discord" == "true" ]; then
+            curl -s -X POST $DISCORD_URL -H "Content-Type: application/json" -d "{\"content\": \"${message}\"}" > /dev/null 2>&1
+        fi
     fi
 }
 
@@ -172,7 +183,7 @@ check_broadcaster_balance() {
 
     if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
         #echo "Failed to capture balance, please manually run : axelard q bank balances ${broadcaster} | grep amount"
-        send_telegram_notification "Failed to capture balance, please manually run : axelard q bank balances ${broadcaster} | grep amount"
+        send_notification "Failed to capture balance, please manually run : axelard q bank balances ${broadcaster} | grep amount"
         bc_balance_status="ERR"
     else
         balance=$(echo $KEYRING_PASSWORD | $HOME/$NETWORKPATH/bin/axelard q bank balances ${broadcaster} | grep amount | cut -d '"' -f 2)  
@@ -181,12 +192,12 @@ check_broadcaster_balance() {
             msg="${broadcaster} current balance is $balance."
             bc_balance_status="NOK($balance)"
             if [ $broadcaster_balance_n == "true" ]; then #broadcaster was ok 
-                send_telegram_notification "$nmsg_broadcaster_balance_nok. $msg"
+                send_notification "$nmsg_broadcaster_balance_nok. $msg"
                 broadcaster_balance_n="false"
             fi
         else
             if [ $broadcaster_balance_n == "false" ]; then #broadcaster was not ok 
-                send_telegram_notification "$nmsg_broadcaster_balance_ok with $balance"
+                send_notification "$nmsg_broadcaster_balance_ok with $balance"
                 broadcaster_balance_n="true"
             fi
             bc_balance_status="OK($balance)"
@@ -200,20 +211,20 @@ check_eth_endpoint() {
     if [ $? -ne 0 ]; then #curl somehow failed
         eth_endpoint_status="ERR"  
         if [ $eth_endpoint_test_n == "true" ]; then #test was ok
-            send_telegram_notification "$nmsg_eth_endpoint_test_err"
+            send_notification "$nmsg_eth_endpoint_test_err"
             eth_endpoint_test_n="false"
         fi
     else
         if [[ $url_res =~ "error" ]]; then
             eth_endpoint_status="NOK" 
             if [ $eth_endpoint_test_n == "true" ]; then #test was ok
-                send_telegram_notification "$nmsg_eth_endpoint_test_nok"
+                send_notification "$nmsg_eth_endpoint_test_nok"
                 eth_endpoint_test_n="false"
             fi
         else  
             eth_endpoint_status="OK"
             if [ $eth_endpoint_test_n == "false" ]; then #test was not ok
-                send_telegram_notification "$nmsg_eth_endpoint_test_ok"
+                send_notification "$nmsg_eth_endpoint_test_ok"
                 eth_endpoint_test_n="true"
             fi
         fi
@@ -226,20 +237,20 @@ check_btc_endpoint() {
     if [ $? -ne 0 ]; then #curl somehow failed
         btc_endpoint_status="ERR"  
         if [ $btc_endpoint_test_n == "true" ]; then #test was ok
-            send_telegram_notification "$nmsg_btc_endpoint_test_err"
+            send_notification "$nmsg_btc_endpoint_test_err"
             btc_endpoint_test_n="false"
         fi
     else
         if [[ $url_res =~ "error" ]]; then
             btc_endpoint_status="NOK" 
             if [ $btc_endpoint_test_n == "true" ]; then #test was ok                
-                send_telegram_notification "$nmsg_btc_endpoint_test_nok"
+                send_notification "$nmsg_btc_endpoint_test_nok"
                 btc_endpoint_test_n="false"
             fi
         else  
             btc_endpoint_status="OK"
             if [ $btc_endpoint_test_n == "false" ]; then #test was not ok
-                send_telegram_notification "$nmsg_btc_endpoint_test_ok"
+                send_notification "$nmsg_btc_endpoint_test_ok"
                 btc_endpoint_test_n="true"
             fi
         fi
@@ -252,20 +263,20 @@ check_avax_endpoint() {
     if [ $? -ne 0 ]; then #curl somehow failed
         avax_endpoint_status="ERR"  
         if [ $avax_endpoint_test_n == "true" ]; then #test was ok
-            send_telegram_notification "$nmsg_avax_endpoint_test_err"
+            send_notification "$nmsg_avax_endpoint_test_err"
             avax_endpoint_test_n="false"
         fi
     else
         if [[ $url_res =~ "error" ]]; then
             avax_endpoint_status="NOK" 
             if [ $avax_endpoint_test_n == "true" ]; then #test was ok
-                send_telegram_notification "$nmsg_avax_endpoint_test_nok"
+                send_notification "$nmsg_avax_endpoint_test_nok"
                 avax_endpoint_test_n="false"
             fi
         else  
             avax_endpoint_status="OK"
             if [ $avax_endpoint_test_n == "false" ]; then #test was not ok
-                send_telegram_notification "$nmsg_avax_endpoint_test_ok"
+                send_notification "$nmsg_avax_endpoint_test_ok"
                 avax_endpoint_test_n="true"
             fi
         fi
@@ -278,20 +289,20 @@ check_fantom_endpoint() {
     if [ $? -ne 0 ]; then #curl somehow failed
         fantom_endpoint_status="ERR"  
         if [ $fantom_endpoint_test_n == "true" ]; then #test was ok
-            send_telegram_notification "$nmsg_fantom_endpoint_test_err"
+            send_notification "$nmsg_fantom_endpoint_test_err"
             fantom_endpoint_test_n="false"
         fi
     else
         if [[ $url_res =~ "error" ]]; then
             fantom_endpoint_status="NOK" 
             if [ $fantom_endpoint_test_n == "true" ]; then #test was ok
-                send_telegram_notification "$nmsg_fantom_endpoint_test_nok"
+                send_notification "$nmsg_fantom_endpoint_test_nok"
                 fantom_endpoint_test_n="false"
             fi
         else  
             fantom_endpoint_status="OK"
             if [ $fantom_endpoint_test_n == "false" ]; then #test was not ok
-                send_telegram_notification "$nmsg_fantom_endpoint_test_ok"
+                send_notification "$nmsg_fantom_endpoint_test_ok"
                 fantom_endpoint_test_n="true"
             fi
         fi
@@ -304,20 +315,20 @@ check_moonbeam_endpoint() {
     if [ $? -ne 0 ]; then #curl somehow failed
         moonbeam_endpoint_status="ERR"  
         if [ $moonbeam_endpoint_test_n == "true" ]; then #test was ok
-            send_telegram_notification "$nmsg_moonbeam_endpoint_test_err"
+            send_notification "$nmsg_moonbeam_endpoint_test_err"
             moonbeam_endpoint_test_n="false"
         fi
     else
         if [[ $url_res =~ "error" ]]; then
             moonbeam_endpoint_status="NOK" 
             if [ $moonbeam_endpoint_test_n == "true" ]; then #test was ok
-                send_telegram_notification "$nmsg_moonbeam_endpoint_test_nok"
+                send_notification "$nmsg_moonbeam_endpoint_test_nok"
                 moonbeam_endpoint_test_n="false"
             fi
         else  
             moonbeam_endpoint_status="OK"
             if [ $moonbeam_endpoint_test_n == "false" ]; then #test was not ok
-                send_telegram_notification "$nmsg_moonbeam_endpoint_test_ok"
+                send_notification "$nmsg_moonbeam_endpoint_test_ok"
                 moonbeam_endpoint_test_n="true"
             fi
         fi
@@ -330,20 +341,20 @@ check_polygon_endpoint() {
     if [ $? -ne 0 ]; then #curl somehow failed
         polygon_endpoint_status="ERR"  
         if [ $polygon_endpoint_test_n == "true" ]; then #test was ok
-            send_telegram_notification "$nmsg_polygon_endpoint_test_err"
+            send_notification "$nmsg_polygon_endpoint_test_err"
             polygon_endpoint_test_n="false"
         fi
     else
         if [[ $url_res =~ "error" ]]; then
             polygon_endpoint_status="NOK" 
             if [ $polygon_endpoint_test_n == "true" ]; then #test was ok
-                send_telegram_notification "$nmsg_polygon_endpoint_test_nok"
+                send_notification "$nmsg_polygon_endpoint_test_nok"
                 polygon_endpoint_test_n="false"
             fi
         else  
             polygon_endpoint_status="OK"
             if [ $polygon_endpoint_test_n == "false" ]; then #test was not ok
-                send_telegram_notification "$nmsg_polygon_endpoint_test_ok"
+                send_notification "$nmsg_polygon_endpoint_test_ok"
                 polygon_endpoint_test_n="true"
             fi
         fi
@@ -359,7 +370,7 @@ check_eligibility_MPC() {
     if [[ res1 -ne 0 || res2 -ne 0 ]]; then         
         mpc_eligibility_status="ERR"
         if [ $eth_endpoint_test_n == "true" ]; then #test was ok
-            send_telegram_notification "$nmsg_mpc_eligibility_test_err"
+            send_notification "$nmsg_mpc_eligibility_test_err"
             mpc_eligibility_test_n="false"
         fi
     fi
@@ -368,13 +379,13 @@ check_eligibility_MPC() {
         #self_voting_power is above min eligible threshold
         mpc_eligibility_status="OK"
         if [ $mpc_eligibility_test_n == "false" ]; then #test was ok
-            send_telegram_notification "$nmsg_mpc_eligibility_test_ok"
+            send_notification "$nmsg_mpc_eligibility_test_ok"
             mpc_eligibility_test_n="true"
         fi
     else
         mpc_eligibility_status="NOK"
         if [ $mpc_eligibility_test_n == "true" ]; then #test was not ok
-            send_telegram_notification "$nmsg_mpc_eligibility_test_nok"
+            send_notification "$nmsg_mpc_eligibility_test_nok"
             mpc_eligibility_test_n="false"
         fi
     fi
@@ -411,7 +422,7 @@ fi
 url=$(sudo sed '/^\[rpc\]/,/^\[/!d;//d' $CONFIG | grep "^laddr\b" | awk -v FS='("tcp://|")' '{print $2}')
 chainid=$(jq -r '.result.node_info.network' <<<$(curl -s "$url"/status))
 if [ -z $url ]; then
-    send_telegram_notification "nodemonitor exited : please configure config.toml in script correctly"
+    send_notification "nodemonitor exited : please configure config.toml in script correctly"
     echo "please configure config.toml in script correctly"
     exit 1
 fi
@@ -452,7 +463,7 @@ if [ "$isvalidator" != "0" ]; then
         ETHNODE="$(sudo grep -A 1 'name = "\Ethereum\"' ${CONFIG} | tail -n 1  | grep -oP '(?<=").*?(?=")')"
         if [ $? -ne 0 ]; then #something failed with the above command
         echo "No eth node specified"
-        send_telegram_notification "nodemonitor exited : No eth node specified"
+        send_notification "nodemonitor exited : No eth node specified"
         else
         echo "Eth node read from config file is : $ETHNODE"
         fi
@@ -460,7 +471,7 @@ if [ "$isvalidator" != "0" ]; then
         #BTCNODE="$(sudo grep -A 1 '# Address of the bitcoin RPC server' ${CONFIG} | grep -oP '(?<=").*?(?=")')"
         #if [ $? -ne 0 ]; then #something failed with the above command
         #echo "Failed to capture the btc node"
-        #send_telegram_notification "nodemonitor exited : Failed to capture the btc node"
+        #send_notification "nodemonitor exited : Failed to capture the btc node"
         #fi
 
         #echo "btc node read from config file is : $BTCNODE"
@@ -468,7 +479,7 @@ if [ "$isvalidator" != "0" ]; then
         AVAXNODE="$(sudo grep -A 1 'name = "Avalanche"' ${CONFIG} | tail -n 1  | grep -oP '(?<=").*?(?=")')"
         if [ $? -ne 0 ]; then #something failed with the above command
         echo "No avax node specified"
-        send_telegram_notification "nodemonitor exited : No avax node specified"
+        send_notification "nodemonitor exited : No avax node specified"
         else
         echo "avax node read from config file is : $AVAXNODE"
         fi
@@ -476,7 +487,7 @@ if [ "$isvalidator" != "0" ]; then
         FANTOMNODE="$(sudo grep -A 1 'name = "Fantom"' ${CONFIG} | tail -n 1  | grep -oP '(?<=").*?(?=")')"
         if [ $? -ne 0 ]; then #something failed with the above command
         echo "No fantom node specified"
-        send_telegram_notification "nodemonitor exited : No fantom node specified"
+        send_notification "nodemonitor exited : No fantom node specified"
         else
         echo "fantom node read from config file is : $FANTOMNODE"
         fi
@@ -484,7 +495,7 @@ if [ "$isvalidator" != "0" ]; then
         MOONBEAMNODE="$(sudo grep -A 1 'name = "Moonbeam"' ${CONFIG} | tail -n 1  | grep -oP '(?<=").*?(?=")')"
         if [ $? -ne 0 ]; then #something failed with the above command
         echo "No moonbeam node specified"
-        send_telegram_notification "nodemonitor exited : No moonbeam node specified"
+        send_notification "nodemonitor exited : No moonbeam node specified"
         else 
         echo "moonbeam node read from config file is : $MOONBEAMNODE"
         fi
@@ -492,7 +503,7 @@ if [ "$isvalidator" != "0" ]; then
         POLYGONNODE="$(sudo grep -A 1 'name = "Polygon"' ${CONFIG} | tail -n 1  | grep -oP '(?<=").*?(?=")')"
         if [ $? -ne 0 ]; then #something failed with the above command
         echo "No polygon node specified"
-        send_telegram_notification "nodemonitor exited : No polygon node specified"
+        send_notification "nodemonitor exited : No polygon node specified"
         else 
         echo "polygon node read from config file is : $POLYGONNODE"
         fi
@@ -558,14 +569,14 @@ while true ; do
             echo "$CORE_VERSION is latest";
             axelar_version_status="latest"
             if [ $axelar_version_n == "false" ]; then #version was not ok
-                send_telegram_notification "$nmsg_axelar_version_ok"
+                send_notification "$nmsg_axelar_version_ok"
                 axelar_version_n="true"
             fi
         else
             echo "Not latest, consider upgrading to the new axelar-core version $CORE_VERSION"
             axelar_version_status="need_update"
             if [ $axelar_version_n == "true" ]; then #version was ok
-                send_telegram_notification "$nmsg_axelar_version_nok"
+                send_notification "$nmsg_axelar_version_nok"
                 axelar_version_n="false"
             fi
         fi       
@@ -573,12 +584,12 @@ while true ; do
         # Checking axelard process running
         if pgrep axelard >/dev/null; then
             echo "Is axelard binary running: Yes";
-            # send_telegram_notification "$nmsg_axelar_run_ok"
+            # send_notification "$nmsg_axelar_run_ok"
             axelar_run_n="true"
         else
             echo "Is axelard binary running: No, please rerun node.sh";
             axelar_run_n="true"
-            send_telegram_notification "$nmsg_axelar_run_nok"
+            send_notification "$nmsg_axelar_run_nok"
         fi
 
         # Checking validator status
@@ -591,13 +602,13 @@ while true ; do
             if pgrep tofnd >/dev/null; then
                 echo "Is tofnd proces running: Yes";
                 tofnd_run_status="OK"
-                # send_telegram_notification "$nmsg_tofnd_run_ok"
+                # send_notification "$nmsg_tofnd_run_ok"
                 tofnd_run_n="true"
             else
                 echo "Is tofnd process running: no, make sure it runs";
                 tofnd_run_status="NOK"
                 tofnd_run_n="false"
-                send_telegram_notification "$nmsg_tofnd_run_nok"
+                send_notification "$nmsg_tofnd_run_nok"
                 # let's try to fix the problem once
             fi
 
@@ -608,7 +619,7 @@ while true ; do
             else
                 echo "Is vald-start process running: no, make sure it runs";
                 vald_run_n="false"
-                send_telegram_notification "$nmsg_vald_run_nok"
+                send_notification "$nmsg_vald_run_nok"
                 # let's try to fix the problem once
             fi
 
@@ -619,16 +630,16 @@ while true ; do
                 echo 'not ok'
                 Health_check_status="NOK"
                 if [ $Health_check_n == "true" ]; then
-                send_telegram_notification "$msg_Health_check_nok"
-                Health_check_n="false"
-                fi   
+                    send_notification "$msg_Health_check_nok"
+                    Health_check_n="false"
+                fi
              else
                 echo 'ok'
                 Health_check_status="OK"
                 if [ $Health_check_n == "false" ]; then
-                send_telegram_notification "$msg_Health_check_ok"
-                Health_check_n="true"
-                fi   
+                    send_notification "$msg_Health_check_ok"
+                    Health_check_n="true"
+                fi
             fi
 
             #TBD ping pong test for binary
@@ -655,13 +666,13 @@ while true ; do
         if [ $catchingup == "false" ]; then 
             catchingup="synced";
             if [ $synced_n == "catchingup" ]; then #it was previously synching
-                send_telegram_notification "$nmsg_synced"
+                send_notification "$nmsg_synced"
                 synced_n="synced" #change notification state
             fi
         elif [ $catchingup == "true" ]; then 
             catchingup="catchingup";
             if [ $synced_n == "synced" ]; then #it was previously synced
-                send_telegram_notification $nmsg_unsynced 
+                send_notification $nmsg_unsynced 
                 synced_n="catchingup" #change notification state
             fi
         fi
@@ -720,13 +731,13 @@ while true ; do
             node_stuck_status="YES"
             if [ $node_stuck_n == "false" ]; then # node_stuck notification state was false
                 node_stuck_n="true"
-                send_telegram_notification "$nmsg_nodestuck"
+                send_notification "$nmsg_nodestuck"
             fi
         else #new node block is different
             node_stuck_status="NO"
             if [ $node_stuck_n == "true" ]; then # mean it was previously stuck
                 node_stuck_n="false"
-                send_telegram_notification "$nmsg_node_no_longer_stuck"                
+                send_notification "$nmsg_node_no_longer_stuck"                
             fi
             lastblockheight=$blockheight
         fi
