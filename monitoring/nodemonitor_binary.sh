@@ -183,7 +183,7 @@ check_broadcaster_balance() {
 
     if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
         #echo "Failed to capture balance, please manually run : axelard q bank balances ${broadcaster} | grep amount"
-        send_notification "Failed to capture balance, please manually run : axelard q bank balances ${broadcaster} | grep amount"
+        send_notification "$HOSTNAME: Failed to capture balance, please manually run : axelard q bank balances ${broadcaster} | grep amount"
         bc_balance_status="ERR"
     else
         balance=$(echo $KEYRING_PASSWORD | $HOME/$NETWORKPATH/bin/axelard q bank balances ${broadcaster} | grep amount | cut -d '"' -f 2)  
