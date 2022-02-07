@@ -27,7 +27,7 @@ if [ $NETWORK == testnet ]; then
     CONFIG=$HOME/$NETWORKPATH/.core/config/config.toml
     CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/resources/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
     TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/resources/testnet-releases.md  | grep tofnd | cut -d \` -f 4)
-    else
+else
     echo "Network switched to Mainnet"
     NETWORKPATH=".axelar"
     CONFIG=$HOME/$NETWORKPATH/.core/config/config.toml
@@ -78,7 +78,7 @@ if [ $NETWORK == testnet ]; then
     cd ~
     git clone https://github.com/axelarnetwork/axelarate-community.git
     cd ~/axelarate-community
-    else
+else
     rm -rf ~/validators/
     cd ~
     git clone https://github.com/axelarnetwork/validators.git
@@ -92,7 +92,7 @@ echo "Backup the .axelar_testnet folder"
 if [ $NETWORK == testnet ]; then
     cp -r ~/.axelar_testnet ~/.axelar_testnet_backup
     backupdir=~/.axelar_testnet_backup
-    else
+else
     cp -r ~/.axelar ~/.axelar_backup
     backupdir=~/.axelar_backup
 fi
@@ -113,7 +113,7 @@ if [ $NETWORK == testnet ]; then
             KEYRING_PASSWORD=$KEYRING_PASSWORD TOFND_PASSWORD=$KEYRING_PASSWORD ./scripts/validator-tools-host.sh -a $CORE_VERSION
             echo "done"
         fi
-    else
+else
     echo "restoring old config file regarding chainmaintainers"
     cp -r ~/.axelar_backup/shared/config.toml ~/validators/configuration/config.toml
     echo "done"
