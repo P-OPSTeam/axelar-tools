@@ -18,6 +18,10 @@ NETWORK=""               # Network for choosing testnet or mainnet, no caps!
 KEYRING_PASSWORD=""      # if left empty monitoring won't work
 VALIDATORADDRESS=""      # if left empty default is from status call (validator)
 
+if  [ -z $NETWORK ];then
+    echo "please configure Network variable in script"
+    exit 1
+fi
 
 if [ $NETWORK == testnet ]; then
     echo "Network switched to Testnet"
