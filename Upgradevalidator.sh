@@ -70,7 +70,7 @@ pkill -f 'axelard start'
 pkill -f tofnd
 kill -9 $(pgrep -f "axelard vald-start")
 echo "done"
-echo >&3
+echo 
 
 echo "Clone/Refresh Axerlar Community Github"
 if [ $NETWORK == testnet ]; then
@@ -84,8 +84,8 @@ if [ $NETWORK == testnet ]; then
     git clone https://github.com/axelarnetwork/validators.git
     cd ~/validators
 fi
-echo "done" >&3
-echo >&3
+echo "done"
+echo
 
 # Backup .axelar_testnet folder
 echo "Backup the .axelar_testnet folder"
@@ -95,6 +95,7 @@ if [ $NETWORK == testnet ]; then
     else
     cp -r ~/.axelar ~/.axelar_backup
     backupdir=~/.axelar_backup
+fi
 echo "Copy created, you can find it at $backupdir"
 echo 
 
@@ -126,4 +127,5 @@ if [ $NETWORK == testnet ]; then
             echo "done"
         fi   
 
-echo 
+fi
+echo
