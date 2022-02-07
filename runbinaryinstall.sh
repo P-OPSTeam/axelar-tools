@@ -12,7 +12,13 @@ if [ "" = "$PKG_OK" ]; then
     sudo apt-get --yes install $REQUIRED_PKG
 fi
 
-
+REQUIRED_PKG="liblz4-tool"
+PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "install ok installed")
+echo Checking for $REQUIRED_PKG: $PKG_OK
+if [ "" = "$PKG_OK" ]; then
+    echo "No $REQUIRED_PKG. Setting up $REQUIRED_PKG."
+    sudo apt-get --yes install $REQUIRED_PKG
+fi
 
 # Determining Axelar versions
 echo "Determining Axelar version" 
@@ -72,17 +78,17 @@ curl -s --fail https://axelar-testnet.s3.us-east-2.amazonaws.com/genesis.json -o
 echo "--> Downloading latest seeds"
 curl -s --fail https://axelar-testnet.s3.us-east-2.amazonaws.com/seeds.txt -o $HOME/.axelar/config/seeds.txt
 echo "--> Copying config files"
-cp axelarate-community/join/config.toml $HOME/.axelar/config/  
-cp axelarate-community/join/app.toml $HOME/.axelar/config/
+cp axelarate-community/configuration/config.toml $HOME/.axelar/config/  
+cp axelarate-community/configuration/app.toml $HOME/.axelar/config/
 echo "done"
 echo
 
 echo "downloading snapshot file"
-wget https://snap.validatrium.club/axelar/201066.data.tar.gz
+wget https://dl2.quicksync.io/axelartestnet-lisbon-2-default.20220205.2240.tar.lz4
 echo "remove any old data"
 rm -rf  $HOME/.axelar_testnet/data
 echo "extracting the data"
-tar -xf 201066.data.tar.gz -C $HOME/.axelar_testnet
+lz4 -dc --no-sparse "axelartestnet-lisbon-2-default.20220205.2240.tar.lz4" | tar xf -tar -xf axelartestnet-lisbon-2-default.20220205.2240.tar -C $HOME/.axelar_testnet
 echo "done"
 echo
 
