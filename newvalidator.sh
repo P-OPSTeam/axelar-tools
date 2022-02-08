@@ -2,12 +2,6 @@
 
 denom=uaxl 
 
-echo "Determining script path" 
-SCRIPT=`realpath -s $0`
-SCRIPTPATH=`dirname $SCRIPT`
-echo "done"
-echo
-
 catchingup=$(jq -r '.result.sync_info.catching_up' <<<$(curl -s "http://localhost:26657/status"))
 
 while [[ $catchingup == "true" ]]; do
