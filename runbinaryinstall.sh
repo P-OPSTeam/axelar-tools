@@ -22,6 +22,12 @@ if [ "" = "$PKG_OK" ]; then
     sudo apt-get --yes install $REQUIRED_PKG
 fi
 
+if [ -z $MONIKER ]; then
+    echo "Please enter Moniker name below"
+    read -p "Enter Moniker name :" MONIKER
+fi
+
+
 # Determining Axelar versions
 echo "Determining Axelar version" 
 CORE_VERSION=$(curl -s https://docs.axelar.dev/resources/testnet-releases.md | grep axelar-core | cut -d \` -f 4)
@@ -60,11 +66,11 @@ echo
 echo "setting vaiables"
 
 ## replace <node-name> with your value
-echo 'export ACCOUNT=<node-name>' >> $HOME/.bashrc
+echo 'export ACCOUNT=$MONIKER' >> $HOME/.bashrc
 echo 'export CHAIN=$CHAIN_ID' >> $HOME/.bashrc
 source $HOME/.bashrc
 
-axelard init $ACCOUNT --chain-id $CHAIN_ID
+axelard init "$MONIKER" --chain-id $CHAIN_ID
 echo "done"
 echo
 
