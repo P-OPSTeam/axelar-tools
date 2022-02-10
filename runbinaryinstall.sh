@@ -76,12 +76,12 @@ echo
 
 echo "Downloading config files"
 echo "--> Downloading genesis file" 
-curl -s --fail https://axelar-testnet.s3.us-east-2.amazonaws.com/genesis.json -o $HOME/.axelar/config/genesis.json
+curl -s --fail https://axelar-testnet.s3.us-east-2.amazonaws.com/genesis.json -o $HOME/.axelar_testnet/config/genesis.json
 echo "--> Downloading latest seeds"
-curl -s --fail https://axelar-testnet.s3.us-east-2.amazonaws.com/seeds.txt -o $HOME/.axelar/config/seeds.txt
+curl -s --fail https://axelar-testnet.s3.us-east-2.amazonaws.com/seeds.txt -o $HOME/.axelar_testnet/config/seeds.txt
 echo "--> Copying config files"
-cp $HOME/axelarate-community/configuration/config.toml $HOME/.axelar/config/
-cp $HOME/axelarate-community/configuration/app.toml $HOME/.axelar/config/
+cp $HOME/axelarate-community/configuration/config.toml $HOME/.axelar_testnet/config/
+cp $HOME/axelarate-community/configuration/app.toml $HOME/.axelar_testnet/config/
 echo "done"
 echo
 
