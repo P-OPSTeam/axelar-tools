@@ -1,8 +1,10 @@
 #! /bin/bash
 
 if [[ $# -eq 1 && "$1" =~ "reset" ]]; then
-    reset="true" else
-    reset="false" fi
+    reset="true" 
+    else
+    reset="false" 
+fi
 
 REQUIRED_PKG="jq"
 PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "install ok installed")
@@ -123,5 +125,5 @@ axelard keys add validator > $HOME/validator.txt
 echo "--> creating axelar broadcaster wallet"
 axelard keys add broadcaster > $HOME/broadcaster.txt
 echo "--> creating Tofnd wallet"
-tofnd -m create -d $HOME/.axelar_testnet/.tofnd
+tofnd -m create -d "$HOME/.axelar_testnet/.tofnd"
 mv $HOME/.axelar/.tofnd_testnet/export $HOME/.axelar_testnet/.tofnd/import
