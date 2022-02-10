@@ -1,11 +1,5 @@
 #! /bin/bash
 
-if [[ $# -eq 1 && "$1" =~ "reset" ]]; then
-    reset="true" 
-    else
-    reset="false" 
-fi
-
 REQUIRED_PKG="jq"
 PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "install ok installed")
 echo Checking for $REQUIRED_PKG: $PKG_OK
