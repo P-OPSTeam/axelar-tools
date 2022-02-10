@@ -86,16 +86,17 @@ echo "done"
 echo
 
 echo "downloading snapshot file"
-wget https://dl2.quicksync.io/axelartestnet-lisbon-2-default.20220205.2240.tar.lz4
+cd ~/.axelar_testnet/
+wget https://dl2.quicksync.io/axelartestnet-lisbon-3-pruned.20220209.2240.tar.lz4
 echo "remove any old data"
 rm -rf  $HOME/.axelar_testnet/data
 echo "extracting the data"
-lz4 -dc --no-sparse "axelartestnet-lisbon-2-default.20220205.2240.tar.lz4" | tar xf -tar -xf axelartestnet-lisbon-2-default.20220205.2240.tar -C $HOME/.axelar_testnet
+lz4 -d axelartestnet-lisbon-3-pruned.20220209.2240.tar.lz4 | tar xf -
 echo "done"
 echo
 
 echo "creating service"
-cat > /etc/systemd/system/axelar-node.service << EOF
+sudo cat > /etc/systemd/system/axelar-node.service << EOF
 [Unit]
 Description=axelard-node
 After=network-online.target
@@ -113,8 +114,8 @@ Restart=on-abnormal
 WantedBy=multi-user.target
 EOF
 
-systemctl enable axelar-node.service
-systemctl start axelar-node
+sudo systemctl enable axelar-node.service
+sudo systemctl start axelar-node
 
 echo "done"
 echo
