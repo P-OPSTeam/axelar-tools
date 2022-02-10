@@ -96,7 +96,7 @@ echo "done"
 echo
 
 echo "creating service"
-sudo bash -c 'cat > /etc/systemd/system/axelar-node.service << EOF
+sudo bash -c "cat > /etc/systemd/system/axelar-node.service << EOF
 [Unit]
 Description=axelard-node
 After=network-online.target
@@ -112,7 +112,7 @@ Restart=on-abnormal
 
 [Install]
 WantedBy=multi-user.target
-EOF'
+EOF"
 
 sudo systemctl enable axelar-node.service
 sudo systemctl start axelar-node
