@@ -27,19 +27,35 @@ if [ -z $MONIKER ]; then
     read -p "Enter Moniker name :" MONIKER
 fi
 
+if  [ -z "$NETWORK" ];then
+    read -p "Enter network, testnet or mainnet :" NETWORK
+fi
 
 # Determining Axelar versions
 echo "Determining Axelar version" 
-CORE_VERSION=$(curl -s https://docs.axelar.dev/resources/testnet-releases.md | grep axelar-core | cut -d \` -f 4)
+CORE_VERSION=$(curl -s https://docs.axelar.dev/resources/$NETWORK-releases.md | grep axelar-core | cut -d \` -f 4)
 echo ${CORE_VERSION}
 
 echo "Determining Tofnd version" 
-TOFND_VERSION=$(curl -s https://docs.axelar.dev/resources/testnet-releases.md  | grep tofnd | cut -d \` -f 4)
+TOFND_VERSION=$(curl -s https://docs.axelar.dev/resources/$NETWORK-releases.md  | grep tofnd | cut -d \` -f 4)
 echo ${TOFND_VERSION}
 echo
 
-echo "Determining Testnet chain"
+if [ "$NETWORK" == testnet ]; then
+echo "Setup node for axelar testnet"
+echo "Determining testnet chain"
 CHAIN_ID=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/scripts/node.sh | grep chain_id=axelar-t | cut -f2 -d "=")
+NETWORKPATH=".axelar_testnet"
+SNAPSHOTURL="https://dl2.quicksync.io/axelartestnet-lisbon-3-pruned.20220209.2240.tar.lz4"
+SNAPSHOTFILE="axelartestnet-lisbon-3-pruned.20220209.2240.tar.lz4"
+else
+echo "Setup node for axelar mainnet"
+echo "Determining mainnet chain"
+CHAIN_ID=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/scripts/node.sh | grep chain_id=axelar-d | cut -f2 -d "=")
+NETWORKPATH=".axelar"
+SNAPSHOTURL="https://dl2.quicksync.io/axelar-dojo-1-default.20220209.2210.tar.lz4"
+SNAPSHOTFILE="axelar-dojo-1-default.20220209.2210.tar.lz4"
+fi
 
 echo "Clone Axerlar Community Github"
 # Remove repo for a clean git clone
@@ -70,34 +86,47 @@ echo 'export ACCOUNT=$MONIKER' >> $HOME/.bashrc
 echo 'export CHAIN=$CHAIN_ID' >> $HOME/.bashrc
 source $HOME/.bashrc
 
-axelard init "$MONIKER" --chain-id $CHAIN_ID --home $HOME/.axelar_testnet
+echo "make directory"
+mkdir $HOME/$NETWORKPATH
+mkdir $HOME/$NETWORKPATH/config/
 echo "done"
 echo
 
-echo "make directory"
-mkdir $HOME/.axelar_testnet/
-mkdir $HOME/.axelar_testnet/config/
+echo "Initialize node"
+axelard init "$MONIKER" --chain-id $CHAIN_ID --home $HOME/$NETWORKPATH
 echo "done"
 echo
 
 echo "Downloading config files"
 echo "--> Downloading genesis file" 
-curl -s --fail https://axelar-testnet.s3.us-east-2.amazonaws.com/genesis.json -o $HOME/.axelar_testnet/config/genesis.json
+curl -s --fail https://axelar-$NETWORK.s3.us-east-2.amazonaws.com/genesis.json -o $HOME/$NETWORKPATH/config/genesis.json
 echo "--> Downloading latest seeds"
-curl -s --fail https://axelar-testnet.s3.us-east-2.amazonaws.com/seeds.txt -o $HOME/.axelar_testnet/config/seeds.txt
+curl -s --fail https://axelar-$NETWORK.s3.us-east-2.amazonaws.com/seeds.txt -o $HOME/$NETWORKPATH/config/seeds.txt
 echo "--> Copying config files"
-cp $HOME/axelarate-community/configuration/config.toml $HOME/.axelar_testnet/config/
-cp $HOME/axelarate-community/configuration/app.toml $HOME/.axelar_testnet/config/
+cp $HOME/axelarate-community/configuration/config.toml $HOME/$NETWORKPATH/config/
+cp $HOME/axelarate-community/configuration/app.toml $HOME/$NETWORKPATH/config/
+echo "done"
+echo
+
+echo "Adding seeds to config toml"
+add_seeds() {
+  seeds=$(cat "$HOME/$NETWORKPATH/config/seeds.txt")
+  sed "s/^seeds =.*/seeds = \"$seeds\"/g" "$HOME/$NETWORKPATH/config/config.toml" >"$HOME/$NETWORKPATH/config/config.toml.tmp"
+  mv "$HOME/$NETWORKPATH/config/config.toml.tmp" "$HOME/$NETWORKPATH/config/config.toml"
+}
+
+add_seeds
 echo "done"
 echo
 
 echo "downloading snapshot file"
-cd $HOME/.axelar_testnet/
-wget https://dl2.quicksync.io/axelartestnet-lisbon-3-pruned.20220209.2240.tar.lz4
+
+cd $HOME/$NETWORKPATH
+wget $SNAPSHOTURL
 echo "remove any old data"
-rm -rf  $HOME/.axelar_testnet/data
+rm -rf  $HOME/$NETWORKPATH/data
 echo "extracting the data"
-lz4 -d axelartestnet-lisbon-3-pruned.20220209.2240.tar.lz4 | tar xf -
+lz4 -d $SNAPSHOTFILE | tar xf -
 echo "done"
 echo
 
@@ -109,7 +138,7 @@ After=network-online.target
 
 [Service]
 User=$USER
-ExecStart=/usr/local/bin/axelard start --home $HOME/.axelar_testnet
+ExecStart=/usr/local/bin/axelard start --home $HOME/$NETWORKPATH
 Restart=always
 RestartSec=3
 LimitNOFILE=16384
@@ -128,9 +157,9 @@ echo
 
 echo "creating wallets"
 echo "--> creating axelar validator wallet"
-axelard keys add validator --home $HOME/.axelar_testnet > $HOME/validator.txt
+axelard keys add validator --home $HOME/$NETWORKPATH > $HOME/validator.txt
 echo "--> creating axelar broadcaster wallet"
-axelard keys add broadcaster --home $HOME/.axelar_testnet > $HOME/broadcaster.txt
+axelard keys add broadcaster --home $HOME/$NETWORKPATH > $HOME/broadcaster.txt
 echo "--> creating Tofnd wallet"
-tofnd -m create -d "$HOME/.axelar_testnet/.tofnd"
-mv $HOME/.axelar_testnet/.tofnd/export $HOME/.axelar_testnet/.tofnd/import
+tofnd -m create -d "$HOME/$NETWORKPATH/.tofnd"
+mv $HOME/$NETWORKPATH/.tofnd/export $HOME/$NETWORKPATH/.tofnd/import
