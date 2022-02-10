@@ -24,11 +24,11 @@ fi
 
 # Determining Axelar versions
 echo "Determining Axelar version" 
-CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/resources/testnet-releases.md  | grep axelar-core | cut -d \` -f 4)
+CORE_VERSION=$(curl -s https://docs.axelar.dev/resources/testnet-releases.md | grep axelar-core | cut -d \` -f 4)
 echo ${CORE_VERSION}
 
 echo "Determining Tofnd version" 
-TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/resources/testnet-releases.md  | grep tofnd | cut -d \` -f 4)
+TOFND_VERSION=$(curl -s https://docs.axelar.dev/resources/testnet-releases.md  | grep tofnd | cut -d \` -f 4)
 echo ${TOFND_VERSION}
 echo
 
