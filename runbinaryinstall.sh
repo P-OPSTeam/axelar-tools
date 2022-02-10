@@ -80,13 +80,13 @@ curl -s --fail https://axelar-testnet.s3.us-east-2.amazonaws.com/genesis.json -o
 echo "--> Downloading latest seeds"
 curl -s --fail https://axelar-testnet.s3.us-east-2.amazonaws.com/seeds.txt -o $HOME/.axelar/config/seeds.txt
 echo "--> Copying config files"
-cp axelarate-community/configuration/config.toml $HOME/.axelar/config/  
-cp axelarate-community/configuration/app.toml $HOME/.axelar/config/
+cp $HOME/axelarate-community/configuration/config.toml $HOME/.axelar/config/
+cp $HOME/axelarate-community/configuration/app.toml $HOME/.axelar/config/
 echo "done"
 echo
 
 echo "downloading snapshot file"
-cd ~/.axelar_testnet/
+cd $HOME/.axelar_testnet/
 wget https://dl2.quicksync.io/axelartestnet-lisbon-3-pruned.20220209.2240.tar.lz4
 echo "remove any old data"
 rm -rf  $HOME/.axelar_testnet/data
