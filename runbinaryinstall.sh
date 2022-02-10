@@ -46,14 +46,14 @@ echo "done"
 echo
 
 echo "Download binary files"
-curl  "https://axelar-releases.s3.us-east-2.amazonaws.com/axelard/$CORE_VERSION/axelard-linux-amd64-$CORE_VERSION" -o /usr/local/bin/axelard
-curl -s --fail https://axelar-releases.s3.us-east-2.amazonaws.com/tofnd/$TOFND_VERSION/tofnd-linux-amd64-$TOFND_VERSION -o /usr/local/bin/tofnd
+sudo curl  "https://axelar-releases.s3.us-east-2.amazonaws.com/axelard/$CORE_VERSION/axelard-linux-amd64-$CORE_VERSION" -o /usr/local/bin/axelard
+sudo curl -s --fail https://axelar-releases.s3.us-east-2.amazonaws.com/tofnd/$TOFND_VERSION/tofnd-linux-amd64-$TOFND_VERSION -o /usr/local/bin/tofnd
 echo "done"
 echo
 
 echo "make the binary executable"
-chmod +x /usr/local/bin/axelard
-chmod +x /usr/local/bin/tofnd
+sudo chmod +x /usr/local/bin/axelard
+sudo chmod +x /usr/local/bin/tofnd
 echo "done"
 echo
 
