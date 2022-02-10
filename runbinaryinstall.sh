@@ -70,7 +70,7 @@ echo 'export ACCOUNT=$MONIKER' >> $HOME/.bashrc
 echo 'export CHAIN=$CHAIN_ID' >> $HOME/.bashrc
 source $HOME/.bashrc
 
-axelard init "$MONIKER" --chain-id $CHAIN_ID
+axelard init "$MONIKER" --chain-id $CHAIN_ID --home $HOME/.axelar_testnet
 echo "done"
 echo
 
@@ -109,7 +109,7 @@ After=network-online.target
 
 [Service]
 User=$USER
-ExecStart=/usr/local/bin/axelard start
+ExecStart=/usr/local/bin/axelard start --home $HOME/.axelar_testnet
 Restart=always
 RestartSec=3
 LimitNOFILE=16384
@@ -128,9 +128,9 @@ echo
 
 echo "creating wallets"
 echo "--> creating axelar validator wallet"
-axelard keys add validator > $HOME/validator.txt
+axelard keys add validator --home $HOME/.axelar_testnet > $HOME/validator.txt
 echo "--> creating axelar broadcaster wallet"
-axelard keys add broadcaster > $HOME/broadcaster.txt
+axelard keys add broadcaster --home $HOME/.axelar_testnet > $HOME/broadcaster.txt
 echo "--> creating Tofnd wallet"
 tofnd -m create -d "$HOME/.axelar_testnet/.tofnd"
-mv $HOME/.axelar/.tofnd_testnet/export $HOME/.axelar_testnet/.tofnd/import
+mv $HOME/.axelar_testnet/.tofnd/export $HOME/.axelar_testnet/.tofnd/import
