@@ -64,7 +64,7 @@ echo 'export ACCOUNT=<node-name>' >> $HOME/.bashrc
 echo 'export CHAIN=$CHAIN_ID' >> $HOME/.bashrc
 source $HOME/.bashrc
 
-axelard init $ACCOUNT --chain-id $CHAIN
+axelard init $ACCOUNT --chain-id $CHAIN_ID
 echo "done"
 echo
 
