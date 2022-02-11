@@ -1,5 +1,7 @@
 #! /bin/bash
 
+sudo apt update
+
 REQUIRED_PKG="jq"
 PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "install ok installed")
 echo Checking for $REQUIRED_PKG: $PKG_OK
@@ -226,7 +228,7 @@ After=network-online.target
 
 [Service]
 User=$USER
-ExecStart=bin/sh -c 'echo $KEYRING |axelard vald-start --tofnd-host localhost --node http://localhost:26657 --home $HOME/$NETWORK/.vald --validator-addr $validator --log_level debug --chain-id $CHAIN --from broadcaster'
+ExecStart=bin/sh -c 'echo $KEYRING | axelard vald-start --tofnd-host localhost --node http://localhost:26657 --home $HOME/$NETWORK/.vald --validator-addr $validator --log_level debug --chain-id $CHAIN --from broadcaster'
 Restart=always
 RestartSec=3
 LimitNOFILE=16384
