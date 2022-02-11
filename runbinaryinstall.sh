@@ -110,6 +110,25 @@ add_seeds
 echo "done"
 echo
 
+echo "Adding external ip to config file"
+public_ip=$(curl -s ifconfig.me)
+echo "See your public IP: $public_ip, this will be used to update config.toml"
+
+read -p "Press enter to continue, or type ENTERIP to reenter a new one: " reenterip
+
+if [ ! -z $reenterip ] && [ $reenterip == "ENTERIP" ]; then
+    read -p "Enter your public ip : " public_ip
+    test='([1-9]?[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])'
+    while [[ !($public_ip =~ ^$test\.$test\.$test\.$test$) ]]; do
+        read -p "invalid ip, pleeas re-enter : " public_ip 
+    done
+fi
+echo "Final public ip used is $public_ip"
+
+sed -i "s/external_address = \"\"/external_address = \"$public_ip:26656\"/" $HOME/$NETWORKPATH/config/config.toml
+echo "done"
+echo
+
 echo "downloading snapshot file"
 
 cd $HOME/$NETWORKPATH
