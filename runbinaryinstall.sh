@@ -25,6 +25,8 @@ if  [ -z "$NETWORK" ];then
     read -p "Enter network, testnet or mainnet :" NETWORK
 fi
 
+read -p "Enter your KEYRING PASSWORD : " KEYRING
+
 # Determining Axelar versions
 echo "Determining Axelar version" 
 CORE_VERSION=$(curl -s https://docs.axelar.dev/resources/$NETWORK-releases.md | grep axelar-core | cut -d \` -f 4)
@@ -40,15 +42,15 @@ echo "Setup node for axelar testnet"
 echo "Determining testnet chain"
 CHAIN_ID=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/scripts/node.sh | grep chain_id=axelar-t | cut -f2 -d "=")
 NETWORKPATH=".axelar_testnet"
-SNAPSHOTURL="https://dl2.quicksync.io/axelartestnet-lisbon-3-pruned.20220209.2240.tar.lz4"
-SNAPSHOTFILE="axelartestnet-lisbon-3-pruned.20220209.2240.tar.lz4"
+SNAPSHOTURL=$(curl https://quicksync.io/axelar.json|jq -r '.[] |select(.file=="axelartestnet-lisbon-3-pruned")|.url')
+SNAPSHOTFILE=$(curl https://quicksync.io/axelar.json|jq -r '.[] |select(.file=="axelartestnet-lisbon-3-pruned")|.url' | cut -c26-)
 else
 echo "Setup node for axelar mainnet"
 echo "Determining mainnet chain"
 CHAIN_ID=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/scripts/node.sh | grep chain_id=axelar-d | cut -f2 -d "=")
 NETWORKPATH=".axelar"
-SNAPSHOTURL="https://dl2.quicksync.io/axelar-dojo-1-default.20220209.2210.tar.lz4"
-SNAPSHOTFILE="axelar-dojo-1-default.20220209.2210.tar.lz4"
+SNAPSHOTURL=$(curl https://quicksync.io/axelar.json|jq -r '.[] |select(.file=="axelar-dojo-1-default")|.url')
+SNAPSHOTFILE=$(curl https://quicksync.io/axelar.json|jq -r '.[] |select(.file=="axelar-dojo-1-default")|.url' | cut -c26-)
 fi
 
 echo "Clone Axerlar Community Github"
@@ -151,9 +153,79 @@ echo
 
 echo "creating wallets"
 echo "--> creating axelar validator wallet"
-axelard keys add validator --home $HOME/$NETWORKPATH > $HOME/validator.txt
+echo $KEYRING | axelard keys add validator --home $HOME/$NETWORKPATH &> $HOME/validator.txt
 echo "--> creating axelar broadcaster wallet"
-axelard keys add broadcaster --home $HOME/$NETWORKPATH > $HOME/broadcaster.txt
+echo $KEYRING | axelard keys add broadcaster --home $HOME/$NETWORKPATH &> $HOME/broadcaster.txt
 echo "--> creating Tofnd wallet"
-tofnd -m create -d "$HOME/$NETWORKPATH/.tofnd"
+echo $KEYRING | tofnd -m create -d "$HOME/$NETWORKPATH/.tofnd"
 mv $HOME/$NETWORKPATH/.tofnd/export $HOME/$NETWORKPATH/.tofnd/import
+
+echo "Node setup done"
+echo "Please fund broadcaster and validator address"
+validator=$(tail $HOME/validator.txt | grep address | cut -f2 -d ":")
+echo "validator adress is : $validator"
+broadcaster=$(tail $HOME/broadcaster.txt | grep address | cut -f2 -d ":")
+echo "broadcaster adress is : $broadcaster"
+
+read -rsn1 -p"If funded the addresses press any key to continue";echo
+
+read -p "Do you need to create your validator, answer yes or no: " createvalidator
+while [[ "$createvalidator" != @(yes|no) ]]; do
+    read wishtocreate
+done
+
+if [[ "$createvalidator" == "yes" ]]; then
+echo "Setup validator tools"
+echo
+echo "-->setup TOFND service"
+sudo bash -c "cat > /etc/systemd/system/tofnd.service << EOF
+[Unit]
+Description=tofnd
+After=network-online.target
+
+[Service]
+User=$USER
+ExecStart=bin/sh -c 'echo $KEYRING | tofnd -m existing -d $HOME/$NETWORK/.tofnd'
+Restart=always
+RestartSec=3
+LimitNOFILE=16384
+MemoryMax=4G
+Restart=on-abnormal
+
+[Install]
+WantedBy=multi-user.target
+EOF"
+echo
+echo "enable and start tofnd service"
+sudo systemctl enable tofnd.service 
+sudo systemctl start tofnd.service
+echo "--> setup vald service"
+(cat $HOME/broadcaster.txt | tail -1 ; echo $KEYRING ; echo $KEYRING) | axelard keys add broadcaster --recover --home $HOME/$NETWORK/.vald
+cp $HOME/$NETWORK/config/config.toml $HOME/$NETWORK/.vald/config/config.toml
+cp $HOME/$NETWORK/config/app.toml $HOME/$NETWORK/.vald/config/app.toml
+cp $HOME/$NETWORK/config/genesis.json $HOME/$NETWORK/.vald/config/genesis.json
+
+sudo bash -c "cat > /etc/systemd/system/axelard-val.service << EOF
+[Unit]
+Description=axelard-val
+After=network-online.target
+
+[Service]
+User=$USER
+ExecStart=bin/sh -c 'echo $KEYRING |axelard vald-start --tofnd-host localhost --node http://localhost:26657 --home $HOME/$NETWORK/.vald --validator-addr $validator --log_level debug --chain-id $CHAIN --from broadcaster'
+Restart=always
+RestartSec=3
+LimitNOFILE=16384
+MemoryMax=4G
+Restart=on-abnormal
+
+[Install]
+WantedBy=multi-user.target
+EOF"
+echo
+echo "--> enable and start vald services"
+
+sudo systemctl enable axelard-val.service
+sudo systemctl start axelard-val.service
+echo "done"
+echo
