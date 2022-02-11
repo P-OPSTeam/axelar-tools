@@ -77,11 +77,6 @@ echo
 
 echo "setting vaiables"
 
-## replace <node-name> with your value
-echo 'export ACCOUNT=$MONIKER' >> $HOME/.bashrc
-echo 'export CHAIN=$CHAIN_ID' >> $HOME/.bashrc
-source $HOME/.bashrc
-
 echo "make directory"
 mkdir $HOME/$NETWORKPATH
 mkdir $HOME/$NETWORKPATH/config/
