@@ -169,9 +169,9 @@ echo
 
 echo "creating wallets"
 echo "--> creating axelar validator wallet"
-echo $KEYRING | axelard keys add validator --home $HOME/$NETWORKPATH &> $HOME/validator.txt
+(echo $KEYRING ; echo $KEYRING) | axelard keys add validator --home $HOME/$NETWORKPATH &> $HOME/validator.txt
 echo "--> creating axelar broadcaster wallet"
-echo $KEYRING | axelard keys add broadcaster --home $HOME/$NETWORKPATH &> $HOME/broadcaster.txt
+(echo $KEYRING ; echo $KEYRING) | axelard keys add broadcaster --home $HOME/$NETWORKPATH &> $HOME/broadcaster.txt
 echo "--> creating Tofnd wallet"
 echo $KEYRING | tofnd -m create -d "$HOME/$NETWORKPATH/.tofnd"
 mv $HOME/$NETWORKPATH/.tofnd/export $HOME/$NETWORKPATH/.tofnd/import
@@ -201,7 +201,7 @@ After=network-online.target
 
 [Service]
 User=$USER
-ExecStart=bin/sh -c 'echo $KEYRING | tofnd -m existing -d $HOME/$NETWORK/.tofnd'
+ExecStart=/bin/sh -c 'echo $KEYRING | tofnd -m existing -d $HOME/$NETWORK/.tofnd'
 Restart=always
 RestartSec=3
 LimitNOFILE=16384
@@ -212,7 +212,7 @@ Restart=on-abnormal
 WantedBy=multi-user.target
 EOF"
 echo
-echo "enable and start tofnd service"
+echo "--> enable and start tofnd service"
 sudo systemctl enable tofnd.service 
 sudo systemctl start tofnd.service
 echo "--> setup vald service"
@@ -220,6 +220,7 @@ echo "--> setup vald service"
 cp $HOME/$NETWORK/config/config.toml $HOME/$NETWORK/.vald/config/config.toml
 cp $HOME/$NETWORK/config/app.toml $HOME/$NETWORK/.vald/config/app.toml
 cp $HOME/$NETWORK/config/genesis.json $HOME/$NETWORK/.vald/config/genesis.json
+valoper=$(echo access2all | axelard keys show validator --home $HOME/.axelar_testnet --bech val -a)
 
 sudo bash -c "cat > /etc/systemd/system/axelard-val.service << EOF
 [Unit]
@@ -228,7 +229,7 @@ After=network-online.target
 
 [Service]
 User=$USER
-ExecStart=bin/sh -c 'echo $KEYRING | axelard vald-start --tofnd-host localhost --node http://localhost:26657 --home $HOME/$NETWORK/.vald --validator-addr $validator --log_level debug --chain-id $CHAIN --from broadcaster'
+ExecStart=/bin/sh -c 'echo $KEYRING | axelard vald-start --tofnd-host localhost --node http://localhost:26657 --home $HOME/$NETWORK/.vald --validator-addr $valoper --log_level debug --chain-id $CHAIN --from broadcaster'
 Restart=always
 RestartSec=3
 LimitNOFILE=16384
@@ -245,3 +246,4 @@ sudo systemctl enable axelard-val.service
 sudo systemctl start axelard-val.service
 echo "done"
 echo
+fi
