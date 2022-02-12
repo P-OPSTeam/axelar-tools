@@ -18,15 +18,13 @@ BACKTITLE="Axelar"
 TITLE="Install menu"
 MENU="Choose one of the following options:"
 
-OPTIONS=(1 "install axelar requirements (docker, etc ..)"
-         2 "Build (first time) or Rebuild (update) only"
-         3 "Build/Rebuild with reset chain"
-         4 "Reboot host"
-         5 "Build your validator"
-         6 "Enable chainmaintainers"
-         7 "Upgrade validator"
-         8 "Monitor the node via cli"
-         9 "Exit menu")
+OPTIONS=(1 "Install Binary by using wrapper"
+         2 "Install Binary by systemd"
+         3 "Upgrade Binary by using warpper"
+         4 "Upgrade Binary by systemd"
+         5 "reboot node"
+         6 "Monitor the node via cli wrapper"
+         7 "Exit menu")
 
 
 CHOICE=$(dialog --clear \
@@ -40,28 +38,22 @@ CHOICE=$(dialog --clear \
 clear
 case $CHOICE in
     1)
-        bash $SCRIPTPATH/prereq.sh
+        echo "building in progress"
         ;;
     2)
-        bash $SCRIPTPATH/run.sh 
+        bash $SCRIPTPATH/runbinaryinstall.sh
         ;;
     3)
-        bash $SCRIPTPATH/run.sh reset
+        bash $SCRIPTPATH/Upgradevalidator.sh reset
         ;;
     4)
-        bash $SCRIPTPATH/rebootserver.sh
+        echo "building in progress"
         ;;
     5)
-        bash $SCRIPTPATH/newvalidator.sh
+        bash $SCRIPTPATH/rebootserver.sh
         ;;
     6)
-        bash $SCRIPTPATH/enablechainmaintainer.sh
-        ;;
-    7)
-        bash $SCRIPTPATH/Upgradevalidator.sh
-        ;;
-    8)
         bash $SCRIPTPATH/monitoring/nodemonitor.sh
         ;;
-    9) exit
+    7)  exit
 esac

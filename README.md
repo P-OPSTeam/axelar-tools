@@ -33,22 +33,16 @@ cd axelar-tools && chmod u+x AxelarMenu.sh
 ./AxelarMenu.sh
 ```
 
-In the menu you will have to use option 1) first, then exit the terminal, log in again and then use option 2.
-
 here are the current options :
 
-1. "install axelar requirements (docker, etc ..)" - install prereq for the axelar node
+1. "Install Binary by using wrapper -- work in progress"
 
-2. "Build (first time) or Rebuild (update) only" - builds or updates your node
+2. "Install Binary by systemd" - Installing node/validator via systemd
 
-3. "Build/Rebuild with reset chain" - build your node and reset everything
+3. "Upgrade Binary by using warpper" - Update node/validator wrapper
 
-4. "Reboot host" - restart your machine
+4. "Upgrade Binary by systemd" -- work in progress
 
-5. "Build your validator" - Build and register a validator (prereq are options 1 and 2)
+5. "reboot node" - reboot node, node will auto start with systemd
 
-6. "Enable chainmaintainers"
-
-7. "Upgrade validator"
-
-8. "Monitor the node via cli" - monitoring for your node and validator
+6. "Monitor the node via cli" - monitoring for your node and validator
