@@ -402,11 +402,11 @@ if [ $NETWORK == testnet ]; then
     NETWORKPATH=".axelar_testnet"
     CONFIG=$HOME/$NETWORKPATH/.core/config/config.toml
     CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/resources/testnet-releases.md  | grep axelar-core | cut -d \` -f 4 | cut -d \v -f2)
-    else
+else
     echo "Network switched to Mainnet"
     NETWORKPATH=".axelar"
     CONFIG=$HOME/$NETWORKPATH/.core/config/config.toml
-    CORE_VERSION=$(cat ~/validators/resources/mainnet-releases.md | grep axelar-core | cut -d \` -f 4 | cut -d \v -f2)
+    CORE_VERSION=$(cat ~/axelarate-community/resources/mainnet-releases.md | grep axelar-core | cut -d \` -f 4 | cut -d \v -f2)
 fi
 
 if [ -z $CONFIG ]; then
