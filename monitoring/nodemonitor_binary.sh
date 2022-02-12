@@ -410,7 +410,7 @@ else
     if [ -z $CONFIG ]; then
     CONFIG=$HOME/$NETWORKPATH/.core/config/config.toml
     fi
-    CORE_VERSION=$(cat https://docs.axelar.dev/resources/$NETWORK-releases.md | grep axelar-core | cut -d \` -f 4 | cut -d \v -f2)
+    CORE_VERSION=$(curl -s https://docs.axelar.dev/resources/$NETWORK-releases.md | grep axelar-core | cut -d \` -f 4 | cut -d \v -f2)
 fi
 
 if [ -z $CONFIG ]; then
