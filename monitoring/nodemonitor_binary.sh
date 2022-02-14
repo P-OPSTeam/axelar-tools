@@ -102,6 +102,30 @@ msg_Health_check_ok="$HOSTNAME: Health check is ok"
 msg_Health_check_nok="$HOSTNAME: Health check is not ok, please check"
 Health_check_status="NA" #Health check status to print out to log file
 
+#Jailed status
+jailed_status_n="true" # true or false indicating jailed status
+msg_jailed_status_ok="$HOSTNAME: Validator is not jailed"
+msg_jailed_status_nok="$HOSTNAME: Validator is jailed, please check"
+jailed_status="NA" #jailed status to print out to log file
+
+#missed blocks status
+missed_status_n="true" # true or false indicating missed blocks status
+msg_missed_status_ok="$HOSTNAME: Validator is not missing to many blocks"
+msg_missed_status_nok="$HOSTNAME: Validator is missing to many blocks, please check"
+missed_status="NA" #missed status to print out to log file
+
+#stale heartbeat status
+stale_status_n="true" # true or false indicating stale tss heartbeat status
+msg_stale_status_ok="$HOSTNAME: Validator has no stale tss heartbeat"
+msg_stale_status_nok="$HOSTNAME: Validator has stale tss heartbeats, please check"
+stale_status="NA" #stale status to print out to log file
+
+#Tombstoned status
+tombstoned_status_n="true" # true or false indicating tombstoned status
+msg_tombstoned_status_ok="$HOSTNAME: Validator is not tombstoned"
+msg_tombstoned_status_nok="$HOSTNAME: Validator is tombstoned, please double check"
+tombstoned_status="NA" #stale status to print out to log file
+
 #broadcaster balance test
 broadcaster_min_balance=0.1
 broadcaster_balance_n="false" # true or false indicating status of the broadcaster balance test
@@ -643,6 +667,74 @@ while true ; do
                 if [ $Health_check_n == "false" ]; then
                     send_notification "$msg_Health_check_ok"
                     Health_check_n="true"
+                fi
+            fi
+
+            echo -n "Validator is Jailed : "
+            jailed=$(axelard q snapshot validators | grep "$AXELARVALIDATORADDRESS" -A 9 | grep jailed | cut -d ':' -f 2)
+            if [ $jailed == "true" ]; then
+                echo "true"
+                jailed_status="NOK"
+                if [ $jailed_status_n == "false" ]; then
+                    send_notification "$msg_jailed_status_nok"
+                    jailed_status_n="true"
+                fi
+            else
+                echo "false"
+                if [ $jailed_status_n == "true" ]; then
+                    send_notification "$msg_jailed_status_ok"
+                    jailed_status_n="false"
+                fi
+            fi
+            
+            echo -n "Validator missed blocks : "
+            missed=$(axelard q snapshot validators | grep "$AXELARVALIDATORADDRESS" -A 9 | grep missed_too_many_blocks | cut -d ':' -f 2)
+            if [ $missed == "true" ]; then
+                echo "true"
+                missed_status="NOK"
+                if [ $missed_status_n == "false" ]; then
+                    send_notification "$msg_missed_status_nok"
+                    missed_status_n="true"
+                fi
+            else
+                echo "false"
+                if [ $missed_status_n == "true" ]; then
+                    send_notification "$msg_missed_status_ok"
+                    missed_status_n="false"
+                fi
+            fi
+
+            echo -n "Validator has stale tss heartbeat : "
+            stale=$(axelard q snapshot validators | grep "$AXELARVALIDATORADDRESS" -A 9 | grep stale_tss_heartbeat | cut -d ':' -f 2)
+            if [ $stale == "true" ]; then
+                echo "true"
+                stale_status="NOK"
+                if [ $stale_status_n == "false" ]; then
+                    send_notification "$msg_stale_status_nok"
+                    stale_status_n="true"
+                fi
+            else
+                echo "false"
+                if [ $stale_status_n == "true" ]; then
+                    send_notification "$msg_stale_status_ok"
+                    stale_status_n="false"
+                fi
+            fi
+
+            echo -n "Validator is Tombstoned : "
+            tombstoned=$(axelard q snapshot validators | grep "$AXELARVALIDATORADDRESS" -A 9 | grep tombstoned | cut -d ':' -f 2)
+            if [ $tombstoned == "true" ]; then
+                echo "true"
+                tombstoned_status="NOK"
+                if [ $tombstoned_status_n == "false" ]; then
+                    send_notification "$msg_tombstoned_status_nok"
+                    tombstoned_status_n="true"
+                fi
+            else
+                echo "false"
+                if [ $tombstoned_status_n == "true" ]; then
+                    send_notification "$msg_tombstoned_status_ok"
+                    tombstoned_status_n="false"
                 fi
             fi
 
