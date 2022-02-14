@@ -41,7 +41,7 @@ here are the current options :
 
 3. "Upgrade Binary by using warpper" - Update node/validator wrapper
 
-4. "Upgrade Binary by systemd" -- work in progress
+4. "Upgrade Binary by systemd" -- Upgrading node/validator systemd
 
 5. "reboot node" - reboot node, node will auto start with systemd
 

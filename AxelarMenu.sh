@@ -44,10 +44,10 @@ case $CHOICE in
         bash $SCRIPTPATH/runbinaryinstall.sh
         ;;
     3)
-        bash $SCRIPTPATH/Upgradevalidator.sh reset
+        bash $SCRIPTPATH/Upgradevalidator.sh
         ;;
     4)
-        echo "building in progress"
+        bash $SCRIPTPATH/Upgradebinarysystemd.sh
         ;;
     5)
         bash $SCRIPTPATH/rebootserver.sh
