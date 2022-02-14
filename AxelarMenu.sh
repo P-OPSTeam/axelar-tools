@@ -41,7 +41,7 @@ case $CHOICE in
         echo "building in progress"
         ;;
     2)
-        bash $SCRIPTPATH/runbinaryinstall.sh
+        bash $SCRIPTPATH/binaryinstallsystemd.sh
         ;;
     3)
         bash $SCRIPTPATH/Upgradevalidator.sh
