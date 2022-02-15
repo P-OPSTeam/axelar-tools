@@ -135,6 +135,11 @@ if [[ "$createvalidator" == "yes" ]]; then
 echo "install validator tools"
 KEYRING_PASSWORD=$KEYRING TOFND_PASSWORD=$KEYRING ./scripts/validator-tools-host.sh n $NETWORK
 
+echo "adding path to system PATH"
+export PATH="$PATH:$HOME/$NETWORKPATH/bin"
+echo "done"
+echo
+
 echo "register proxy"
 broadcaster=$(tail $HOME/$NETWORKPATH/broadcaster.address)
 echo $KEYRING | axelard tx snapshot register-proxy $broadcaster --from validator --chain-id $CHAIN_ID --home $HOME/$NETWORKPATH/.core
