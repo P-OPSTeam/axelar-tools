@@ -232,7 +232,7 @@ echo "--> setup vald service"
 cp $HOME/$NETWORKPATH/config/config.toml $HOME/$NETWORKPATH/.vald/config/config.toml
 cp $HOME/$NETWORKPATH/config/app.toml $HOME/$NETWORKPATH/.vald/config/app.toml
 cp $HOME/$NETWORKPATH/config/genesis.json $HOME/$NETWORKPATH/.vald/config/genesis.json
-valoper=$(echo access2all | axelard keys show validator --home $HOME/$NETWORKPATH --bech val -a)
+valoper=$(echo $KEYRING | axelard keys show validator --home $HOME/$NETWORKPATH --bech val -a)
 
 sudo bash -c "cat > /etc/systemd/system/axelard-val.service << EOF
 [Unit]

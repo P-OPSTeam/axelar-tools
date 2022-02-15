@@ -110,7 +110,7 @@ jailed_status="NA" #jailed status to print out to log file
 
 #missed blocks status
 missed_status_n="true" # true or false indicating missed blocks status
-msg_missed_status_ok="$HOSTNAME: Validator is not missing to many blocks"
+msg_missed_status_ok="$HOSTNAME: Validator is not missing blocks"
 msg_missed_status_nok="$HOSTNAME: Validator is missing to many blocks, please check"
 missed_status="NA" #missed status to print out to log file
 
@@ -201,16 +201,16 @@ send_notification() {
 
 # checking on broadcaster
 check_broadcaster_balance() {
-    broadcaster=$(echo $KEYRING_PASSWORD | $HOME/$NETWORKPATH/bin/axelard keys show broadcaster -a --home $HOME/$NETWORKPATH/.vald)
+    broadcaster=$(echo $KEYRING_PASSWORD | axelard keys show broadcaster -a --home $HOME/$NETWORKPATH/.vald)
 
-    echo $KEYRING_PASSWORD | $HOME/$NETWORKPATH/bin/axelard q bank balances ${broadcaster} | grep amount > /dev/null 2>&1
+    echo $KEYRING_PASSWORD | axelard q bank balances ${broadcaster} | grep amount > /dev/null 2>&1
 
     if [ $? -ne 0 ]; then #if grep fail there is no balance and $? will return 1
         #echo "Failed to capture balance, please manually run : axelard q bank balances ${broadcaster} | grep amount"
         send_notification "$HOSTNAME: Failed to capture balance, please manually run : axelard q bank balances ${broadcaster} | grep amount"
         bc_balance_status="ERR"
     else
-        balance=$(echo $KEYRING_PASSWORD | $HOME/$NETWORKPATH/bin/axelard q bank balances ${broadcaster} | grep amount | cut -d '"' -f 2)  
+        balance=$(echo $KEYRING_PASSWORD | axelard q bank balances ${broadcaster} | grep amount | cut -d '"' -f 2)  
 
         if [ $(echo "${balance} <= ${broadcaster_min_balance}" | bc -l) -eq 1 ]; then #balance is <= broadcaster_min_balance
             msg="${broadcaster} current balance is $balance."
@@ -473,7 +473,7 @@ fi
 
 if [ -z $AXELARVALIDATORADDRESS ];
 then
-    AXELARVALIDATORADDRESS=$(echo $KEYRING_PASSWORD | $HOME/$NETWORKPATH/bin/axelard keys show validator --bech val -a --home $HOME/$NETWORKPATH/.core);
+    AXELARVALIDATORADDRESS=$(echo $KEYRING_PASSWORD | axelard keys show validator --bech val -a --home $HOME/$NETWORKPATH/.core);
 fi
 
 if [ -z $AXELARVALIDATORADDRESS ]; then
@@ -590,7 +590,7 @@ while true ; do
         # Checking axelar-core version
         echo -n "Determining latest Axelar version: "
         #Determining running version
-        $HOME/$NETWORKPATH/bin/axelard version  &> version.txt
+        axelard version  &> version.txt
         RUNNING_VERSION=$(tail version.txt)
         # testing Axelar version
         if [ $RUNNING_VERSION == $CORE_VERSION ]; then
@@ -653,7 +653,7 @@ while true ; do
 
         
             echo -n "health-check is : "
-            $HOME/$NETWORKPATH/bin/axelard health-check --operator-addr $(cat $HOME/$NETWORKPATH/validator.bech) > /home/$USER/axelar-tools/monitoring/healthcheck.log
+            axelard health-check --operator-addr $(cat $HOME/$NETWORKPATH/validator.bech) > /home/$USER/axelar-tools/monitoring/healthcheck.log
             if grep -q -F "failed" "/home/$USER/axelar-tools/monitoring/healthcheck.log"; then
                 echo 'not ok'
                 Health_check_status="NOK"
