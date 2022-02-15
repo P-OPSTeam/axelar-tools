@@ -38,7 +38,7 @@ CHOICE=$(dialog --clear \
 clear
 case $CHOICE in
     1)
-        echo "building in progress"
+        bash $SCRIPTPATH/wrapperinstall.sh
         ;;
     2)
         bash $SCRIPTPATH/binaryinstallsystemd.sh

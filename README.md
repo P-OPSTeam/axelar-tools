@@ -35,7 +35,7 @@ cd axelar-tools && chmod u+x AxelarMenu.sh
 
 here are the current options :
 
-1. "Install Binary by using wrapper -- work in progress"
+1. "Install Binary by using wrapper" - Install using wrapper, no auto start at boot
 
 2. "Install Binary by systemd" - Installing node/validator via systemd
 
