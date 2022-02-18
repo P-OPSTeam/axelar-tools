@@ -23,6 +23,8 @@ then set a password for the user
 passwd $USER
 ```
 
+Make also sure u set the ulimit -n 16384 permanent.
+
 ## Let's start
 
 Make sure you are NOT using root when running the scripts below. You must be logged in with the user created previously:
