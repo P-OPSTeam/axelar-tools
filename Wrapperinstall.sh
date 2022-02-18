@@ -108,20 +108,7 @@ KEYRING_PASSWORD=$KEYRING ./scripts/node.sh -a $CORE_VERSION -n $NETWORK
 
 echo "Node setup done"
 echo "Please fund validator address and wait for the node to be fully synced"
-echo "Open a new terminal to check state of the sync with "tail -f /home/pops/.axelar_testnet/logs/axelard.log"
 validator=$(tail $HOME/$NETWORKPATH/validator.txt | grep address | cut -f2 -d ":")
 echo "validator adress is : $validator"
-
-catchingup=$(jq -r '.result.sync_info.catching_up' <<<$(curl -s "http://localhost:26657/status"))
-
-while [[ $catchingup == "true" ]]; do
-    echo "Your node is NOT fully synced yet"
-    echo "we'll wait 30s and retry"
-    echo
-    sleep 30
-    catchingup=$(jq -r '.result.sync_info.catching_up' <<<$(curl -s "http://localhost:26657/status"))
-done
-
-read -rsn1 -p"If funded the addresses press any key to continue";echo
-
+echo "If you want to run a validator please choose option 5"
 echo "done"
