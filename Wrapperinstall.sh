@@ -107,11 +107,9 @@ cd ~/axelarate-community
 KEYRING_PASSWORD=$KEYRING ./scripts/node.sh -a $CORE_VERSION -n $NETWORK
 
 echo "Node setup done"
-echo "Please fund broadcaster and validator address"
+echo "Please fund validator address and wait for the node to be fully synced"
 validator=$(tail $HOME/$NETWORKPATH/validator.txt | grep address | cut -f2 -d ":")
 echo "validator adress is : $validator"
-broadcaster=$(tail $HOME/$NETWORKPATH/broadcaster.txt | grep address | cut -f2 -d ":")
-echo "broadcaster adress is : $broadcaster"
 
 catchingup=$(jq -r '.result.sync_info.catching_up' <<<$(curl -s "http://localhost:26657/status"))
 
@@ -139,6 +137,11 @@ echo "adding path to system PATH"
 export PATH="$PATH:$HOME/$NETWORKPATH/bin"
 echo "done"
 echo
+
+broadcaster=$(tail $HOME/$NETWORKPATH/broadcaster.txt | grep address | cut -f2 -d ":")
+echo "broadcaster adress is : $broadcaster"
+
+read -rsn1 -p"If funded the addresses press any key to continue";echo
 
 echo "register proxy"
 broadcaster=$(tail $HOME/$NETWORKPATH/broadcaster.address)
