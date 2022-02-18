@@ -38,16 +38,16 @@ CHOICE=$(dialog --clear \
 clear
 case $CHOICE in
     1)
-        bash $SCRIPTPATH/wrapperinstall.sh
+        bash $SCRIPTPATH/Wrapperinstall.sh
         ;;
     2)
         bash $SCRIPTPATH/binaryinstallsystemd.sh
         ;;
     3)
-        bash $SCRIPTPATH/upgradevalidator.sh
+        bash $SCRIPTPATH/Upgradevalidator.sh
         ;;
     4)
-        bash $SCRIPTPATH/upgradebinarysystemd.sh
+        bash $SCRIPTPATH/Upgradebinarysystemd.sh
         ;;
     5)
         bash $SCRIPTPATH/rebootserver.sh
