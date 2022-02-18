@@ -20,7 +20,7 @@ MENU="Choose one of the following options:"
 
 OPTIONS=(1 "Install Binary by using wrapper"
          2 "Install Binary by systemd"
-         3 "Upgrade Binary by using warpper"
+         3 "Upgrade Binary by using wrapper"
          4 "Upgrade Binary by systemd"
          5 "reboot node"
          6 "Monitor the node via cli wrapper"
@@ -44,10 +44,10 @@ case $CHOICE in
         bash $SCRIPTPATH/binaryinstallsystemd.sh
         ;;
     3)
-        bash $SCRIPTPATH/Upgradevalidator.sh
+        bash $SCRIPTPATH/upgradevalidator.sh
         ;;
     4)
-        bash $SCRIPTPATH/Upgradebinarysystemd.sh
+        bash $SCRIPTPATH/upgradebinarysystemd.sh
         ;;
     5)
         bash $SCRIPTPATH/rebootserver.sh
