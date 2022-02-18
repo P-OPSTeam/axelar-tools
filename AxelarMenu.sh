@@ -22,9 +22,10 @@ OPTIONS=(1 "Install Binary by using wrapper"
          2 "Install Binary by systemd"
          3 "Upgrade Binary by using wrapper"
          4 "Upgrade Binary by systemd"
-         5 "reboot node"
-         6 "Monitor the node via cli wrapper"
-         7 "Exit menu")
+         5 "Create validator wrapper"
+         6 "reboot node"
+         7 "Monitor the node via cli wrapper"
+         8 "Exit menu")
 
 
 CHOICE=$(dialog --clear \
@@ -50,10 +51,13 @@ case $CHOICE in
         bash $SCRIPTPATH/Upgradebinarysystemd.sh
         ;;
     5)
-        bash $SCRIPTPATH/rebootserver.sh
+        bash $SCRIPTPATH/createvalidatorwrapper.sh
         ;;
     6)
+        bash $SCRIPTPATH/rebootserver.sh
+        ;;
+    7)
         bash $SCRIPTPATH/monitoring/nodemonitor.sh
         ;;
-    7)  exit
+    8)  exit
 esac

@@ -45,6 +45,8 @@ here are the current options :
 
 4. "Upgrade Binary by systemd" -- Upgrading node/validator systemd
 
-5. "reboot node" - reboot node, node will auto start with systemd
+5. "Create validator wrapper" -- create a validator using axelar scripts
 
-6. "Monitor the node via cli" - monitoring for your node and validator
+6. "reboot node" - reboot node, node will auto start with systemd
+
+7. "Monitor the node via cli" - monitoring for your node and validator
