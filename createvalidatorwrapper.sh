@@ -86,7 +86,7 @@ done
 
     if [[ "$ethereum" == "yes" ]]; then
         # setting up eth rpc
-        sed -i '/^name = "Ethereum"/{n;N;d}' $HOME/axelarate-community/config/config.toml
+        sed -i '/^name = "Ethereum"/{n;N;d}' $HOME/axelarate-community/configuration/config.toml
         read -p "Type in your ETH Ropsten node address: " eth
         sed -i "/^name = \"Ethereum\"/a rpc_addr    = \"$eth\"\nstart-with-bridge = true" $HOME/axelarate-community/configuration/config.toml
         echo
@@ -105,7 +105,7 @@ done
     if [[ "$avalanche" == "yes" ]]; then
 
         # setting up Avalanche rpc
-        sed -i '/^name = "Avalanche"/{n;N;d}' $HOME/axelarate-community/config/config.toml
+        sed -i '/^name = "Avalanche"/{n;N;d}' $HOME/axelarate-community/configuration/config.toml
         read -p "Type in your Avalanche node address: " avax
         sed -i "/^name = \"Avalanche\"/a rpc_addr    = \"$avax\"\nstart-with-bridge = true" $HOME/axelarate-community/configuration/config.toml
         echo
@@ -124,7 +124,7 @@ done
     if [[ "$fantom" == "yes" ]]; then
 
         # setting up Fantom rpc
-        sed -i '/^name = "Fantom"/{n;N;d}' $HOME/axelarate-community/config/config.toml
+        sed -i '/^name = "Fantom"/{n;N;d}' $HOME/axelarate-community/configuration/config.toml
         read -p "Type in your Fantom node address: " fantom
         sed -i "/^name = \"Fantom\"/a rpc_addr    = \"$fantom\"\nstart-with-bridge = true" $HOME/axelarate-community/configuration/config.toml
         echo
@@ -143,7 +143,7 @@ done
     if [[ "$moonbeam" == "yes" ]]; then
 
         # setting up Moonbeam rpc
-        sed -i '/^name = "Moonbeam"/{n;N;d}' $HOME/axelarate-community/config/config.toml
+        sed -i '/^name = "Moonbeam"/{n;N;d}' $HOME/axelarate-community/configuration/config.toml
         read -p "Type in your Moonbeam node address: " moonbeam
         sed -i "/^name = \"Moonbeam\"/a rpc_addr    = \"$moonbeam\"\nstart-with-bridge = true" $HOME/axelarate-community/configuration/config.toml
         echo
@@ -162,7 +162,7 @@ done
     if [[ "$polygon" == "yes" ]]; then
 
         # setting up Polygon rpc
-        sed -i '/^name = "Polygon"/{n;N;d}' $HOME/axelarate-community/config/config.toml
+        sed -i '/^name = "Polygon"/{n;N;d}' $HOME/axelarate-community/configuration/config.toml
         read -p "Type in your Polygon node address: " polygon
         sed -i "/^name = \"Polygon\"/a rpc_addr    = \"$polygon\"\nstart-with-bridge = true" $HOME/axelarate-community/configuration/config.toml
         echo
