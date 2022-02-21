@@ -33,11 +33,11 @@ read -p "Enter your KEYRING PASSWORD : " KEYRING
 
 # Determining Axelar versions
 echo "Determining Axelar version" 
-CORE_VERSION=$(curl -s https://docs.axelar.dev/releases/$NETWORK | grep -o -P '(?<=axelar-core</code> version</td><td><code>).*(?=code)' | cut -b 1-7)
+CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/webdocs/main/docs/releases/$NETWORK.md | grep axelar-core | cut -d \` -f 4)
 echo ${CORE_VERSION}
 
 echo "Determining Tofnd version" 
-TOFND_VERSION=$(curl -s https://docs.axelar.dev/releases/$NETWORK | grep -o -P '(?<=tofnd</code> version</td><td><code>).*(?=code)' | cut -b 1-6)
+TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/webdocs/main/docs/releases/$NETWORK.md | grep tofnd | cut -d \` -f 4)
 echo ${TOFND_VERSION}
 echo
 
@@ -81,8 +81,8 @@ echo
 echo "setting vaiables"
 
 echo "make directory"
-mkdir $HOME/$NETWORKPATH
-mkdir $HOME/$NETWORKPATH/config/
+mkdir $HOME/$NETWORKPATH/.core
+mkdir $HOME/$NETWORKPATH/shared/
 echo "done"
 echo
 
@@ -93,20 +93,20 @@ echo
 
 echo "Downloading config files"
 echo "--> Downloading genesis file" 
-curl -s --fail https://axelar-$NETWORK.s3.us-east-2.amazonaws.com/genesis.json -o $HOME/$NETWORKPATH/config/genesis.json
+curl -s --fail https://axelar-$NETWORK.s3.us-east-2.amazonaws.com/genesis.json -o $HOME/$NETWORKPATH/shared/genesis.json
 echo "--> Downloading latest seeds"
-curl -s --fail https://axelar-$NETWORK.s3.us-east-2.amazonaws.com/seeds.txt -o $HOME/$NETWORKPATH/config/seeds.txt
+curl -s --fail https://axelar-$NETWORK.s3.us-east-2.amazonaws.com/seeds.txt -o $HOME/$NETWORKPATH/shared/seeds.txt
 echo "--> Copying config files"
-cp $HOME/axelarate-community/configuration/config.toml $HOME/$NETWORKPATH/config/
-cp $HOME/axelarate-community/configuration/app.toml $HOME/$NETWORKPATH/config/
+cp $HOME/axelarate-community/configuration/config.toml $HOME/$NETWORKPATH/shared/
+cp $HOME/axelarate-community/configuration/app.toml $HOME/$NETWORKPATH/shared/
 echo "done"
 echo
 
 echo "Adding seeds to config toml"
 add_seeds() {
-  seeds=$(cat "$HOME/$NETWORKPATH/config/seeds.txt")
-  sed "s/^seeds =.*/seeds = \"$seeds\"/g" "$HOME/$NETWORKPATH/config/config.toml" >"$HOME/$NETWORKPATH/config/config.toml.tmp"
-  mv "$HOME/$NETWORKPATH/config/config.toml.tmp" "$HOME/$NETWORKPATH/config/config.toml"
+  seeds=$(cat "$HOME/$NETWORKPATH/shared/seeds.txt")
+  sed "s/^seeds =.*/seeds = \"$seeds\"/g" "$HOME/$NETWORKPATH/shared/config.toml" >"$HOME/$NETWORKPATH/shared/config.toml.tmp"
+  mv "$HOME/$NETWORKPATH/shared/config.toml.tmp" "$HOME/$NETWORKPATH/shared/config.toml"
 }
 
 add_seeds
@@ -128,16 +128,16 @@ if [ ! -z $reenterip ] && [ $reenterip == "ENTERIP" ]; then
 fi
 echo "Final public ip used is $public_ip"
 
-sed -i "s/external_address = \"\"/external_address = \"$public_ip:26656\"/" $HOME/$NETWORKPATH/config/config.toml
+sed -i "s/external_address = \"\"/external_address = \"$public_ip:26656\"/" $HOME/$NETWORKPATH/shared/config.toml
 echo "done"
 echo
 
 echo "downloading snapshot file"
 
-cd $HOME/$NETWORKPATH
+cd $HOME/$NETWORKPATH/.core
 wget $SNAPSHOTURL
 echo "remove any old data"
-rm -rf  $HOME/$NETWORKPATH/data
+rm -rf  $HOME/$NETWORKPATH/.core/data
 echo "extracting the data"
 lz4 -d $SNAPSHOTFILE | tar xf -
 echo "done"
@@ -151,7 +151,7 @@ After=network-online.target
 
 [Service]
 User=$USER
-ExecStart=/usr/local/bin/axelard start --home $HOME/$NETWORKPATH
+ExecStart=/usr/local/bin/axelard start --home $HOME/$NETWORKPATH/.core
 Restart=always
 RestartSec=3
 LimitNOFILE=16384
@@ -170,14 +170,14 @@ echo
 
 echo "creating wallets"
 echo "--> creating axelar validator wallet"
-(echo $KEYRING ; echo $KEYRING) | axelard keys add validator --home $HOME/$NETWORKPATH &> $HOME/validator.txt
+(echo $KEYRING ; echo $KEYRING) | axelard keys add validator --home $HOME/$NETWORKPATH/.core &> $HOME/validator.txt
 echo "--> creating axelar broadcaster wallet"
-(echo $KEYRING ; echo $KEYRING) | axelard keys add broadcaster --home $HOME/$NETWORKPATH &> $HOME/broadcaster.txt
+(echo $KEYRING ; echo $KEYRING) | axelard keys add broadcaster --home $HOME/$NETWORKPATH/.core &> $HOME/broadcaster.txt
 echo "--> creating Tofnd wallet"
 echo $KEYRING | tofnd -m create -d "$HOME/$NETWORKPATH/.tofnd"
 mv $HOME/$NETWORKPATH/.tofnd/export $HOME/$NETWORKPATH/.tofnd/import
 
-echo access2all | axelard keys show validator --home $HOME/$NETWORKPATH --bech val -a > $HOME/$NETWORKPATH/validator.bech
+echo access2all | axelard keys show validator --home $HOME/$NETWORKPATH/.core --bech val -a > $HOME/$NETWORKPATH/validator.bech
 echo "Node setup done"
 echo "Please fund broadcaster and validator address"
 validator=$(tail $HOME/validator.txt | grep address | cut -f2 -d ":")
@@ -195,7 +195,8 @@ while [[ $catchingup == "true" ]]; do
     catchingup=$(jq -r '.result.sync_info.catching_up' <<<$(curl -s "http://localhost:26657/status"))
 done
 
-read -rsn1 -p"If funded the addresses press any key to continue";echo
+read -rsn1 -p"Please copy and fund the addresses, do not use ctrl-c";echo
+read -p "If funded press enter" emptystring
 
 read -p "Do you need to create your validator, answer yes or no: " createvalidator
 while [[ "$createvalidator" != @(yes|no) ]]; do
@@ -229,10 +230,10 @@ sudo systemctl enable tofnd.service
 sudo systemctl start tofnd.service
 echo "--> setup vald service"
 (cat $HOME/broadcaster.txt | tail -1 ; echo $KEYRING ; echo $KEYRING) | axelard keys add broadcaster --recover --home $HOME/$NETWORKPATH/.vald
-cp $HOME/$NETWORKPATH/config/config.toml $HOME/$NETWORKPATH/.vald/config/config.toml
-cp $HOME/$NETWORKPATH/config/app.toml $HOME/$NETWORKPATH/.vald/config/app.toml
-cp $HOME/$NETWORKPATH/config/genesis.json $HOME/$NETWORKPATH/.vald/config/genesis.json
-valoper=$(echo $KEYRING | axelard keys show validator --home $HOME/$NETWORKPATH --bech val -a)
+cp $HOME/$NETWORKPATH/shared/config.toml $HOME/$NETWORKPATH/.vald/config/config.toml
+cp $HOME/$NETWORKPATH/shared/app.toml $HOME/$NETWORKPATH/.vald/config/app.toml
+cp $HOME/$NETWORKPATH/shared/genesis.json $HOME/$NETWORKPATH/.vald/config/genesis.json
+valoper=$(echo $KEYRING | axelard keys show validator --home $HOME/$NETWORKPATH/.core --bech val -a)
 
 sudo bash -c "cat > /etc/systemd/system/axelard-val.service << EOF
 [Unit]
@@ -259,7 +260,7 @@ sudo systemctl start axelard-val.service
 echo "done"
 echo
 echo "Register proxy for validator"
-echo $KEYRING | axelard tx snapshot register-proxy $broadcaster --from validator --home $HOME/$NETWORKPATH -y --chain-id $CHAIN_ID
+echo $KEYRING | axelard tx snapshot register-proxy $broadcaster --from validator --home $HOME/$NETWORKPATH/.core -y --chain-id $CHAIN_ID
 
 echo "creating a validator"
 balance=$(echo $KEYRING | axelard q bank balances $validator | grep amount | cut -d '"' -f 2)
@@ -267,8 +268,8 @@ echo "Current validator balance is: $balance"
 echo "Leave some balance to pay for fees"
 read -p "Amount of selfstake axltest example: 1000000 (without ${denom}) : " uaxl
 read -p "Enter validator details : " details
-axelarvalconspub=$(echo $KEYRING | axelard tendermint show-validator --home $HOME/$NETWORKPATH)
-echo $KEYRING | axelard tx staking create-validator --yes --amount "${uaxl}${denom}" --moniker "$MONIKER" --commission-rate="0.10" --commission-max-rate="0.20" --commission-max-change-rate="0.01" --min-self-delegation="1" --pubkey=$axelarvalconspub --home $HOME/$NETWORKPATH --chain-id $CHAIN_ID --details "$details" --from validator -b block
+axelarvalconspub=$(echo $KEYRING | axelard tendermint show-validator --home $HOME/$NETWORKPATH/.core)
+echo $KEYRING | axelard tx staking create-validator --yes --amount "${uaxl}${denom}" --moniker "$MONIKER" --commission-rate="0.10" --commission-max-rate="0.20" --commission-max-change-rate="0.01" --min-self-delegation="1" --pubkey=$axelarvalconspub --home $HOME/$NETWORKPATH/.core --chain-id $CHAIN_ID --details "$details" --from validator -b block
 echo "done"
 echo
 
@@ -284,9 +285,9 @@ done
 
     if [[ "$ethereum" == "yes" ]]; then
         # setting up eth rpc
-        sed -i '/^name = "Ethereum"/{n;N;d}' $HOME/$NETWORKPATH/config/config.toml
+        sed -i '/^name = "Ethereum"/{n;N;d}' $HOME/$NETWORKPATH/shared/config.toml
         read -p "Type in your ETH Ropsten node address: " eth
-        sed -i "/^name = \"Ethereum\"/a rpc_addr    = \"$eth\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/config/config.toml
+        sed -i "/^name = \"Ethereum\"/a rpc_addr    = \"$eth\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/shared/config.toml
         echo
         echo "eth bridge enabled"
         echo
@@ -303,9 +304,9 @@ done
     if [[ "$avalanche" == "yes" ]]; then
 
         # setting up Avalanche rpc
-        sed -i '/^name = "Avalanche"/{n;N;d}' $HOME/$NETWORKPATH/config/config.toml
+        sed -i '/^name = "Avalanche"/{n;N;d}' $HOME/$NETWORKPATH/shared/config.toml
         read -p "Type in your Avalanche node address: " avax
-        sed -i "/^name = \"Avalanche\"/a rpc_addr    = \"$avax\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/config/config.toml
+        sed -i "/^name = \"Avalanche\"/a rpc_addr    = \"$avax\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/shared/config.toml
         echo
         echo "Avalanche bridge enabled"
         echo
@@ -322,9 +323,9 @@ done
     if [[ "$fantom" == "yes" ]]; then
 
         # setting up Fantom rpc
-        sed -i '/^name = "Fantom"/{n;N;d}' $HOME/$NETWORKPATH/config/config.toml
+        sed -i '/^name = "Fantom"/{n;N;d}' $HOME/$NETWORKPATH/shared/config.toml
         read -p "Type in your Fantom node address: " fantom
-        sed -i "/^name = \"Fantom\"/a rpc_addr    = \"$fantom\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/config/config.toml
+        sed -i "/^name = \"Fantom\"/a rpc_addr    = \"$fantom\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/shared/config.toml
         echo
         echo "Fantom bridge enabled"
         echo
@@ -341,9 +342,9 @@ done
     if [[ "$moonbeam" == "yes" ]]; then
 
         # setting up Moonbeam rpc
-        sed -i '/^name = "Moonbeam"/{n;N;d}' $HOME/$NETWORKPATH/config/config.toml
+        sed -i '/^name = "Moonbeam"/{n;N;d}' $HOME/$NETWORKPATH/shared/config.toml
         read -p "Type in your Moonbeam node address: " moonbeam
-        sed -i "/^name = \"Moonbeam\"/a rpc_addr    = \"$moonbeam\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/config/config.toml
+        sed -i "/^name = \"Moonbeam\"/a rpc_addr    = \"$moonbeam\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/shared/config.toml
         echo
         echo "Moonbeam bridge enabled"
         echo
@@ -360,9 +361,9 @@ done
     if [[ "$polygon" == "yes" ]]; then
 
         # setting up Polygon rpc
-        sed -i '/^name = "Polygon"/{n;N;d}' $HOME/$NETWORKPATH/config/config.toml
+        sed -i '/^name = "Polygon"/{n;N;d}' $HOME/$NETWORKPATH/shared/config.toml
         read -p "Type in your Polygon node address: " polygon
-        sed -i "/^name = \"Polygon\"/a rpc_addr    = \"$polygon\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/config/config.toml
+        sed -i "/^name = \"Polygon\"/a rpc_addr    = \"$polygon\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/shared/config.toml
         echo
         echo "Polygon bridge enabled"
         echo
@@ -370,6 +371,9 @@ done
         polygon=polygon
 
     fi
+
+echo "copy config to vald dir"
+cp $HOME/$NETWORKPATH/shared/config.toml $HOME/$NETWORKPATH/.vald/config/config.toml
 
 echo "restarting vald and tofnd"
 sudo systemctl restart axelard-val.service

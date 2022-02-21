@@ -10,11 +10,11 @@ read -p "Do you run a validator, answer yes or no: " validator
 
 # Determining Axelar versions
 echo "Determining Axelar version" 
-CORE_VERSION=$(curl -s https://docs.axelar.dev/releases/$NETWORK | grep -o -P '(?<=axelar-core</code> version</td><td><code>).*(?=code)' | cut -b 1-7)
+CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/webdocs/main/docs/releases/$NETWORK.md | grep axelar-core | cut -d \` -f 4)
 echo ${CORE_VERSION}
 
 echo "Determining Tofnd version" 
-TOFND_VERSION=$(curl -s https://docs.axelar.dev/releases/$NETWORK | grep -o -P '(?<=tofnd</code> version</td><td><code>).*(?=code)' | cut -b 1-6)
+TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/webdocs/main/docs/releases/$NETWORK.md | grep tofnd | cut -d \` -f 4)
 echo ${TOFND_VERSION}
 echo
 
@@ -53,9 +53,9 @@ echo
 read -p "Did axelar announce genesis file upgrade, answer yes or no: " genesis
 if [[ "$genesis" == "yes" ]]; then
 echo "Downloading new genesis file"
-curl -s --fail https://axelar-$NETWORK.s3.us-east-2.amazonaws.com/genesis.json -o $HOME/$NETWORKPATH/config/genesis.json
+curl -s --fail https://axelar-$NETWORK.s3.us-east-2.amazonaws.com/genesis.json -o $HOME/$NETWORKPATH/shared/genesis.json
     if [[ "$validator" == "yes" ]]; then
-    cp $HOME/$NETWORKPATH/config/genesis.json $HOME/$NETWORKPATH/.vald/config/genesis.json
+    cp $HOME/$NETWORKPATH/shared/genesis.json $HOME/$NETWORKPATH/.vald/config/genesis.json
     fi
 fi
 

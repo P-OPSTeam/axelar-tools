@@ -427,14 +427,14 @@ if [ $NETWORK == testnet ]; then
     if [ -z $CONFIG ]; then
     CONFIG=$HOME/$NETWORKPATH/.core/config/config.toml
     fi
-    CORE_VERSION=$(curl -s https://docs.axelar.dev/releases/$NETWORK | grep -o -P '(?<=axelar-core</code> version</td><td><code>v).*(?=code)' | cut -b 1-6)
+    CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/webdocs/main/docs/releases/$NETWORK.md  | grep axelar-core | cut -d \` -f 4 | cut -d \v -f2)
 else
     echo "Network switched to Mainnet"
     NETWORKPATH=".axelar"
     if [ -z $CONFIG ]; then
     CONFIG=$HOME/$NETWORKPATH/.core/config/config.toml
     fi
-    CORE_VERSION=$(curl -s https://docs.axelar.dev/releases/$NETWORK | grep -o -P '(?<=axelar-core</code> version</td><td><code>v).*(?=code)' | cut -b 1-6)
+    CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/webdocs/main/docs/releases/$NETWORK.md  | grep axelar-core | cut -d \` -f 4 | cut -d \v -f2)
 fi
 
 if [ -z $CONFIG ]; then
