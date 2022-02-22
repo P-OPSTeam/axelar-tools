@@ -47,6 +47,7 @@ fi
 echo "Download binary files"
 sudo curl -s "https://axelar-releases.s3.us-east-2.amazonaws.com/axelard/$CORE_VERSION/axelard-linux-amd64-$CORE_VERSION" -o /usr/local/bin/axelard
 sudo curl -s --fail https://axelar-releases.s3.us-east-2.amazonaws.com/tofnd/$TOFND_VERSION/tofnd-linux-amd64-$TOFND_VERSION -o /usr/local/bin/tofnd
+cp $HOME/axelarate-community/configuration/app.toml $HOME/$NETWORKPATH/
 echo "done"
 echo
 
