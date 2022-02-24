@@ -14,12 +14,12 @@ fi
 CONFIG=""                # config.toml file for node, eg. $HOME/.gaia/config/config.toml
 NETWORK=""               # Network for choosing testnet or mainnet, no caps!
 KEYRING=""      # if left empty monitoring won't work
-VALIDATORADDRESS=""      # if left empty default is from status call (validator)
 
 if  [ -z "$NETWORK" ];then
-    echo "please configure Network variable in script"
-    exit 1
+    read -p "Enter network, testnet or mainnet :" NETWORK
 fi
+
+read -p "Do you run a validator, answer yes or no: " validator
 
 if [ "$NETWORK" == testnet ]; then
     echo "Network switched to Testnet"
@@ -52,17 +52,6 @@ if [ -z "$url" ]; then
 fi
 url="http://${url}"
 
-if [ -z "$VALIDATORADDRESS" ]; then VALIDATORADDRESS=$(jq -r ''.result.validator_info.address'' <<<$(curl -s "$url"/status)); fi
-if [ -z "$VALIDATORADDRESS" ]; then
-    echo "rpc appears to be down, start script again when data can be obtained"
-    exit 1
-fi
-
-# Checking validator RPC endpoints status
-consdump=$(curl -s "$url"/dump_consensus_state)
-validators=$(jq -r '.result.round_state.validators[]' <<<"$consdump")
-isvalidator=$(grep -c "$VALIDATORADDRESS" <<<"$validators")
-
 # stop validator binary tools
 echo Stopping axelar-core, vald and tofnd processes
 pkill -f 'axelard start'
@@ -81,20 +70,34 @@ echo
 
 # Backup .axelar_testnet folder
 echo "Backup the $NETWORKPATH folder"
-cp -r ~/$NETWORKPATH ~/${NETWORKPATH}_backup
-backupdir=~/${NETWORKPATH}_backup
+cp -r $HOME/$NETWORKPATH $HOME/${NETWORKPATH}_backup
+backupdir=$HOME/${NETWORKPATH}_backup
 echo "Copy created, you can find it at $backupdir"
 echo
 
 # starting Axelar-core
 echo "restoring old config file regarding chainmaintainers"
-cp -r ~/$backupdir/shared/config.toml ~/axelarate-community/configuration/config.toml
+cp $backupdir/shared/config.toml ~/axelarate-community/configuration/config.toml
 echo "done"
 echo
 echo "Starting axelar core"
 cd ~/axelarate-community/
 KEYRING_PASSWORD=$KEYRING ./scripts/node.sh -e host -n "$NETWORK" -a "$CORE_VERSION"
-if [ "$isvalidator" != "0" ]; then
+
+echo "Checking if node is on latest block"
+catchingup=$(jq -r '.result.sync_info.catching_up' <<<$(curl -s "http://localhost:26657/status"))
+
+while [[ $catchingup == "true" ]]; do
+    echo "Your node is NOT fully synced yet"
+    echo "we'll wait 30s and retry"
+    echo
+    sleep 30
+    catchingup=$(jq -r '.result.sync_info.catching_up' <<<$(curl -s "http://localhost:26657/status"))
+done
+echo "Node is on latest block"
+echo
+
+if [[ "$validator" == "yes" ]]; then
 echo "start axelar validator tools"
 KEYRING_PASSWORD=$KEYRING TOFND_PASSWORD=$KEYRING ./scripts/validator-tools-host.sh -n "$NETWORK" -a "$CORE_VERSION" -q "$TOFND_VERSION"
 echo "done"

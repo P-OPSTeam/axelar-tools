@@ -82,7 +82,7 @@ echo "setting vaiables"
 
 echo "make directory"
 mkdir $HOME/$NETWORKPATH/.core
-mkdir $HOME/$NETWORKPATH/shared/
+mkdir $HOME/$NETWORKPATH/.core/config/
 echo "done"
 echo
 
@@ -93,20 +93,20 @@ echo
 
 echo "Downloading config files"
 echo "--> Downloading genesis file" 
-curl -s --fail https://axelar-$NETWORK.s3.us-east-2.amazonaws.com/genesis.json -o $HOME/$NETWORKPATH/shared/genesis.json
+curl -s --fail https://axelar-$NETWORK.s3.us-east-2.amazonaws.com/genesis.json -o $HOME/$NETWORKPATH/.core/config/genesis.json
 echo "--> Downloading latest seeds"
-curl -s --fail https://axelar-$NETWORK.s3.us-east-2.amazonaws.com/seeds.txt -o $HOME/$NETWORKPATH/shared/seeds.txt
+curl -s --fail https://axelar-$NETWORK.s3.us-east-2.amazonaws.com/seeds.txt -o $HOME/$NETWORKPATH/.core/config/seeds.txt
 echo "--> Copying config files"
-cp $HOME/axelarate-community/configuration/config.toml $HOME/$NETWORKPATH/shared/
-cp $HOME/axelarate-community/configuration/app.toml $HOME/$NETWORKPATH/shared/
+cp $HOME/axelarate-community/configuration/config.toml $HOME/$NETWORKPATH/.core/config/
+cp $HOME/axelarate-community/configuration/app.toml $HOME/$NETWORKPATH/.core/config/.core/config/
 echo "done"
 echo
 
 echo "Adding seeds to config toml"
 add_seeds() {
-  seeds=$(cat "$HOME/$NETWORKPATH/shared/seeds.txt")
-  sed "s/^seeds =.*/seeds = \"$seeds\"/g" "$HOME/$NETWORKPATH/shared/config.toml" >"$HOME/$NETWORKPATH/shared/config.toml.tmp"
-  mv "$HOME/$NETWORKPATH/shared/config.toml.tmp" "$HOME/$NETWORKPATH/shared/config.toml"
+  seeds=$(cat "$HOME/$NETWORKPATH/.core/config/seeds.txt")
+  sed "s/^seeds =.*/seeds = \"$seeds\"/g" "$HOME/$NETWORKPATH/shared/config.toml" >"$HOME/$NETWORKPATH/.core/config/config.toml.tmp"
+  mv "$HOME/$NETWORKPATH/.core/config/config.toml.tmp" "$HOME/$NETWORKPATH/.core/config/config.toml"
 }
 
 add_seeds
@@ -128,7 +128,7 @@ if [ ! -z $reenterip ] && [ $reenterip == "ENTERIP" ]; then
 fi
 echo "Final public ip used is $public_ip"
 
-sed -i "s/external_address = \"\"/external_address = \"$public_ip:26656\"/" $HOME/$NETWORKPATH/shared/config.toml
+sed -i "s/external_address = \"\"/external_address = \"$public_ip:26656\"/" $HOME/$NETWORKPATH/.core/config/config.toml
 echo "done"
 echo
 
@@ -230,9 +230,9 @@ sudo systemctl enable tofnd.service
 sudo systemctl start tofnd.service
 echo "--> setup vald service"
 (cat $HOME/broadcaster.txt | tail -1 ; echo $KEYRING ; echo $KEYRING) | axelard keys add broadcaster --recover --home $HOME/$NETWORKPATH/.vald
-cp $HOME/$NETWORKPATH/shared/config.toml $HOME/$NETWORKPATH/.vald/config/config.toml
-cp $HOME/$NETWORKPATH/shared/app.toml $HOME/$NETWORKPATH/.vald/config/app.toml
-cp $HOME/$NETWORKPATH/shared/genesis.json $HOME/$NETWORKPATH/.vald/config/genesis.json
+cp $HOME/$NETWORKPATH/.core/config/config.toml $HOME/$NETWORKPATH/.vald/config/config.toml
+cp $HOME/$NETWORKPATH/.core/config/app.toml $HOME/$NETWORKPATH/.vald/config/app.toml
+cp $HOME/$NETWORKPATH/.core/config/genesis.json $HOME/$NETWORKPATH/.vald/config/genesis.json
 valoper=$(echo $KEYRING | axelard keys show validator --home $HOME/$NETWORKPATH/.core --bech val -a)
 
 sudo bash -c "cat > /etc/systemd/system/axelard-val.service << EOF
@@ -285,9 +285,9 @@ done
 
     if [[ "$ethereum" == "yes" ]]; then
         # setting up eth rpc
-        sed -i '/^name = "Ethereum"/{n;N;d}' $HOME/$NETWORKPATH/shared/config.toml
+        sed -i '/^name = "Ethereum"/{n;N;d}' $HOME/$NETWORKPATH/.core/config/config.toml
         read -p "Type in your ETH Ropsten node address: " eth
-        sed -i "/^name = \"Ethereum\"/a rpc_addr    = \"$eth\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/shared/config.toml
+        sed -i "/^name = \"Ethereum\"/a rpc_addr    = \"$eth\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/.core/config/config.toml
         echo
         echo "eth bridge enabled"
         echo
@@ -304,9 +304,9 @@ done
     if [[ "$avalanche" == "yes" ]]; then
 
         # setting up Avalanche rpc
-        sed -i '/^name = "Avalanche"/{n;N;d}' $HOME/$NETWORKPATH/shared/config.toml
+        sed -i '/^name = "Avalanche"/{n;N;d}' $HOME/$NETWORKPATH/.core/config/config.toml
         read -p "Type in your Avalanche node address: " avax
-        sed -i "/^name = \"Avalanche\"/a rpc_addr    = \"$avax\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/shared/config.toml
+        sed -i "/^name = \"Avalanche\"/a rpc_addr    = \"$avax\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/.core/config/config.toml
         echo
         echo "Avalanche bridge enabled"
         echo
@@ -323,9 +323,9 @@ done
     if [[ "$fantom" == "yes" ]]; then
 
         # setting up Fantom rpc
-        sed -i '/^name = "Fantom"/{n;N;d}' $HOME/$NETWORKPATH/shared/config.toml
+        sed -i '/^name = "Fantom"/{n;N;d}' $HOME/$NETWORKPATH/.core/config/config.toml
         read -p "Type in your Fantom node address: " fantom
-        sed -i "/^name = \"Fantom\"/a rpc_addr    = \"$fantom\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/shared/config.toml
+        sed -i "/^name = \"Fantom\"/a rpc_addr    = \"$fantom\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/.core/config/config.toml
         echo
         echo "Fantom bridge enabled"
         echo
@@ -342,9 +342,9 @@ done
     if [[ "$moonbeam" == "yes" ]]; then
 
         # setting up Moonbeam rpc
-        sed -i '/^name = "Moonbeam"/{n;N;d}' $HOME/$NETWORKPATH/shared/config.toml
+        sed -i '/^name = "Moonbeam"/{n;N;d}' $HOME/$NETWORKPATH/.core/config/config.toml
         read -p "Type in your Moonbeam node address: " moonbeam
-        sed -i "/^name = \"Moonbeam\"/a rpc_addr    = \"$moonbeam\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/shared/config.toml
+        sed -i "/^name = \"Moonbeam\"/a rpc_addr    = \"$moonbeam\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/.core/config/config.toml
         echo
         echo "Moonbeam bridge enabled"
         echo
@@ -361,9 +361,9 @@ done
     if [[ "$polygon" == "yes" ]]; then
 
         # setting up Polygon rpc
-        sed -i '/^name = "Polygon"/{n;N;d}' $HOME/$NETWORKPATH/shared/config.toml
+        sed -i '/^name = "Polygon"/{n;N;d}' $HOME/$NETWORKPATH/.core/config/config.toml
         read -p "Type in your Polygon node address: " polygon
-        sed -i "/^name = \"Polygon\"/a rpc_addr    = \"$polygon\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/shared/config.toml
+        sed -i "/^name = \"Polygon\"/a rpc_addr    = \"$polygon\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/.core/config/config.toml
         echo
         echo "Polygon bridge enabled"
         echo
@@ -373,7 +373,7 @@ done
     fi
 
 echo "copy config to vald dir"
-cp $HOME/$NETWORKPATH/shared/config.toml $HOME/$NETWORKPATH/.vald/config/config.toml
+cp $HOME/$NETWORKPATH/.core/config/config.toml $HOME/$NETWORKPATH/.vald/config/config.toml
 
 echo "restarting vald and tofnd"
 sudo systemctl restart axelard-val.service
