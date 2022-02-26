@@ -29,11 +29,9 @@ NETWORKPATH=".axelar"
 fi
 
 echo "Clone Axerlar Community Github"
-# Remove repo for a clean git clone
-sudo rm -rf ~/axelarate-community/ 
-cd ~ 
-git clone https://github.com/axelarnetwork/axelarate-community.git >/dev/null 2>&1 
-cd ~/axelarate-community 
+# git pull the github repo
+cd ~/axelarate-community
+git pull
 echo "done"
 echo
 

@@ -61,10 +61,8 @@ echo "done"
 echo 
 
 echo "Clone/Refresh Axerlar Community Github"
-rm -rf ~/axelarate-community/
-cd ~
-git clone https://github.com/axelarnetwork/axelarate-community.git
 cd ~/axelarate-community
+git clone
 echo "done"
 echo
 
