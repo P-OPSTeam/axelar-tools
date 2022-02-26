@@ -28,10 +28,11 @@ echo "Determining mainnet chain"
 NETWORKPATH=".axelar"
 fi
 
-echo "Clone Axerlar Community Github"
-# git pull the github repo
+echo "Clone/Refresh Axerlar Community Github"
+rm -rf ~/axelarate-community/
+cd ~
+git clone https://github.com/axelarnetwork/axelarate-community.git
 cd ~/axelarate-community
-git pull
 echo "done"
 echo
 
