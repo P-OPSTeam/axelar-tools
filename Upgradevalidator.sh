@@ -63,8 +63,7 @@ echo
 echo "Clone/Refresh Axerlar Community Github"
 repository="https://github.com/axelarnetwork/axelarate-community.git"
 localFolder="$HOME/axelarate-community"
-git clone $repository" "$localFolder
-
+git pull $repository" "$localFolder
 cd ~/axelarate-community
 echo "done"
 echo
