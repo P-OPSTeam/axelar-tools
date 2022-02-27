@@ -70,14 +70,15 @@ echo
 
 # Backup .axelar_testnet folder
 echo "Backup the $NETWORKPATH folder"
-cp -r $HOME/$NETWORKPATH $HOME/${NETWORKPATH}_backup
-backupdir=$HOME/${NETWORKPATH}_backup
+mkdir "$HOME/backup"
+rsync -av "$HOME/$NETWORKPATH" "$HOME/backup" --exclude="*.db" --exclude="*.ldb" --exclude=*/wal.*
+backupdir=$HOME/backup
 echo "Copy created, you can find it at $backupdir"
 echo
 
 # starting Axelar-core
 echo "restoring old config file regarding chainmaintainers"
-cp $backupdir/shared/config.toml ~/axelarate-community/configuration/config.toml
+cp $backupdir/$NETWORKPATH/shared/config.toml ~/axelarate-community/configuration/config.toml
 echo "done"
 echo
 echo "Starting axelar core"
