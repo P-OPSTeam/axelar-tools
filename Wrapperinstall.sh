@@ -99,6 +99,7 @@ echo "remove any old data"
 rm -rf  $HOME/$NETWORKPATH/data
 echo "extracting the data"
 lz4 -d $SNAPSHOTFILE | tar xf -
+rm $SNAPSHOTFILE
 echo "done"
 echo
 
