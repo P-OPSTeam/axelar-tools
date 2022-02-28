@@ -99,7 +99,7 @@ echo "--> Downloading latest seeds"
 curl -s --fail https://axelar-$NETWORK.s3.us-east-2.amazonaws.com/seeds.txt -o $HOME/$NETWORKPATH/.core/config/seeds.txt
 echo "--> Copying config files"
 cp $HOME/axelarate-community/configuration/config.toml $HOME/$NETWORKPATH/.core/config/
-cp $HOME/axelarate-community/configuration/app.toml $HOME/$NETWORKPATH/.core/config/.core/config/
+cp $HOME/axelarate-community/configuration/app.toml $HOME/$NETWORKPATH/.core/config/
 echo "done"
 echo
 
