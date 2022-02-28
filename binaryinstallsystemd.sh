@@ -106,7 +106,7 @@ echo
 echo "Adding seeds to config toml"
 add_seeds() {
   seeds=$(cat "$HOME/$NETWORKPATH/.core/config/seeds.txt")
-  sed "s/^seeds =.*/seeds = \"$seeds\"/g" "$HOME/$NETWORKPATH/shared/config.toml" >"$HOME/$NETWORKPATH/.core/config/config.toml.tmp"
+  sed "s/^seeds =.*/seeds = \"$seeds\"/g" "$HOME/$NETWORKPATH/.core/config/config.toml" >"$HOME/$NETWORKPATH/.core/config/config.toml.tmp"
   mv "$HOME/$NETWORKPATH/.core/config/config.toml.tmp" "$HOME/$NETWORKPATH/.core/config/config.toml"
 }
 
