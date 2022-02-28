@@ -170,6 +170,10 @@ sudo systemctl start axelar-node
 echo "done"
 echo
 
+echo "wait a few seconds to start the node"
+sleep 15
+echo "done"
+
 echo "creating wallets"
 echo "--> creating axelar validator wallet"
 (echo $KEYRING ; echo $KEYRING) | axelard keys add validator --home $HOME/$NETWORKPATH/.core &> $HOME/validator.txt
