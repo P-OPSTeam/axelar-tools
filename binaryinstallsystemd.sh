@@ -81,6 +81,7 @@ echo
 echo "setting vaiables"
 
 echo "make directory"
+mkdir $HOME/$NETWORKPATH
 mkdir $HOME/$NETWORKPATH/.core
 mkdir $HOME/$NETWORKPATH/.core/config/
 echo "done"
