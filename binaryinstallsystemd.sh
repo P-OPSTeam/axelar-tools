@@ -187,6 +187,7 @@ echo "validator adress is : $validator"
 broadcaster=$(tail $HOME/broadcaster.txt | grep address | cut -f2 -d ":")
 echo "broadcaster adress is : $broadcaster"
 
+echo "Checking if node is on latest block"
 catchingup=$(jq -r '.result.sync_info.catching_up' <<<$(curl -s "http://localhost:26657/status"))
 
 while [[ $catchingup == "true" ]]; do
@@ -196,6 +197,9 @@ while [[ $catchingup == "true" ]]; do
     sleep 30
     catchingup=$(jq -r '.result.sync_info.catching_up' <<<$(curl -s "http://localhost:26657/status"))
 done
+echo "Node is on latest block"
+echo
+
 
 read -rsn1 -p"Please copy and fund the addresses, do not use ctrl-c";echo
 read -p "If funded press enter" emptystring
