@@ -183,14 +183,6 @@ echo "--> creating Tofnd wallet"
 echo $KEYRING | tofnd -m create -d "$HOME/$NETWORKPATH/.tofnd"
 mv $HOME/$NETWORKPATH/.tofnd/export $HOME/$NETWORKPATH/.tofnd/import
 
-echo access2all | axelard keys show validator --home $HOME/$NETWORKPATH/.core --bech val -a > $HOME/$NETWORKPATH/validator.bech
-echo "Node setup done"
-echo "Please fund broadcaster and validator address"
-validator=$(tail $HOME/validator.txt | grep address | cut -f2 -d ":")
-echo "validator adress is : $validator"
-broadcaster=$(tail $HOME/broadcaster.txt | grep address | cut -f2 -d ":")
-echo "broadcaster adress is : $broadcaster"
-
 echo "Checking if node is on latest block"
 catchingup=$(jq -r '.result.sync_info.catching_up' <<<$(curl -s "http://localhost:26657/status"))
 
@@ -204,6 +196,13 @@ done
 echo "Node is on latest block"
 echo
 
+echo access2all | axelard keys show validator --home $HOME/$NETWORKPATH/.core --bech val -a > $HOME/$NETWORKPATH/validator.bech
+echo "Node setup done"
+echo "Please fund broadcaster and validator address"
+validator=$(tail $HOME/validator.txt | grep address | cut -f2 -d ":")
+echo "validator adress is : $validator"
+broadcaster=$(tail $HOME/broadcaster.txt | grep address | cut -f2 -d ":")
+echo "broadcaster adress is : $broadcaster"
 
 read -rsn1 -p"Please copy and fund the addresses, do not use ctrl-c";echo
 read -p "If funded press enter" emptystring
