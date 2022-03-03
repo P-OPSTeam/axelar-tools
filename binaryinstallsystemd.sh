@@ -57,7 +57,7 @@ SNAPSHOTURL=$(curl https://quicksync.io/axelar.json|jq -r '.[] |select(.file=="a
 SNAPSHOTFILE=$(curl https://quicksync.io/axelar.json|jq -r '.[] |select(.file=="axelar-dojo-1-default")|.url' | cut -c26-)
 fi
 
-echo "Clone Axerlar Community Github"
+echo "Clone Axelar Community Github"
 # Remove repo for a clean git clone
 sudo rm -rf ~/axelarate-community/ 
 cd ~ 
