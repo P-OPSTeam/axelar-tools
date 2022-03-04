@@ -204,7 +204,7 @@ echo "validator adress is : $validator"
 broadcaster=$(tail $HOME/broadcaster.txt | grep address | cut -f2 -d ":")
 echo "broadcaster adress is : $broadcaster"
 
-read -rsn1 -p"Please copy and fund the addresses, do not use ctrl-c";echo
+read -rsn1 -p "Please copy and fund the addresses, do not use ctrl-c" ; echo
 read -p "If funded press enter" emptystring
 
 read -p "Do you need to create your validator, answer yes or no: " createvalidator
