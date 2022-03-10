@@ -76,18 +76,19 @@ axelar_version_status="NA" #Axelar core version test status to print out to log 
 #axelar-core run (axelard)
 axelar_run_n="true" # true or false indicating whether axelard(axelar-core) is running or not
 nmsg_axelar_run_ok="$HOSTNAME: Your Axelar node is running ok now"
-nmsg_axelar_run_nok="$HOSTNAME: Your Axelar node has just stop running, fix it !"
+nmsg_axelar_run_nok="@here $HOSTNAME: Your Axelar node has just stop running, fix it !"
+axelard_run_status="NA" #axelard test status to print out to log file 
 
 #vald run
 vald_run_n="true" # true or false indicating whether tofnd is running or not
 nmsg_vald_run_ok="$HOSTNAME: vald is running ok now"
-nmsg_vald_run_nok="$HOSTNAME: vald has just stop running. We'll try to start the process and you'll see an ok message if that happens, if not please fix it"
+nmsg_vald_run_nok="@here $HOSTNAME: vald has just stop running. We'll try to start the process and you'll see an ok message if that happens, if not please fix it"
 vald_run_status="NA" #vald test status to print out to log file 
 
 #tofnd run
 tofnd_run_n="true" # true or false indicating whether tofnd is running or not
 nmsg_tofnd_run_ok="$HOSTNAME: tofnd is running ok now"
-nmsg_tofnd_run_nok="$HOSTNAME: tofnd has just stop running. We'll try to start the process and you'll see an ok message if that happens, if not please fix it"
+nmsg_tofnd_run_nok="@here $HOSTNAME: tofnd has just stop running. We'll try to start the process and you'll see an ok message if that happens, if not please fix it"
 tofnd_run_status="NA" #vald test status to print out to log file 
 
 #vald tofnd connectivity test
@@ -105,25 +106,25 @@ Health_check_status="NA" #Health check status to print out to log file
 #Jailed status
 jailed_status_n="true" # true or false indicating jailed status
 msg_jailed_status_ok="$HOSTNAME: Validator is not jailed"
-msg_jailed_status_nok="$HOSTNAME: Validator is jailed, please check"
+msg_jailed_status_nok="@here $HOSTNAME: Validator is jailed, please check"
 jailed_status="NA" #jailed status to print out to log file
 
 #missed blocks status
 missed_status_n="true" # true or false indicating missed blocks status
 msg_missed_status_ok="$HOSTNAME: Validator is not missing blocks"
-msg_missed_status_nok="$HOSTNAME: Validator is missing to many blocks, please check"
+msg_missed_status_nok="@here $HOSTNAME: Validator is missing to many blocks, please check"
 missed_status="NA" #missed status to print out to log file
 
 #stale heartbeat status
 stale_status_n="true" # true or false indicating stale tss heartbeat status
 msg_stale_status_ok="$HOSTNAME: Validator has no stale tss heartbeat"
-msg_stale_status_nok="$HOSTNAME: Validator has stale tss heartbeats, please check"
+msg_stale_status_nok="@here $HOSTNAME: Validator has stale tss heartbeats, please check"
 stale_status="NA" #stale status to print out to log file
 
 #Tombstoned status
 tombstoned_status_n="true" # true or false indicating tombstoned status
 msg_tombstoned_status_ok="$HOSTNAME: Validator is not tombstoned"
-msg_tombstoned_status_nok="$HOSTNAME: Validator is tombstoned, please double check"
+msg_tombstoned_status_nok="@here $HOSTNAME: Validator is tombstoned, please double check"
 tombstoned_status="NA" #stale status to print out to log file
 
 #broadcaster balance test
@@ -604,20 +605,26 @@ while true ; do
             echo "Not latest, consider upgrading to the new axelar-core version $CORE_VERSION"
             axelar_version_status="need_update"
             if [ $axelar_version_n == "true" ]; then #version was ok
-                send_notification "$nmsg_axelar_version_nok"
-                axelar_version_n="false"
+            send_notification "$nmsg_axelar_version_nok"
+            axelar_version_n="false"
             fi
         fi       
         
         # Checking axelard process running
         if pgrep axelard >/dev/null; then
             echo "Is axelard binary running: Yes";
-            # send_notification "$nmsg_axelar_run_ok"
+            axelard_run_status="OK"
+            if [ $axelar_run_n == "false" ]; then #axelard process was not ok
+            send_notification "$nmsg_axelar_run_ok"
             axelar_run_n="true"
+            fi
         else
-            echo "Is axelard binary running: No, please rerun node.sh";
-            axelar_run_n="true"
+            echo "Is axelard binary running: No, please restart it;"
+            axelard_run_status="NOK"
+            if [ $axelar_run_n == "true" ]; then #axelard process was ok
             send_notification "$nmsg_axelar_run_nok"
+            axelar_run_n="false"
+            fi
         fi
 
         # Checking validator status
@@ -630,25 +637,36 @@ while true ; do
             if pgrep tofnd >/dev/null; then
                 echo "Is tofnd proces running: Yes";
                 tofnd_run_status="OK"
-                # send_notification "$nmsg_tofnd_run_ok"
+                if [ $tofnd_run_n == "false" ]; then #tofnd was not ok
+                send_notification "$nmsg_tofnd_run_ok"
                 tofnd_run_n="true"
+                fi
             else
                 echo "Is tofnd process running: no, make sure it runs";
                 tofnd_run_status="NOK"
+                if [ $tofnd_run_n == "true" ]; then #tofnd was ok
                 tofnd_run_n="false"
                 send_notification "$nmsg_tofnd_run_nok"
                 # let's try to fix the problem once
+                fi
             fi
 
             # Checking vald-start process
-            if ps aux | grep vald-start >/dev/null; then
+            if pgrep -f "axelard vald-start" >/dev/null; then
                 echo "Is vald-start running: Yes";
                 vald_run_status="OK"
+                if [ $vald_run_n == "false" ]; then #vald was not ok
+                send_notification "$nmsg_vald_run_ok"
+                vald_run_n="true"
+                fi
             else
                 echo "Is vald-start process running: no, make sure it runs";
+                vald_run_status="NOK"
+                if [ $vald_run_n == "true" ]; then #vald was ok
                 vald_run_n="false"
                 send_notification "$nmsg_vald_run_nok"
                 # let's try to fix the problem once
+                fi
             fi
 
         
