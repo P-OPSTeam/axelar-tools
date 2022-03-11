@@ -81,6 +81,7 @@ echo
 if [[ "$validator" == "yes" ]]; then
 echo "Starting Axelar tools"
 sudo systemctl start tofnd.service
+sleep 10
 sudo systemctl start axelard-val.service
 echo "Axelar tools started, check if your node is working correctly again"
 echo "wait 10 seconds to see if vald and tofnd are working properly"
