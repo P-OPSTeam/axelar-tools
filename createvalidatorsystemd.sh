@@ -20,6 +20,41 @@ done
 echo "Node is on latest block"
 echo
 
+if [ -z $MONIKER ]; then
+    echo "Please enter Moniker name below"
+    read -p "Enter Moniker name :" MONIKER
+fi
+
+if  [ -z "$NETWORK" ];then
+    read -p "Enter network, testnet or mainnet :" NETWORK
+fi
+
+read -p "Enter your KEYRING PASSWORD : " KEYRING
+
+denom=uaxl
+
+# Determining Axelar versions
+echo "Determining Axelar version"
+CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/webdocs/main/docs/releases/$NETWORK.md | grep axelar-core | cut -d \` -f 4)
+echo ${CORE_VERSION}
+
+echo "Determining Tofnd version"
+TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/webdocs/main/docs/releases/$NETWORK.md | grep tofnd | cut -d \` -f 4)
+echo ${TOFND_VERSION}
+echo
+
+if [ "$NETWORK" == testnet ]; then
+echo "Setup node for axelar testnet"
+echo "Determining testnet chain"
+CHAIN_ID=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/scripts/node.sh | grep chain_id=axelar-t | cut -f2 -d "=")
+NETWORKPATH=".axelar_testnet"
+else
+echo "Setup node for axelar mainnet"
+echo "Determining mainnet chain"
+CHAIN_ID=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/scripts/node.sh | grep chain_id=axelar-d | cut -f2 -d "=")
+NETWORKPATH=".axelar"
+fi
+
 echo "Setup validator tools"
 echo
 echo "-->setup TOFND service"
