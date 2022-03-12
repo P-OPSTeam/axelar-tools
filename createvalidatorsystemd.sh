@@ -20,63 +20,63 @@ done
 echo "Node is on latest block"
 echo
 
-denom=uaxl
-
-if [ -z $MONIKER ]; then
-    echo "Please enter Moniker name below"
-    read -p "Enter Moniker name :" MONIKER
-fi
-
-if  [ -z "$NETWORK" ];then
-    read -p "Enter network, testnet or mainnet :" NETWORK
-fi
-
-read -p "Enter your KEYRING PASSWORD : " KEYRING
-
-# Determining Axelar versions
-echo "Determining Axelar version"
-CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/webdocs/main/docs/releases/$NETWORK.md | grep axelar-core | cut -d \` -f 4)
-echo ${CORE_VERSION}
-
-echo "Determining Tofnd version"
-TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/webdocs/main/docs/releases/$NETWORK.md | grep tofnd | cut -d \` -f 4)
-echo ${TOFND_VERSION}
+echo "Setup validator tools"
 echo
+echo "-->setup TOFND service"
+sudo bash -c "cat > /etc/systemd/system/tofnd.service << EOF
+[Unit]
+Description=tofnd
+After=network-online.target
 
-if [ "$NETWORK" == testnet ]; then
-echo "Setup node for axelar testnet"
-echo "Determining testnet chain"
-CHAIN_ID=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/scripts/node.sh | grep chain_id=axelar-t | cut -f2 -d "=")
-NETWORKPATH=".axelar_testnet"
-else
-echo "Setup node for axelar mainnet"
-echo "Determining mainnet chain"
-CHAIN_ID=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/scripts/node.sh | grep chain_id=axelar-d | cut -f2 -d "=")
-NETWORKPATH=".axelar"
-fi
+[Service]
+User=$USER
+ExecStart=/bin/sh -c 'echo $KEYRING | tofnd -m existing -d $HOME/$NETWORKPATH/.tofnd'
+Restart=always
+RestartSec=3
+LimitNOFILE=16384
+MemoryMax=4G
+Restart=on-abnormal
 
-cd $HOME/axelarate-community/
+[Install]
+WantedBy=multi-user.target
+EOF"
+echo
+echo "--> enable and start tofnd service"
+sudo systemctl enable tofnd.service 
+sudo systemctl start tofnd.service
+echo "--> setup vald service"
+(cat $HOME/broadcaster.txt | tail -1 ; echo $KEYRING ; echo $KEYRING) | axelard keys add broadcaster --recover --home $HOME/$NETWORKPATH/.vald
+cp $HOME/$NETWORKPATH/.core/config/config.toml $HOME/$NETWORKPATH/.vald/config/config.toml
+cp $HOME/$NETWORKPATH/.core/config/app.toml $HOME/$NETWORKPATH/.vald/config/app.toml
+cp $HOME/$NETWORKPATH/.core/config/genesis.json $HOME/$NETWORKPATH/.vald/config/genesis.json
+valoper=$(echo $KEYRING | axelard keys show validator --home $HOME/$NETWORKPATH/.core --bech val -a)
 
-echo "install validator tools"
-KEYRING_PASSWORD=$KEYRING TOFND_PASSWORD=$KEYRING ./scripts/validator-tools-host.sh n $NETWORK
+sudo bash -c "cat > /etc/systemd/system/axelard-val.service << EOF
+[Unit]
+Description=axelard-val
+After=network-online.target
 
-echo "adding path to system PATH"
-export PATH="$PATH:$HOME/$NETWORKPATH/bin"
+[Service]
+User=$USER
+ExecStart=/bin/sh -c 'echo $KEYRING | axelard vald-start --tofnd-host localhost --node http://localhost:26657 --home $HOME/$NETWORKPATH/.vald --validator-addr $valoper --log_level debug --chain-id $CHAIN_ID --from broadcaster'
+Restart=always
+RestartSec=3
+LimitNOFILE=16384
+MemoryMax=4G
+Restart=on-abnormal
+
+[Install]
+WantedBy=multi-user.target
+EOF"
+echo
+echo "--> enable and start vald services"
+
+sudo systemctl enable axelard-val.service
+sudo systemctl start axelard-val.service
 echo "done"
 echo
-
-broadcaster=$(tail $HOME/$NETWORKPATH/broadcaster.txt | grep address | cut -f2 -d ":")
-echo "broadcaster adress is : $broadcaster"
-
-read -rsn1 -p"Please copy and fund the address, do not use ctrl-c";echo
-read -p "If funded press enter" emptystring 
-
-echo "register proxy"
-broadcaster=$(tail $HOME/$NETWORKPATH/broadcaster.address)
-validator=$(tail $HOME/$NETWORKPATH/validator.txt | grep address | cut -f2 -d ":")
-echo $KEYRING | axelard tx snapshot register-proxy $broadcaster --from validator --chain-id $CHAIN_ID --home $HOME/$NETWORKPATH/.core
-echo "done"
-echo
+echo "Register proxy for validator"
+echo $KEYRING | axelard tx snapshot register-proxy $broadcaster --from validator --home $HOME/$NETWORKPATH/.core -y --chain-id $CHAIN_ID
 
 echo "creating a validator"
 balance=$(echo $KEYRING | axelard q bank balances $validator | grep amount | cut -d '"' -f 2)
@@ -85,7 +85,7 @@ echo "Leave some balance to pay for fees"
 read -p "Amount of selfstake axltest example: 1000000 (without ${denom}) : " uaxl
 read -p "Enter validator details : " details
 axelarvalconspub=$(echo $KEYRING | axelard tendermint show-validator --home $HOME/$NETWORKPATH/.core)
-echo $KEYRING | axelard tx staking create-validator --yes --amount "${uaxl}${denom}" --moniker "$MONIKER" --commission-rate="0.10" --commission-max-rate="0.20" --commission-max-change-rate="0.01" --min-self-delegation="1" --pubkey=$axelarvalconspub --home $HOME/$NETWORKPATH --chain-id $CHAIN_ID --details "$details" --home $HOME/$NETWORKPATH/.core --from validator -b block
+echo $KEYRING | axelard tx staking create-validator --yes --amount "${uaxl}${denom}" --moniker "$MONIKER" --commission-rate="0.10" --commission-max-rate="0.20" --commission-max-change-rate="0.01" --min-self-delegation="1" --pubkey=$axelarvalconspub --home $HOME/$NETWORKPATH/.core --chain-id $CHAIN_ID --details "$details" --from validator -b block
 echo "done"
 echo
 
@@ -101,9 +101,9 @@ done
 
     if [[ "$ethereum" == "yes" ]]; then
         # setting up eth rpc
-        sed -i '/^name = "Ethereum"/{n;N;d}' $HOME/axelarate-community/configuration/config.toml
+        sed -i '/^name = "Ethereum"/{n;N;d}' $HOME/$NETWORKPATH/.core/config/config.toml
         read -p "Type in your ETH Ropsten node address: " eth
-        sed -i "/^name = \"Ethereum\"/a rpc_addr    = \"$eth\"\nstart-with-bridge = true" $HOME/axelarate-community/configuration/config.toml
+        sed -i "/^name = \"Ethereum\"/a rpc_addr    = \"$eth\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/.core/config/config.toml
         echo
         echo "eth bridge enabled"
         echo
@@ -120,9 +120,9 @@ done
     if [[ "$avalanche" == "yes" ]]; then
 
         # setting up Avalanche rpc
-        sed -i '/^name = "Avalanche"/{n;N;d}' $HOME/axelarate-community/configuration/config.toml
+        sed -i '/^name = "Avalanche"/{n;N;d}' $HOME/$NETWORKPATH/.core/config/config.toml
         read -p "Type in your Avalanche node address: " avax
-        sed -i "/^name = \"Avalanche\"/a rpc_addr    = \"$avax\"\nstart-with-bridge = true" $HOME/axelarate-community/configuration/config.toml
+        sed -i "/^name = \"Avalanche\"/a rpc_addr    = \"$avax\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/.core/config/config.toml
         echo
         echo "Avalanche bridge enabled"
         echo
@@ -139,9 +139,9 @@ done
     if [[ "$fantom" == "yes" ]]; then
 
         # setting up Fantom rpc
-        sed -i '/^name = "Fantom"/{n;N;d}' $HOME/axelarate-community/configuration/config.toml
+        sed -i '/^name = "Fantom"/{n;N;d}' $HOME/$NETWORKPATH/.core/config/config.toml
         read -p "Type in your Fantom node address: " fantom
-        sed -i "/^name = \"Fantom\"/a rpc_addr    = \"$fantom\"\nstart-with-bridge = true" $HOME/axelarate-community/configuration/config.toml
+        sed -i "/^name = \"Fantom\"/a rpc_addr    = \"$fantom\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/.core/config/config.toml
         echo
         echo "Fantom bridge enabled"
         echo
@@ -158,9 +158,9 @@ done
     if [[ "$moonbeam" == "yes" ]]; then
 
         # setting up Moonbeam rpc
-        sed -i '/^name = "Moonbeam"/{n;N;d}' $HOME/axelarate-community/configuration/config.toml
+        sed -i '/^name = "Moonbeam"/{n;N;d}' $HOME/$NETWORKPATH/.core/config/config.toml
         read -p "Type in your Moonbeam node address: " moonbeam
-        sed -i "/^name = \"Moonbeam\"/a rpc_addr    = \"$moonbeam\"\nstart-with-bridge = true" $HOME/axelarate-community/configuration/config.toml
+        sed -i "/^name = \"Moonbeam\"/a rpc_addr    = \"$moonbeam\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/.core/config/config.toml
         echo
         echo "Moonbeam bridge enabled"
         echo
@@ -177,9 +177,9 @@ done
     if [[ "$polygon" == "yes" ]]; then
 
         # setting up Polygon rpc
-        sed -i '/^name = "Polygon"/{n;N;d}' $HOME/axelarate-community/configuration/config.toml
+        sed -i '/^name = "Polygon"/{n;N;d}' $HOME/$NETWORKPATH/.core/config/config.toml
         read -p "Type in your Polygon node address: " polygon
-        sed -i "/^name = \"Polygon\"/a rpc_addr    = \"$polygon\"\nstart-with-bridge = true" $HOME/axelarate-community/configuration/config.toml
+        sed -i "/^name = \"Polygon\"/a rpc_addr    = \"$polygon\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/.core/config/config.toml
         echo
         echo "Polygon bridge enabled"
         echo
@@ -188,14 +188,12 @@ done
 
     fi
 
-echo "restarting vald and tofnd"
-kill -9 $(pgrep tofnd)
-kill -9 $(pgrep -f "axelard vald-start")
+echo "copy config to vald dir"
+cp $HOME/$NETWORKPATH/.core/config/config.toml $HOME/$NETWORKPATH/.vald/config/config.toml
 
-cd $HOME/axelarate-community
-KEYRING_PASSWORD=$KEYRING TOFND_PASSWORD=$KEYRING ./scripts/validator-tools-host.sh -n $NETWORK
-echo "done"
-echo
+echo "restarting vald and tofnd"
+sudo systemctl restart axelard-val.service
+sudo systemctl restart tofnd.service
 
 echo "chain maintainers startup"
     if [[ "$ethereum" == "ethereum" ]]; then
