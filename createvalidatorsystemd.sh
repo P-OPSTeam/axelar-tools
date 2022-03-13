@@ -33,6 +33,9 @@ read -p "Enter your KEYRING PASSWORD : " KEYRING
 
 denom=uaxl
 
+broadcaster=$(tail $HOME/broadcaster.txt | grep address | cut -f2 -d ":")
+validator=$(tail $HOME/validator.txt | grep address | cut -f2 -d ":")
+
 # Determining Axelar versions
 echo "Determining Axelar version"
 CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/webdocs/main/docs/releases/$NETWORK.md | grep axelar-core | cut -d \` -f 4)
