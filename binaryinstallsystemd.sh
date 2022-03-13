@@ -192,4 +192,5 @@ broadcaster=$(tail $HOME/broadcaster.txt | grep address | cut -f2 -d ":")
 echo "broadcaster adress is : $broadcaster"
 
 echo "Please copy and fund the addresses"
+echo "If setting up a validator wait for the sync is complete please check with curl -s "http://localhost:26657/status" | jq -r '.result.sync_info' "
 echo "node install is done, use option 6 for setting up the validator for systemd"

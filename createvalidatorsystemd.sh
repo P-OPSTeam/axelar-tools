@@ -12,7 +12,7 @@ while [[ $catchingup == "true" ]]; do
     echo "Your node is NOT fully synced yet"
     echo "we'll wait 30s and retry"
     echo "check blockheigt on explorer and on node, if it differs to much ctrl-c and wait patiently"
-    echo "check blockheight on node with curl -s "http://localhost:26657/status""
+    echo "check blockheight on node with curl -s "http://localhost:26657/status" | jq -r '.result.sync_info' "
     echo
     sleep 30
     catchingup=$(jq -r '.result.sync_info.catching_up' <<<$(curl -s "http://localhost:26657/status"))
