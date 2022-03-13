@@ -114,7 +114,7 @@ sudo systemctl start axelard-val.service
 echo "done"
 echo
 echo "Register proxy for validator"
-echo $KEYRING | axelard tx snapshot register-proxy $broadcaster --from validator --home $HOME/$NETWORKPATH/.core -y --chain-id $CHAIN_ID
+echo $KEYRING | axelard tx snapshot register-proxy $broadcaster --from validator --home $HOME/$NETWORKPATH/.core --chain-id $CHAIN_ID -y
 
 echo "creating a validator"
 balance=$(echo $KEYRING | axelard q bank balances $validator | grep amount | cut -d '"' -f 2)
