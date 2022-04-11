@@ -24,6 +24,8 @@ passwd $USER
 ```
 
 Make also sure u set the ulimit -n 16384 permanent.
+Do "nano $HOME/.bashrc" and add "ulimit -n 16384" to the bottom of the file.
+restart the session and setup your node.
 
 ## Let's start
 
