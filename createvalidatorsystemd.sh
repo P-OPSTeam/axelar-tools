@@ -38,11 +38,11 @@ validator=$(tail $HOME/validator.txt | grep address | cut -f2 -d ":")
 
 # Determining Axelar versions
 echo "Determining Axelar version"
-CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/webdocs/main/docs/releases/$NETWORK.md | grep axelar-core | cut -d \` -f 4)
+CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/webdocs/main/docs/resources/$NETWORK.md | grep axelar-core | cut -d \` -f 4)
 echo ${CORE_VERSION}
 
 echo "Determining Tofnd version"
-TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/webdocs/main/docs/releases/$NETWORK.md | grep tofnd | cut -d \` -f 4)
+TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/webdocs/main/docs/resources/$NETWORK.md | grep tofnd | cut -d \` -f 4)
 echo ${TOFND_VERSION}
 echo
 
