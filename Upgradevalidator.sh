@@ -25,14 +25,14 @@ if [ "$NETWORK" == testnet ]; then
     echo "Network switched to Testnet"
     NETWORKPATH=".axelar_testnet"
     CONFIG=$HOME/$NETWORKPATH/.core/config/config.toml
-    CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/webdocs/main/docs/resources/$NETWORK.md | grep axelar-core | cut -d \` -f 4)
-    TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/webdocs/main/docs/resources/$NETWORK.md | grep tofnd | cut -d \` -f 4)
+    CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelar-docs/main/pages/resources/$NETWORK.md | grep axelar-core | cut -d \` -f 4)
+    TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelar-docs/main/pages/resources/$NETWORK.md | grep tofnd | cut -d \` -f 4)
 else
     echo "Network switched to Mainnet"
     NETWORKPATH=".axelar"
     CONFIG=$HOME/$NETWORKPATH/.core/config/config.toml
-    CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/webdocs/main/docs/resources/$NETWORK.md | grep axelar-core | cut -d \` -f 4)
-    TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/webdocs/main/docs/resources/$NETWORK.md | grep tofnd | cut -d \` -f 4)
+    CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelar-docs/main/pages/resources/$NETWORK.md | grep axelar-core | cut -d \` -f 4)
+    TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelar-docs/main/pages/resources/$NETWORK.md | grep tofnd | cut -d \` -f 4)
 fi
 
 if [ -z "$CONFIG" ]; then 
