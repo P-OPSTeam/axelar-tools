@@ -426,14 +426,14 @@ if [ $NETWORK == testnet ]; then
     echo "Network switched to Testnet"
     NETWORKPATH=".axelar_testnet"
     if [ -z $CONFIG ]; then
-    CONFIG=$HOME/$NETWORKPATH/.core/config/config.toml
+    CONFIG=$HOME/$NETWORKPATH/.vald/config/config.toml
     fi
     CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelar-docs/main/pages/resources/$NETWORK.md  | grep axelar-core | cut -d \` -f 4 | cut -d \v -f2)
 else
     echo "Network switched to Mainnet"
     NETWORKPATH=".axelar"
     if [ -z $CONFIG ]; then
-    CONFIG=$HOME/$NETWORKPATH/.core/config/config.toml
+    CONFIG=$HOME/$NETWORKPATH/.vald/config/config.toml
     fi
     CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelar-docs/main/pages/resources/$NETWORK.md  | grep axelar-core | cut -d \` -f 4 | cut -d \v -f2)
 fi
