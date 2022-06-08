@@ -91,12 +91,6 @@ nmsg_tofnd_run_ok="$HOSTNAME: tofnd is running ok now"
 nmsg_tofnd_run_nok="@here $HOSTNAME: tofnd has just stop running. We'll try to start the process and you'll see an ok message if that happens, if not please fix it"
 tofnd_run_status="NA" #vald test status to print out to log file 
 
-#vald tofnd connectivity test
-vald_tofnd_ping_n="true" # true or false indicating connectivity test state
-nmsg_vald_tofnd_ping_ok="$HOSTNAME: vald/tofnd connectivity is now ok"
-nmsg_vald_tofnd_ping_nok="$HOSTNAME: vald/tofnd is currently failing, please check"
-vald_tofnd_ping_status="NA" #vvald tofnd connectivity test status to print out to log file 
-
 #Health check test
 Health_check_n="true" # true or false indicating connectivity test state
 msg_Health_check_ok="$HOSTNAME: Health check is ok"
@@ -141,13 +135,6 @@ nmsg_eth_endpoint_test_ok="$HOSTNAME: Eth endpoint test is now ok !"
 nmsg_eth_endpoint_test_nok="$HOSTNAME: Eth endpoint test just failed !"
 eth_endpoint_status="NA" #eth endpoint status to print out to log file 
 
-#btc endpoint test
-btc_endpoint_test_n="true" # true or false indicating status of the avax_endpoint_test
-nmsg_btc_endpoint_test_err="$HOSTNAME: Btc endpoint test ended with error"
-nmsg_btc_endpoint_test_ok="$HOSTNAME: Btc endpoint test is now ok !"
-nmsg_btc_endpoint_test_nok="$HOSTNAME: Btc endpoint test just failed !"
-btc_endpoint_status="NA" #Btc endpoint status to print out to log file 
-
 #avax endpoint test
 avax_endpoint_test_n="true" # true or false indicating status of the avax_endpoint_test
 nmsg_avax_endpoint_test_err="$HOSTNAME: Avalanche endpoint test ended with error"
@@ -175,6 +162,13 @@ nmsg_polygon_endpoint_test_err="$HOSTNAME: polygon endpoint test ended with erro
 nmsg_polygon_endpoint_test_ok="$HOSTNAME: polygon endpoint test is now ok !"
 nmsg_polygon_endpoint_test_nok="$HOSTNAME: polygon endpoint test just failed !"
 polygon_endpoint_status="NA" #polygon endpoint status to print out to log file 
+
+#binance endpoint test
+binance_endpoint_test_n="true" # true or false indicating status of the binance_endpoint_test
+nmsg_binance_endpoint_test_err="$HOSTNAME: binance endpoint test ended with error"
+nmsg_binance_endpoint_test_ok="$HOSTNAME: binance endpoint test is now ok !"
+nmsg_binance_endpoint_test_nok="$HOSTNAME: binance endpoint test just failed !"
+binance_endpoint_status="NA" #binance endpoint status to print out to log file
 
 #MPC eligibility test
 min_eligible_threshold=0.02 #2% total state are required to be eligible
@@ -251,32 +245,6 @@ check_eth_endpoint() {
             if [ $eth_endpoint_test_n == "false" ]; then #test was not ok
                 send_notification "$nmsg_eth_endpoint_test_ok"
                 eth_endpoint_test_n="true"
-            fi
-        fi
-    fi    
-}
-
-check_btc_endpoint() {
-    url_res=$(curl -sX POST ${BTCNODE} -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"getblockchaininfo","params":[],"id":1}' | jq .result 2> /dev/null)
-    #echo $url_res
-    if [ $? -ne 0 ]; then #curl somehow failed
-        btc_endpoint_status="ERR"  
-        if [ $btc_endpoint_test_n == "true" ]; then #test was ok
-            send_notification "$nmsg_btc_endpoint_test_err"
-            btc_endpoint_test_n="false"
-        fi
-    else
-        if [[ $url_res =~ "error" ]]; then
-            btc_endpoint_status="NOK" 
-            if [ $btc_endpoint_test_n == "true" ]; then #test was ok                
-                send_notification "$nmsg_btc_endpoint_test_nok"
-                btc_endpoint_test_n="false"
-            fi
-        else  
-            btc_endpoint_status="OK"
-            if [ $btc_endpoint_test_n == "false" ]; then #test was not ok
-                send_notification "$nmsg_btc_endpoint_test_ok"
-                btc_endpoint_test_n="true"
             fi
         fi
     fi    
@@ -381,6 +349,32 @@ check_polygon_endpoint() {
             if [ $polygon_endpoint_test_n == "false" ]; then #test was not ok
                 send_notification "$nmsg_polygon_endpoint_test_ok"
                 polygon_endpoint_test_n="true"
+            fi
+        fi
+    fi    
+}
+
+check_binance_endpoint() {
+    url_res=$(curl -X POST --data '{"jsonrpc": "2.0", "method": "eth_getBalance", "params": ["0xf3ce1887178d73aa90c98bc6be36bdc195ccb48d", "latest" ], "id": 1}' -H 'content-type:application/json;' $BSCNODE 2> /dev/null)
+    #echo $url_res
+    if [ $? -ne 0 ]; then #curl somehow failed
+        binance_endpoint_status="ERR"  
+        if [ $binance_endpoint_test_n == "true" ]; then #test was ok
+            send_notification "$nmsg_binance_endpoint_test_err"
+            binance_endpoint_test_n="false"
+        fi
+    else
+        if [[ $url_res =~ "error" ]]; then
+            binance_endpoint_status="NOK" 
+            if [ $binance_endpoint_test_n == "true" ]; then #test was ok
+                send_notification "$nmsg_binance_endpoint_test_nok"
+                binance_endpoint_test_n="false"
+            fi
+        else  
+            binance_endpoint_status="OK"
+            if [ $binance_endpoint_test_n == "false" ]; then #test was not ok
+                send_notification "$nmsg_binance_endpoint_test_ok"
+                binance_endpoint_test_n="true"
             fi
         fi
     fi    
@@ -535,6 +529,14 @@ if [ "$isvalidator" != "0" ]; then
         send_notification "nodemonitor exited : No polygon node specified"
         else 
         echo "polygon node read from config file is : $POLYGONNODE"
+        fi
+
+        BSCNODE="$(sudo grep -A 1 'name = "binance"' ${CONFIG} | tail -n 1  | grep -oP '(?<=").*?(?=")')"
+        if [ $? -ne 0 ]; then #something failed with the above command
+        echo "No binance node specified"
+        send_notification "nodemonitor exited : No polygon node specified"
+        else 
+        echo "binance node read from config file is : $BSCNODE"
         fi
         
 fi
@@ -831,9 +833,11 @@ while true ; do
 
                 check_polygon_endpoint
 
+                check_binance_endpoint
+
                 check_eligibility_MPC
                 
-                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$bc_balance_status eth_endpoint=$eth_endpoint_status avax_endpoint=$avax_endpoint_status fantom_endpoint=$fantom_endpoint_status moonbeam_endpoint=$moonbeam_endpoint_status polygon_endpoint=$polygon_endpoint_status mpc_eligibility=$mpc_eligibility_status vald_run=$vald_run_status tofnd_run=$tofnd_run_status Health_check=$Health_check_status"
+                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$bc_balance_status eth_endpoint=$eth_endpoint_status avax_endpoint=$avax_endpoint_status fantom_endpoint=$fantom_endpoint_status moonbeam_endpoint=$moonbeam_endpoint_status polygon_endpoint=$polygon_endpoint_status binance_endpoint=$binance_endpoint_status mpc_eligibility=$mpc_eligibility_status vald_run=$vald_run_status tofnd_run=$tofnd_run_status Health_check=$Health_check_status"
             else
                 isvalidator="no"
                 validatorinfo="isvalidator=$isvalidator"
