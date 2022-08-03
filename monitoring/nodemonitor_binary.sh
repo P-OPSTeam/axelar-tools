@@ -170,6 +170,48 @@ nmsg_binance_endpoint_test_ok="$HOSTNAME: binance endpoint test is now ok !"
 nmsg_binance_endpoint_test_nok="$HOSTNAME: binance endpoint test just failed !"
 binance_endpoint_status="NA" #binance endpoint status to print out to log file
 
+# Check deregister chainmaintainer Ethereum
+ETH_chain_maintainer_n="true" # true or false indicicating deregister chainmaintainer
+nmsg_ETH_chain_maintainer_ok="$HOSTNAME: ETH chainmaintainer is ok"
+nmsg_ETH_chain_maintainer_nok="@here $HOSTNAME: ETH chainmaintainer deregistered"
+ETH_chain_maintainer_status="NA"  
+
+# Check deregister chainmaintainer Avalanche
+AVAX_chain_maintainer_n="true" # true or false indicicating deregister chainmaintainer
+nmsg_AVAX_chain_maintainer_ok="$HOSTNAME: AVAX chainmaintainer is ok"
+nmsg_AVAX_chain_maintainer_nok="@here $HOSTNAME: AVAX chainmaintainer deregistered"
+AVAX_chain_maintainer_status="NA"  
+
+# Check deregister chainmaintainer Polygon
+POLY_chain_maintainer_n="true" # true or false indicicating deregister chainmaintainer
+nmsg_POLY_chain_maintainer_ok="$HOSTNAME: Polygon chainmaintainer is ok"
+nmsg_POLY_chain_maintainer_nok="@here $HOSTNAME: Polygon chainmaintainer deregistered"
+POLY_chain_maintainer_status="NA" 
+
+# Check deregister chainmaintainer Moonbeam
+MOON_chain_maintainer_n="true" # true or false indicicating deregister chainmaintainer
+nmsg_MOON_chain_maintainer_ok="$HOSTNAME: Moonbeam chainmaintainer is ok"
+nmsg_MOON_chain_maintainer_nok="@here $HOSTNAME: Moonbeam chainmaintainer deregistered"
+MOON_chain_maintainer_status="NA" 
+
+# Check deregister chainmaintainer Fantom
+FTM_chain_maintainer_n="true" # true or false indicicating deregister chainmaintainer
+nmsg_FTM_chain_maintainer_ok="$HOSTNAME: Fantom chainmaintainer is ok"
+nmsg_FTM_chain_maintainer_nok="@here $HOSTNAME: Fantom chainmaintainer deregistered"
+FTM_chain_maintainer_status="NA" 
+
+# Check deregister chainmaintainer Binance
+BSC_chain_maintainer_n="true" # true or false indicicating deregister chainmaintainer
+nmsg_BSC_chain_maintainer_ok="$HOSTNAME: Binance chainmaintainer is ok"
+nmsg_BSC_chain_maintainer_nok="@here $HOSTNAME: Binance chainmaintainer deregistered"
+BSC_chain_maintainer_status="NA" 
+
+# Check deregister chainmaintainer aurora
+aurora_chain_maintainer_n="true" # true or false indicicating deregister chainmaintainer
+nmsg_aurora_chain_maintainer_ok="$HOSTNAME: aurora chainmaintainer is ok"
+nmsg_aurora_chain_maintainer_nok="@here $HOSTNAME: aurora chainmaintainer deregistered"
+aurora_chain_maintainer_status="NA" 
+
 #MPC eligibility test
 min_eligible_threshold=0.02 #2% total state are required to be eligible
 mpc_eligibility_test_n="true"
@@ -755,6 +797,139 @@ while true ; do
                 if [ $tombstoned_status_n == "true" ]; then
                     send_notification "$msg_tombstoned_status_ok"
                     tombstoned_status_n="false"
+                fi
+            fi
+
+            # Check deregister ETH chainmaintainer
+            ETHCHAIN=$(tail -300 $HOME/$NETWORKPATH/logs/axelard.log | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain Ethereum")
+            if [ -z "$ETHCHAIN" ]
+            then
+            echo "Ethereum chainmaintainers not deregistered"
+            ETH_chain_maintainer_status="OK"
+                if [ $ETH_chain_maintainer_n == "false" ]; then 
+                ETH_chain_maintainer_n="true"
+                send_notification "$nmsg_ETH_chain_maintainer_ok"
+                fi
+            else
+            echo "Ethereum chainmaintainer deregistered"
+	        ETH_chain_maintainer_status="NOK"
+                if [ $ETH_chain_maintainer_n == "true" ]; then
+                ETH_chain_maintainer_n="false"
+                send_notification "$nmsg_ETH_chain_maintainer_nok"
+                fi
+            fi
+	
+            # Check deregister Avalanche chainmaintainer
+            AVAXCHAIN=$(tail -300 $HOME/$NETWORKPATH/logs/axelard.log | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain Avalanche")
+            if [ -z "$AVAXCHAIN" ]
+            then
+            echo "Avalanche chainmaintainers not deregistered"
+            AVAX_chain_maintainer_status="OK"
+                if [ $AVAX_chain_maintainer_n == "false" ]; then 
+                AVAX_chain_maintainer_n="true"
+                send_notification "$nmsg_AVAX_chain_maintainer_ok"
+                fi
+            else
+            echo "Avalanche chainmaintainer deregistered"
+	        AVAX_chain_maintainer_status="NOK"
+                if [ $AVAX_chain_maintainer_n == "true" ]; then
+                AVAX_chain_maintainer_n="false"
+                send_notification "$nmsg_AVAX_chain_maintainer_nok"
+                fi
+            fi
+
+            # Check deregister Polygon chainmaintainer
+            POLYCHAIN=$(tail -300 $HOME/$NETWORKPATH/logs/axelard.log | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain Polygon")
+            if [ -z "$POLYCHAIN" ]
+            then
+            echo "Polygon chainmaintainers not deregistered"
+            POLY_chain_maintainer_status="OK"
+                if [ $POLY_chain_maintainer_n == "false" ]; then 
+                POLY_chain_maintainer_n="true"
+                send_notification "$nmsg_POLY_chain_maintainer_ok"
+                fi
+            else
+            echo "Polygon chainmaintainer deregistered"
+	        POLY_chain_maintainer_status="NOK"
+                if [ $POLY_chain_maintainer_n == "true" ]; then
+                POLY_chain_maintainer_n="false"
+                send_notification "$nmsg_POLY_chain_maintainer_nok"
+                fi
+            fi
+	
+            # Check deregister Moonbeam chainmaintainer
+            MOONCHAIN=$(tail -300 $HOME/$NETWORKPATH/logs/axelard.log | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain Moonbeam")
+            if [ -z "$MOONCHAIN" ]
+            then
+            echo "Moonbeam chainmaintainers not deregistered"
+            MOON_chain_maintainer_status="OK"
+                if [ $MOON_chain_maintainer_n == "false" ]; then 
+                MOON_chain_maintainer_n="true"
+                send_notification "$nmsg_MOON_chain_maintainer_ok"
+                fi
+            else
+            echo "Moonbeam chainmaintainer deregistered"
+	        MOON_chain_maintainer_status="NOK"
+                if [ $MOON_chain_maintainer_n == "true" ]; then
+                MOON_chain_maintainer_n="false"
+                send_notification "$nmsg_MOON_chain_maintainer_nok"
+                fi
+            fi
+
+            # Check deregister Fantom chainmaintainer
+            FTMCHAIN=$(tail -300 $HOME/$NETWORKPATH/logs/axelard.log | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain Fantom")
+            if [ -z "$FTMCHAIN" ]
+            then
+            echo "Fantom chainmaintainers not deregistered"
+            FTM_chain_maintainer_status="OK"
+                if [ $FTM_chain_maintainer_n == "false" ]; then 
+                FTM_chain_maintainer_n="true"
+                send_notification "$nmsg_FTM_chain_maintainer_ok"
+                fi
+            else
+            echo "Fantom chainmaintainer deregistered"
+	        FTM_chain_maintainer_status="NOK"
+                if [ $FTM_chain_maintainer_n == "true" ]; then
+                FTM_chain_maintainer_n="false"
+                send_notification "$nmsg_FTM_chain_maintainer_nok"
+                fi
+            fi  
+
+            # Check deregister Binance chainmaintainer
+            BSCCHAIN=$(tail -300 $HOME/$NETWORKPATH/logs/axelard.log | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain Binance")
+            if [ -z "$BSCCHAIN" ]
+            then
+            echo "Binance chainmaintainers not deregistered"
+            BSC_chain_maintainer_status="OK"
+                if [ $BSC_chain_maintainer_n == "false" ]; then 
+                BSC_chain_maintainer_n="true"
+                send_notification "$nmsg_BSC_chain_maintainer_ok"
+                fi
+            else
+            echo "Binance chainmaintainer deregistered"
+	        BSC_chain_maintainer_status="NOK"
+                if [ $BSC_chain_maintainer_n == "true" ]; then
+                BSC_chain_maintainer_n="false"
+                send_notification "$nmsg_BSC_chain_maintainer_nok"
+                fi
+            fi
+
+            # Check deregister Aurora chainmaintainer
+            AURORACHAIN=$(tail -300 $HOME/$NETWORKPATH/logs/axelard.log | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain aurora")
+            if [ -z "$AURORACHAIN" ]
+            then
+            echo "aurora chainmaintainers not deregistered"
+            aurora_chain_maintainer_status="OK"
+                if [ $aurora_chain_maintainer_n == "false" ]; then 
+                aurora_chain_maintainer_n="true"
+                send_notification "$nmsg_aurora_chain_maintainer_ok"
+                fi
+            else
+            echo "aurora chainmaintainer deregistered"
+	        aurora_chain_maintainer_status="NOK"
+                if [ $aurora_chain_maintainer_n == "true" ]; then
+                aurora_chain_maintainer_n="false"
+                send_notification "$nmsg_aurora_chain_maintainer_nok"
                 fi
             fi
 
