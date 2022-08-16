@@ -182,7 +182,7 @@ echo "--> creating Tofnd wallet"
 echo $KEYRING | tofnd -m create -d "$HOME/$NETWORKPATH/.tofnd"
 mv $HOME/$NETWORKPATH/.tofnd/export $HOME/$NETWORKPATH/.tofnd/import
 
-echo access2all | axelard keys show validator --home $HOME/$NETWORKPATH/.core --bech val -a > $HOME/$NETWORKPATH/validator.bech
+echo $KEYRING | axelard keys show validator --home $HOME/$NETWORKPATH/.core --bech val -a > $HOME/$NETWORKPATH/validator.bech
 echo "Node setup done"
 echo "Please fund broadcaster and validator address"
 validator=$(tail $HOME/validator.txt | grep address | cut -f2 -d ":")
