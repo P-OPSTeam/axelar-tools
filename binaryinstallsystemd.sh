@@ -18,8 +18,6 @@ if [ "" = "$PKG_OK" ]; then
     sudo apt-get --yes install $REQUIRED_PKG
 fi
 
-denom=uaxl
-
 if [ -z $MONIKER ]; then
     echo "Please enter Moniker name below"
     read -p "Enter Moniker name :" MONIKER
@@ -46,15 +44,16 @@ echo "Setup node for axelar testnet"
 echo "Determining testnet chain"
 CHAIN_ID=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/scripts/node.sh | grep chain_id=axelar-t | cut -f2 -d "=")
 NETWORKPATH=".axelar_testnet"
-SNAPSHOTURL=$(curl https://quicksync.io/axelar.json|jq -r '.[] |select(.file=="axelartestnet-lisbon-3-pruned")|.url')
-SNAPSHOTFILE=$(curl https://quicksync.io/axelar.json|jq -r '.[] |select(.file=="axelartestnet-lisbon-3-pruned")|.url' | cut -c26-)
+SNAPSHOTURL=$(curl -L https://quicksync.io/axelar.json|jq -r '.[] |select(.file=="axelartestnet-lisbon-3-pruned")|.url')
+SNAPSHOTFILE=$(curl -L https://quicksync.io/axelar.json|jq -r '.[] |select(.file=="axelartestnet-lisbon-3-pruned")|.url' | cut -c26-)
+
 else
 echo "Setup node for axelar mainnet"
 echo "Determining mainnet chain"
 CHAIN_ID=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelarate-community/main/scripts/node.sh | grep chain_id=axelar-d | cut -f2 -d "=")
 NETWORKPATH=".axelar"
-SNAPSHOTURL=$(curl https://quicksync.io/axelar.json|jq -r '.[] |select(.file=="axelar-dojo-1-default")|.url')
-SNAPSHOTFILE=$(curl https://quicksync.io/axelar.json|jq -r '.[] |select(.file=="axelar-dojo-1-default")|.url' | cut -c26-)
+SNAPSHOTURL=$(curl -L https://quicksync.io/axelar.json|jq -r '.[] |select(.file=="axelar-dojo-1-default")|.url')
+SNAPSHOTFILE=$(curl -L https://quicksync.io/axelar.json|jq -r '.[] |select(.file=="axelar-dojo-1-default")|.url' | cut -c26-)
 fi
 
 echo "Clone Axelar Community Github"
