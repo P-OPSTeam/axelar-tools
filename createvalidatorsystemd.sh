@@ -41,6 +41,10 @@ echo "Determining Axelar version"
 CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelar-docs/main/pages/resources/$NETWORK.md | grep axelar-core | cut -d \` -f 4)
 echo ${CORE_VERSION}
 
+echo "Determining Vald version"
+VALD_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelar-docs/main/pages/resources/$NETWORK.md | grep vald | cut -d \` -f 4)
+echo ${VALD_VERSION}
+
 echo "Determining Tofnd version"
 TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelar-docs/main/pages/resources/$NETWORK.md | grep tofnd | cut -d \` -f 4)
 echo ${TOFND_VERSION}
@@ -96,7 +100,7 @@ After=network-online.target
 
 [Service]
 User=$USER
-ExecStart=/bin/sh -c 'echo $KEYRING | axelard vald-start --tofnd-host localhost --node http://localhost:26657 --home $HOME/$NETWORKPATH/.vald --validator-addr $valoper --log_level debug --chain-id $CHAIN_ID --from broadcaster'
+ExecStart=/bin/sh -c 'echo $KEYRING | axelard-$VALD_VERSION vald-start --tofnd-host localhost --node http://localhost:26657 --home $HOME/$NETWORKPATH/.vald --validator-addr $valoper --log_level debug --chain-id $CHAIN_ID --from broadcaster'
 Restart=always
 RestartSec=3
 LimitNOFILE=16384
