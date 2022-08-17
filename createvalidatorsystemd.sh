@@ -100,7 +100,7 @@ After=network-online.target
 
 [Service]
 User=$USER
-ExecStart=/bin/sh -c 'echo $KEYRING | axelard-$VALD_VERSION vald-start --tofnd-host localhost --node http://localhost:26657 --home $HOME/$NETWORKPATH/.vald --validator-addr $valoper --log_level debug --chain-id $CHAIN_ID --from broadcaster'
+ExecStart=/bin/sh -c 'echo $KEYRING | vald vald-start --tofnd-host localhost --node http://localhost:26657 --home $HOME/$NETWORKPATH/.vald --validator-addr $valoper --log_level debug --chain-id $CHAIN_ID --from broadcaster'
 Restart=always
 RestartSec=3
 LimitNOFILE=16384
@@ -240,35 +240,35 @@ sudo systemctl restart tofnd.service
 echo "chain maintainers startup"
     if [[ "$ethereum" == "ethereum" ]]; then
     echo "active"
-    echo $KEYRING | axelard tx nexus register-chain-maintainer ethereum --from broadcaster --node http://localhost:26657 --gas auto --gas-adjustment 1.2 --chain-id $CHAIN_ID --home $HOME/$NETWORKPATH/.vald
+    echo $KEYRING | vald tx nexus register-chain-maintainer ethereum --from broadcaster --node http://localhost:26657 --gas auto --gas-adjustment 1.2 --chain-id $CHAIN_ID --home $HOME/$NETWORKPATH/.vald
     else 
     echo "ethereum not maintained"
     fi
 
     if [[ "$avalanche" == "avalanche" ]]; then
     echo "active"
-    echo $KEYRING | axelard tx nexus register-chain-maintainer avalanche --from broadcaster --node http://localhost:26657 --gas auto --gas-adjustment 1.2 --chain-id $CHAIN_ID --home $HOME/$NETWORKPATH/.vald
+    echo $KEYRING | vald tx nexus register-chain-maintainer avalanche --from broadcaster --node http://localhost:26657 --gas auto --gas-adjustment 1.2 --chain-id $CHAIN_ID --home $HOME/$NETWORKPATH/.vald
     else 
     echo "avalanche not maintained"
     fi
 
     if [[ "$fantom" == "fantom" ]]; then
     echo "active"
-    echo $KEYRING | axelard tx nexus register-chain-maintainer fantom --from broadcaster --node http://localhost:26657 --gas auto --gas-adjustment 1.2 --chain-id $CHAIN_ID --home $HOME/$NETWORKPATH/.vald
+    echo $KEYRING | vald tx nexus register-chain-maintainer fantom --from broadcaster --node http://localhost:26657 --gas auto --gas-adjustment 1.2 --chain-id $CHAIN_ID --home $HOME/$NETWORKPATH/.vald
     else 
     echo "fantom not maintained"
     fi
 
     if [[ "$moonbeam" == "moonbeam" ]]; then
     echo "active"
-    echo $KEYRING | axelard tx nexus register-chain-maintainer moonbeam --from broadcaster --node http://localhost:26657 --gas auto --gas-adjustment 1.2 --chain-id $CHAIN_ID --home $HOME/$NETWORKPATH/.vald
+    echo $KEYRING | vald tx nexus register-chain-maintainer moonbeam --from broadcaster --node http://localhost:26657 --gas auto --gas-adjustment 1.2 --chain-id $CHAIN_ID --home $HOME/$NETWORKPATH/.vald
     else 
     echo "moonbeam not maintained"
     fi
 
     if [[ "$polygon" == "polygon" ]]; then
     echo "active"
-    echo $KEYRING | axelard tx nexus register-chain-maintainer polygon --from broadcaster --node http://localhost:26657 --gas auto --gas-adjustment 1.2 --chain-id $CHAIN_ID --home $HOME/$NETWORKPATH/.vald
+    echo $KEYRING | vald tx nexus register-chain-maintainer polygon --from broadcaster --node http://localhost:26657 --gas auto --gas-adjustment 1.2 --chain-id $CHAIN_ID --home $HOME/$NETWORKPATH/.vald
     else 
     echo "polygon not maintained"
     fi

@@ -72,7 +72,7 @@ echo
 echo "Download binary files"
 sudo curl -s "https://axelar-releases.s3.us-east-2.amazonaws.com/axelard/$CORE_VERSION/axelard-linux-amd64-$CORE_VERSION" -o /usr/local/bin/axelard
 sudo curl -s --fail https://axelar-releases.s3.us-east-2.amazonaws.com/tofnd/$TOFND_VERSION/tofnd-linux-amd64-$TOFND_VERSION -o /usr/local/bin/tofnd
-sudo curl -s "https://axelar-releases.s3.us-east-2.amazonaws.com/axelard/$VALD_VERSION/axelard-linux-amd64-$VALD_VERSION" -o /usr/local/bin/axelard-$VALD_VERSION
+sudo curl -s "https://axelar-releases.s3.us-east-2.amazonaws.com/axelard/$VALD_VERSION/axelard-linux-amd64-$VALD_VERSION" -o /usr/local/bin/vald
 
 echo "done"
 echo
@@ -80,6 +80,7 @@ echo
 echo "make the binary executable"
 sudo chmod +x /usr/local/bin/axelard
 sudo chmod +x /usr/local/bin/tofnd
+sudo chmod +x /usr/local/bin/vald
 echo "done"
 echo
 

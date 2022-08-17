@@ -13,6 +13,10 @@ echo "Determining Axelar version"
 CORE_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelar-docs/main/pages/resources/$NETWORK.md | grep axelar-core | cut -d \` -f 4)
 echo ${CORE_VERSION}
 
+echo "Determining Vald version"
+VALD_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelar-docs/main/pages/resources/$NETWORK.md | grep vald | cut -d \` -f 4)
+echo ${VALD_VERSION}
+
 echo "Determining Tofnd version" 
 TOFND_VERSION=$(curl -s https://raw.githubusercontent.com/axelarnetwork/axelar-docs/main/pages/resources/$NETWORK.md | grep tofnd | cut -d \` -f 4)
 echo ${TOFND_VERSION}
@@ -46,6 +50,7 @@ fi
 echo "Download binary files"
 sudo curl -s "https://axelar-releases.s3.us-east-2.amazonaws.com/axelard/$CORE_VERSION/axelard-linux-amd64-$CORE_VERSION" -o /usr/local/bin/axelard
 sudo curl -s --fail https://axelar-releases.s3.us-east-2.amazonaws.com/tofnd/$TOFND_VERSION/tofnd-linux-amd64-$TOFND_VERSION -o /usr/local/bin/tofnd
+sudo curl -s "https://axelar-releases.s3.us-east-2.amazonaws.com/axelard/$VALD_VERSION/axelard-linux-amd64-$VALD_VERSION" -o /usr/local/bin/vald
 cp $HOME/axelarate-community/configuration/app.toml $HOME/$NETWORKPATH/.core/config
 cp $HOME/axelarate-community/configuration/app.toml $HOME/$NETWORKPATH/.vald/config
 echo "done"
