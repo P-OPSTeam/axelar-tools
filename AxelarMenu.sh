@@ -18,15 +18,12 @@ BACKTITLE="Axelar"
 TITLE="Install menu"
 MENU="Choose one of the following options:"
 
-OPTIONS=(1 "Install Binary by using wrapper"
-         2 "Install Binary by systemd"
-         3 "Upgrade Binary by using wrapper"
-         4 "Upgrade Binary by systemd"
-         5 "Create validator wrapper"
-         6 "Create validator systemd"
-         7 "reboot node"
-         8 "Monitor the node via cli wrapper"
-         9 "Exit menu")
+OPTIONS=(1 "Install Binary by systemd"
+         2 "Upgrade Binary by systemd"
+         3 "Create validator systemd"
+         4 "reboot node"
+         5 "Monitor the node via cli wrapper"
+         6 "Exit menu")
 
 
 CHOICE=$(dialog --clear \
@@ -40,28 +37,19 @@ CHOICE=$(dialog --clear \
 clear
 case $CHOICE in
     1)
-        bash $SCRIPTPATH/Wrapperinstall.sh
-        ;;
-    2)
         bash $SCRIPTPATH/binaryinstallsystemd.sh
         ;;
-    3)
-        bash $SCRIPTPATH/Upgradevalidator.sh
-        ;;
-    4)
+    2)
         bash $SCRIPTPATH/Upgradebinarysystemd.sh
         ;;
-    5)
-        bash $SCRIPTPATH/createvalidatorwrapper.sh
-        ;;
-    6)  
+    3)  
         bash $SCRIPTPATH/createvalidatorsystemd.sh
         ;;
-    7)
+    4)
         bash $SCRIPTPATH/rebootserver.sh
         ;;
-    8)
-        bash $SCRIPTPATH/monitoring/nodemonitor.sh
+    5)
+        bash $SCRIPTPATH/monitoring/nodemonitor_binanry.sh
         ;;
-    9)  exit
+    6)  exit
 esac
