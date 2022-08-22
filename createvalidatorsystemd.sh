@@ -230,6 +230,44 @@ done
 
     fi
 
+read -p "Do you want to add binance as a chain-maintainer, answer yes or no: " binance
+while [[ "$binance" != @(yes|no) ]]; do
+    read wishtocreate
+done
+
+    if [[ "$binance" == "yes" ]]; then
+
+        # setting up binance rpc
+        sed -i '/^name = "binance"/{n;N;d}' $HOME/$NETWORKPATH/.core/config/config.toml
+        read -p "Type in your binance node address: " binance
+        sed -i "/^name = \"binance\"/a rpc_addr    = \"$binance\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/.core/config/config.toml
+        echo
+        echo "binance bridge enabled"
+        echo
+
+        binance=binance
+
+    fi
+
+read -p "Do you want to add aurora as a chain-maintainer, answer yes or no: " aurora
+while [[ "$aurora" != @(yes|no) ]]; do
+    read wishtocreate
+done
+
+    if [[ "$aurora" == "yes" ]]; then
+
+        # setting up aurora rpc
+        sed -i '/^name = "aurora"/{n;N;d}' $HOME/$NETWORKPATH/.core/config/config.toml
+        read -p "Type in your aurora node address: " aurora
+        sed -i "/^name = \"aurora\"/a rpc_addr    = \"$aurora\"\nstart-with-bridge = true" $HOME/$NETWORKPATH/.core/config/config.toml
+        echo
+        echo "aurora bridge enabled"
+        echo
+
+        aurora=aurora
+
+    fi
+
 echo "copy config to vald dir"
 cp $HOME/$NETWORKPATH/.core/config/config.toml $HOME/$NETWORKPATH/.vald/config/config.toml
 
@@ -271,6 +309,20 @@ echo "chain maintainers startup"
     echo $KEYRING | vald tx nexus register-chain-maintainer polygon --from broadcaster --node http://localhost:26657 --gas auto --gas-adjustment 1.2 --chain-id $CHAIN_ID --home $HOME/$NETWORKPATH/.vald
     else 
     echo "polygon not maintained"
+    fi
+
+    if [[ "$binance" == "binance" ]]; then
+    echo "active"
+    echo $KEYRING | vald tx nexus register-chain-maintainer binance --from broadcaster --node http://localhost:26657 --gas auto --gas-adjustment 1.2 --chain-id $CHAIN_ID --home $HOME/$NETWORKPATH/.vald
+    else 
+    echo "binance not maintained"
+    fi
+
+    if [[ "$aurora" == "aurora" ]]; then
+    echo "active"
+    echo $KEYRING | vald tx nexus register-chain-maintainer aurora --from broadcaster --node http://localhost:26657 --gas auto --gas-adjustment 1.2 --chain-id $CHAIN_ID --home $HOME/$NETWORKPATH/.vald
+    else 
+    echo "aurora not maintained"
     fi
 
 echo "chain maintainers enabled"
