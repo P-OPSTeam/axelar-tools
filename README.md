@@ -39,16 +39,12 @@ cd axelar-tools && chmod u+x AxelarMenu.sh
 
 here are the current options :
 
-1. "Install Binary by using wrapper" - Install using wrapper, no auto start at boot
+1. "Install Binary by systemd" - Installing node/validator via systemd
 
-2. "Install Binary by systemd" - Installing node/validator via systemd
+2. "Upgrade Binary by systemd" -- Upgrading node/validator systemd
 
-3. "Upgrade Binary by using warpper" - Update node/validator wrapper
+3. "Create validator systemd" -- create a validator and enable chainmaintainers
 
-4. "Upgrade Binary by systemd" -- Upgrading node/validator systemd
+4. "reboot node" - reboot node, node will auto start with systemd
 
-5. "Create validator wrapper" -- create a validator using axelar scripts
-
-6. "reboot node" - reboot node, node will auto start with systemd
-
-7. "Monitor the node via cli" - monitoring for your node and validator
+5. "Monitor the node via cli" - monitoring for your node and validator
