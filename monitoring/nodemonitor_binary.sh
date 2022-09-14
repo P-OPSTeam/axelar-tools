@@ -801,7 +801,7 @@ while true ; do
             fi
 
             # Check deregister ETH chainmaintainer
-            ETHCHAIN=$(tail -300 $HOME/$NETWORKPATH/logs/axelard.log | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain Ethereum")
+            ETHCHAIN=$(sudo journalctl -u axelar-node --since -1h --until now | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain Ethereum")
             if [ -z "$ETHCHAIN" ]
             then
             echo "Ethereum chainmaintainers not deregistered"
@@ -820,7 +820,7 @@ while true ; do
             fi
 	
             # Check deregister Avalanche chainmaintainer
-            AVAXCHAIN=$(tail -300 $HOME/$NETWORKPATH/logs/axelard.log | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain Avalanche")
+            AVAXCHAIN=$(sudo journalctl -u axelar-node --since -1h --until now | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain Avalanche")
             if [ -z "$AVAXCHAIN" ]
             then
             echo "Avalanche chainmaintainers not deregistered"
@@ -839,7 +839,7 @@ while true ; do
             fi
 
             # Check deregister Polygon chainmaintainer
-            POLYCHAIN=$(tail -300 $HOME/$NETWORKPATH/logs/axelard.log | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain Polygon")
+            POLYCHAIN=$(sudo journalctl -u axelar-node --since -1h --until now | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain Polygon")
             if [ -z "$POLYCHAIN" ]
             then
             echo "Polygon chainmaintainers not deregistered"
@@ -858,7 +858,7 @@ while true ; do
             fi
 	
             # Check deregister Moonbeam chainmaintainer
-            MOONCHAIN=$(tail -300 $HOME/$NETWORKPATH/logs/axelard.log | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain Moonbeam")
+            MOONCHAIN=$(sudo journalctl -u axelar-node --since -1h --until now | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain Moonbeam")
             if [ -z "$MOONCHAIN" ]
             then
             echo "Moonbeam chainmaintainers not deregistered"
@@ -877,7 +877,7 @@ while true ; do
             fi
 
             # Check deregister Fantom chainmaintainer
-            FTMCHAIN=$(tail -300 $HOME/$NETWORKPATH/logs/axelard.log | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain Fantom")
+            FTMCHAIN=$(sudo journalctl -u axelar-node --since -1h --until now | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain Fantom")
             if [ -z "$FTMCHAIN" ]
             then
             echo "Fantom chainmaintainers not deregistered"
@@ -896,7 +896,7 @@ while true ; do
             fi  
 
             # Check deregister Binance chainmaintainer
-            BSCCHAIN=$(tail -300 $HOME/$NETWORKPATH/logs/axelard.log | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain Binance")
+            BSCCHAIN=$(sudo journalctl -u axelar-node --since -1h --until now | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain Binance")
             if [ -z "$BSCCHAIN" ]
             then
             echo "Binance chainmaintainers not deregistered"
@@ -915,7 +915,7 @@ while true ; do
             fi
 
             # Check deregister Aurora chainmaintainer
-            AURORACHAIN=$(tail -300 $HOME/$NETWORKPATH/logs/axelard.log | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain aurora")
+            AURORACHAIN=$(sudo journalctl -u axelar-node --since -1h --until now | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain aurora")
             if [ -z "$AURORACHAIN" ]
             then
             echo "aurora chainmaintainers not deregistered"
