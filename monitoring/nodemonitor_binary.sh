@@ -170,6 +170,27 @@ nmsg_binance_endpoint_test_ok="$HOSTNAME: binance endpoint test is now ok !"
 nmsg_binance_endpoint_test_nok="$HOSTNAME: binance endpoint test just failed !"
 binance_endpoint_status="NA" #binance endpoint status to print out to log file
 
+#celo endpoint test
+celo_endpoint_test_n="true" # true or false indicating status of the celo_endpoint_test
+nmsg_celo_endpoint_test_err="$HOSTNAME: celo endpoint test ended with error"
+nmsg_celo_endpoint_test_ok="$HOSTNAME: celo endpoint test is now ok !"
+nmsg_celo_endpoint_test_nok="$HOSTNAME: celo endpoint test just failed !"
+celo_endpoint_status="NA" #celo endpoint status to print out to log file
+
+#aurora endpoint test
+aurora_endpoint_test_n="true" # true or false indicating status of the aurora_endpoint_test
+nmsg_aurora_endpoint_test_err="$HOSTNAME: aurora endpoint test ended with error"
+nmsg_aurora_endpoint_test_ok="$HOSTNAME: aurora endpoint test is now ok !"
+nmsg_aurora_endpoint_test_nok="$HOSTNAME: aurora endpoint test just failed !"
+aurora_endpoint_status="NA" #aurora endpoint status to print out to log file
+
+#kava endpoint test
+kava_endpoint_test_n="true" # true or false indicating status of the kava_endpoint_test
+nmsg_kava_endpoint_test_err="$HOSTNAME: kava endpoint test ended with error"
+nmsg_kava_endpoint_test_ok="$HOSTNAME: kava endpoint test is now ok !"
+nmsg_kava_endpoint_test_nok="$HOSTNAME: kava endpoint test just failed !"
+kava_endpoint_status="NA" #kava endpoint status to print out to log file
+
 # Check deregister chainmaintainer Ethereum
 ETH_chain_maintainer_n="true" # true or false indicicating deregister chainmaintainer
 nmsg_ETH_chain_maintainer_ok="$HOSTNAME: ETH chainmaintainer is ok"
@@ -210,7 +231,19 @@ BSC_chain_maintainer_status="NA"
 aurora_chain_maintainer_n="true" # true or false indicicating deregister chainmaintainer
 nmsg_aurora_chain_maintainer_ok="$HOSTNAME: aurora chainmaintainer is ok"
 nmsg_aurora_chain_maintainer_nok="@here $HOSTNAME: aurora chainmaintainer deregistered"
-aurora_chain_maintainer_status="NA" 
+aurora_chain_maintainer_status="NA"
+
+# Check deregister chainmaintainer celo
+celo_chain_maintainer_n="true" # true or false indicicating deregister chainmaintainer
+nmsg_celo_chain_maintainer_ok="$HOSTNAME: celo chainmaintainer is ok"
+nmsg_celo_chain_maintainer_nok="@here $HOSTNAME: celo chainmaintainer deregistered"
+celo_chain_maintainer_status="NA" 
+
+# Check deregister chainmaintainer kava
+kava_chain_maintainer_n="true" # true or false indicicating deregister chainmaintainer
+nmsg_kava_chain_maintainer_ok="$HOSTNAME: kava chainmaintainer is ok"
+nmsg_kava_chain_maintainer_nok="@here $HOSTNAME: kava chainmaintainer deregistered"
+kava_chain_maintainer_status="NA" 
 
 #MPC eligibility test
 min_eligible_threshold=0.02 #2% total state are required to be eligible
@@ -422,6 +455,84 @@ check_binance_endpoint() {
     fi    
 }
 
+check_celo_endpoint() {
+    url_res=$(curl -X POST --data '{"jsonrpc": "2.0", "method": "eth_getBalance", "params": ["0xf3ce1887178d73aa90c98bc6be36bdc195ccb48d", "latest" ], "id": 1}' -H 'content-type:application/json;' $CELONODE 2> /dev/null)
+    #echo $url_res
+    if [ $? -ne 0 ]; then #curl somehow failed
+        celo_endpoint_status="ERR"  
+        if [ $celo_endpoint_test_n == "true" ]; then #test was ok
+            send_notification "$nmsg_celo_endpoint_test_err"
+            celo_endpoint_test_n="false"
+        fi
+    else
+        if [[ $url_res =~ "error" ]]; then
+            celo_endpoint_status="NOK" 
+            if [ $celo_endpoint_test_n == "true" ]; then #test was ok
+                send_notification "$nmsg_celo_endpoint_test_nok"
+                celo_endpoint_test_n="false"
+            fi
+        else  
+            celo_endpoint_status="OK"
+            if [ $celo_endpoint_test_n == "false" ]; then #test was not ok
+                send_notification "$nmsg_celo_endpoint_test_ok"
+                celo_endpoint_test_n="true"
+            fi
+        fi
+    fi    
+}
+
+check_aurora_endpoint() {
+    url_res=$(curl -X POST --data '{"jsonrpc": "2.0", "method": "eth_getBalance", "params": ["0xf3ce1887178d73aa90c98bc6be36bdc195ccb48d", "latest" ], "id": 1}' -H 'content-type:application/json;' $AURORANODE 2> /dev/null)
+    #echo $url_res
+    if [ $? -ne 0 ]; then #curl somehow failed
+        aurora_endpoint_status="ERR"  
+        if [ $aurora_endpoint_test_n == "true" ]; then #test was ok
+            send_notification "$nmsg_aurora_endpoint_test_err"
+            aurora_endpoint_test_n="false"
+        fi
+    else
+        if [[ $url_res =~ "error" ]]; then
+            aurora_endpoint_status="NOK" 
+            if [ $aurora_endpoint_test_n == "true" ]; then #test was ok
+                send_notification "$nmsg_aurora_endpoint_test_nok"
+                aurora_endpoint_test_n="false"
+            fi
+        else  
+            aurora_endpoint_status="OK"
+            if [ $aurora_endpoint_test_n == "false" ]; then #test was not ok
+                send_notification "$nmsg_aurora_endpoint_test_ok"
+                aurora_endpoint_test_n="true"
+            fi
+        fi
+    fi    
+}
+
+check_kava_endpoint() {
+    url_res=$(curl -X POST --data '{"jsonrpc": "2.0", "method": "eth_getBalance", "params": ["0xf3ce1887178d73aa90c98bc6be36bdc195ccb48d", "latest" ], "id": 1}' -H 'content-type:application/json;' $KAVANODE 2> /dev/null)
+    #echo $url_res
+    if [ $? -ne 0 ]; then #curl somehow failed
+        kava_endpoint_status="ERR"  
+        if [ $kava_endpoint_test_n == "true" ]; then #test was ok
+            send_notification "$nmsg_kava_endpoint_test_err"
+            kava_endpoint_test_n="false"
+        fi
+    else
+        if [[ $url_res =~ "error" ]]; then
+            kava_endpoint_status="NOK" 
+            if [ $kava_endpoint_test_n == "true" ]; then #test was ok
+                send_notification "$nmsg_kava_endpoint_test_nok"
+                kava_endpoint_test_n="false"
+            fi
+        else  
+            kava_endpoint_status="OK"
+            if [ $kava_endpoint_test_n == "false" ]; then #test was not ok
+                send_notification "$nmsg_kava_endpoint_test_ok"
+                kava_endpoint_test_n="true"
+            fi
+        fi
+    fi    
+}
+
 check_eligibility_MPC() {
     total_voting_power=$(curl -s $url/dump_consensus_state | jq -r "[.result.round_state.validators.validators[].voting_power | tonumber] | add")
     local res1=$?
@@ -576,9 +687,33 @@ if [ "$isvalidator" != "0" ]; then
         BSCNODE="$(sudo grep -A 1 'name = "binance"' ${CONFIG} | tail -n 1  | grep -oP '(?<=").*?(?=")')"
         if [ $? -ne 0 ]; then #something failed with the above command
         echo "No binance node specified"
-        send_notification "nodemonitor exited : No polygon node specified"
+        send_notification "nodemonitor exited : No binance node specified"
         else 
         echo "binance node read from config file is : $BSCNODE"
+        fi
+
+        KAVANODE="$(sudo grep -A 1 'name = "kava"' ${CONFIG} | tail -n 1  | grep -oP '(?<=").*?(?=")')"
+        if [ $? -ne 0 ]; then #something failed with the above command
+        echo "No kava node specified"
+        send_notification "nodemonitor exited : No kava node specified"
+        else 
+        echo "kava node read from config file is : $KAVANODE"
+        fi
+
+        CELONODE="$(sudo grep -A 1 'name = "celo"' ${CONFIG} | tail -n 1  | grep -oP '(?<=").*?(?=")')"
+        if [ $? -ne 0 ]; then #something failed with the above command
+        echo "No celo node specified"
+        send_notification "nodemonitor exited : No celo node specified"
+        else 
+        echo "celo node read from config file is : $CELONODE"
+        fi
+		
+		AURORANODE="$(sudo grep -A 1 'name = "aurora"' ${CONFIG} | tail -n 1  | grep -oP '(?<=").*?(?=")')"
+        if [ $? -ne 0 ]; then #something failed with the above command
+        echo "No aurora node specified"
+        send_notification "nodemonitor exited : No aurora node specified"
+        else 
+        echo "aurora node read from config file is : $AURORANODE"
         fi
         
 fi
@@ -696,7 +831,7 @@ while true ; do
             fi
 
             # Checking vald-start process
-            if pgrep -f "axelard vald-start" >/dev/null; then
+            if pgrep -f "vald vald-start" >/dev/null; then
                 echo "Is vald-start running: Yes";
                 vald_run_status="OK"
                 if [ $vald_run_n == "false" ]; then #vald was not ok
@@ -896,7 +1031,7 @@ while true ; do
             fi  
 
             # Check deregister Binance chainmaintainer
-            BSCCHAIN=$(sudo journalctl -u axelar-node --since -1h --until now | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain Binance")
+            BSCCHAIN=$(sudo journalctl -u axelar-node --since -1h --until now | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain binance")
             if [ -z "$BSCCHAIN" ]
             then
             echo "Binance chainmaintainers not deregistered"
@@ -930,6 +1065,44 @@ while true ; do
                 if [ $aurora_chain_maintainer_n == "true" ]; then
                 aurora_chain_maintainer_n="false"
                 send_notification "$nmsg_aurora_chain_maintainer_nok"
+                fi
+            fi
+
+            # Check deregister celo chainmaintainer
+            CELOCHAIN=$(sudo journalctl -u axelar-node --since -1h --until now | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain celo")
+            if [ -z "$CELOCHAIN" ]
+            then
+            echo "celo chainmaintainers not deregistered"
+            celo_chain_maintainer_status="OK"
+                if [ $celo_chain_maintainer_n == "false" ]; then 
+                celo_chain_maintainer_n="true"
+                send_notification "$nmsg_celo_chain_maintainer_ok"
+                fi
+            else
+            echo "celo chainmaintainer deregistered"
+	        celo_chain_maintainer_status="NOK"
+                if [ $celo_chain_maintainer_n == "true" ]; then
+                celo_chain_maintainer_n="false"
+                send_notification "$nmsg_celo_chain_maintainer_nok"
+                fi
+            fi
+
+            # Check deregister kava chainmaintainer
+            KAVACHAIN=$(sudo journalctl -u axelar-node --since -1h --until now | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain kava")
+            if [ -z "$KAVACHAIN" ]
+            then
+            echo "kava chainmaintainers not deregistered"
+            kava_chain_maintainer_status="OK"
+                if [ $kava_chain_maintainer_n == "false" ]; then 
+                kava_chain_maintainer_n="true"
+                send_notification "$nmsg_kava_chain_maintainer_ok"
+                fi
+            else
+            echo "kava chainmaintainer deregistered"
+	        kava_chain_maintainer_status="NOK"
+                if [ $kava_chain_maintainer_n == "true" ]; then
+                kava_chain_maintainer_n="false"
+                send_notification "$nmsg_kava_chain_maintainer_nok"
                 fi
             fi
 
@@ -1010,9 +1183,15 @@ while true ; do
 
                 check_binance_endpoint
 
+                check_aurora_endpoint
+
+                check_kava_endpoint
+
+                check_celo_endpoint
+
                 check_eligibility_MPC
                 
-                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$bc_balance_status eth_endpoint=$eth_endpoint_status avax_endpoint=$avax_endpoint_status fantom_endpoint=$fantom_endpoint_status moonbeam_endpoint=$moonbeam_endpoint_status polygon_endpoint=$polygon_endpoint_status binance_endpoint=$binance_endpoint_status mpc_eligibility=$mpc_eligibility_status vald_run=$vald_run_status tofnd_run=$tofnd_run_status Health_check=$Health_check_status"
+                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$bc_balance_status eth_endpoint=$eth_endpoint_status avax_endpoint=$avax_endpoint_status fantom_endpoint=$fantom_endpoint_status moonbeam_endpoint=$moonbeam_endpoint_status polygon_endpoint=$polygon_endpoint_status binance_endpoint=$binance_endpoint_status aurora_endpoint=$aurora_endpoint_status kava_endpoint=$kava_endpoint_status celo_endpoint=$celo_endpoint_status mpc_eligibility=$mpc_eligibility_status vald_run=$vald_run_status tofnd_run=$tofnd_run_status Health_check=$Health_check_status"
             else
                 isvalidator="no"
                 validatorinfo="isvalidator=$isvalidator"
