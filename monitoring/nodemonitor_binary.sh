@@ -191,6 +191,13 @@ nmsg_kava_endpoint_test_ok="$HOSTNAME: kava endpoint test is now ok !"
 nmsg_kava_endpoint_test_nok="$HOSTNAME: kava endpoint test just failed !"
 kava_endpoint_status="NA" #kava endpoint status to print out to log file
 
+#arbitrum endpoint test
+arb_endpoint_test_n="true" # true or false indicating status of the arb_endpoint_test
+nmsg_arb_endpoint_test_err="$HOSTNAME: arbitrum endpoint test ended with error"
+nmsg_arb_endpoint_test_ok="$HOSTNAME: arbitrum endpoint test is now ok !"
+nmsg_arb_endpoint_test_nok="$HOSTNAME: arbitrum endpoint test just failed !"
+arb_endpoint_status="NA" #arbitrum endpoint status to print out to log file
+
 # Check deregister chainmaintainer Ethereum
 ETH_chain_maintainer_n="true" # true or false indicicating deregister chainmaintainer
 nmsg_ETH_chain_maintainer_ok="$HOSTNAME: ETH chainmaintainer is ok"
@@ -244,6 +251,12 @@ kava_chain_maintainer_n="true" # true or false indicicating deregister chainmain
 nmsg_kava_chain_maintainer_ok="$HOSTNAME: kava chainmaintainer is ok"
 nmsg_kava_chain_maintainer_nok="@here $HOSTNAME: kava chainmaintainer deregistered"
 kava_chain_maintainer_status="NA" 
+
+# Check deregister chainmaintainer arbitrum
+arb_chain_maintainer_n="true" # true or false indicicating deregister chainmaintainer
+nmsg_arb_chain_maintainer_ok="$HOSTNAME: arbitrum chainmaintainer is ok"
+nmsg_arb_chain_maintainer_nok="@here $HOSTNAME: arbitrum chainmaintainer deregistered"
+arb_chain_maintainer_status="NA" 
 
 #MPC eligibility test
 min_eligible_threshold=0.02 #2% total state are required to be eligible
@@ -533,6 +546,32 @@ check_kava_endpoint() {
     fi    
 }
 
+check_arb_endpoint() {
+    url_res=$(curl -X POST --data '{"jsonrpc": "2.0", "method": "eth_getBalance", "params": ["0xf3ce1887178d73aa90c98bc6be36bdc195ccb48d", "latest" ], "id": 1}' -H 'content-type:application/json;' $ARBNODE 2> /dev/null)
+    #echo $url_res
+    if [ $? -ne 0 ]; then #curl somehow failed
+        arb_endpoint_status="ERR"  
+        if [ $arb_endpoint_test_n == "true" ]; then #test was ok
+            send_notification "$nmsg_arb_endpoint_test_err"
+            arb_endpoint_test_n="false"
+        fi
+    else
+        if [[ $url_res =~ "error" ]]; then
+            arb_endpoint_status="NOK" 
+            if [ $arb_endpoint_test_n == "true" ]; then #test was ok
+                send_notification "$nmsg_arb_endpoint_test_nok"
+                arb_endpoint_test_n="false"
+            fi
+        else  
+            arb_endpoint_status="OK"
+            if [ $arb_endpoint_test_n == "false" ]; then #test was not ok
+                send_notification "$nmsg_arb_endpoint_test_ok"
+                arb_endpoint_test_n="true"
+            fi
+        fi
+    fi    
+}
+
 check_eligibility_MPC() {
     total_voting_power=$(curl -s $url/dump_consensus_state | jq -r "[.result.round_state.validators.validators[].voting_power | tonumber] | add")
     local res1=$?
@@ -714,6 +753,14 @@ if [ "$isvalidator" != "0" ]; then
         send_notification "nodemonitor exited : No aurora node specified"
         else 
         echo "aurora node read from config file is : $AURORANODE"
+        fi
+
+        ARBNODE="$(sudo grep -A 2 'name = "arbitrum"' ${CONFIG} | tail -n 1  | grep -oP '(?<=").*?(?=")')"
+        if [ $? -ne 0 ]; then #something failed with the above command
+        echo "No arbitrum node specified"
+        send_notification "nodemonitor exited : No arbitrum node specified"
+        else 
+        echo "arbitrum node read from config file is : $ARBNODE"
         fi
         
 fi
@@ -1106,6 +1153,25 @@ while true ; do
                 fi
             fi
 
+            # Check deregister kava chainmaintainer
+            ARBCHAIN=$(sudo journalctl -u axelar-node --since -1h --until now | grep "deregistered validator $AXELARVALIDATORADDRESS as maintainer for chain arbitrum")
+            if [ -z "$ARBCHAIN" ]
+            then
+            echo "arbitrum chainmaintainers not deregistered"
+            arb_chain_maintainer_status="OK"
+                if [ $arb_chain_maintainer_n == "false" ]; then 
+                arb_chain_maintainer_n="true"
+                send_notification "$nmsg_arb_chain_maintainer_ok"
+                fi
+            else
+            echo "arbitrum chainmaintainer deregistered"
+	        arb_chain_maintainer_status="NOK"
+                if [ $arb_chain_maintainer_n == "true" ]; then
+                arb_chain_maintainer_n="false"
+                send_notification "$nmsg_arb_chain_maintainer_nok"
+                fi
+            fi
+
             #TBD ping pong test for binary
         fi
     
@@ -1189,9 +1255,11 @@ while true ; do
 
                 check_celo_endpoint
 
+                check_arb_endpoint
+
                 check_eligibility_MPC
                 
-                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$bc_balance_status eth_endpoint=$eth_endpoint_status avax_endpoint=$avax_endpoint_status fantom_endpoint=$fantom_endpoint_status moonbeam_endpoint=$moonbeam_endpoint_status polygon_endpoint=$polygon_endpoint_status binance_endpoint=$binance_endpoint_status aurora_endpoint=$aurora_endpoint_status kava_endpoint=$kava_endpoint_status celo_endpoint=$celo_endpoint_status mpc_eligibility=$mpc_eligibility_status vald_run=$vald_run_status tofnd_run=$tofnd_run_status Health_check=$Health_check_status"
+                validatorinfo="isvalidator=$isvalidator pctprecommits=$pctprecommits pcttotcommits=$pcttotcommits broadcaster_balance=$bc_balance_status eth_endpoint=$eth_endpoint_status avax_endpoint=$avax_endpoint_status fantom_endpoint=$fantom_endpoint_status moonbeam_endpoint=$moonbeam_endpoint_status polygon_endpoint=$polygon_endpoint_status binance_endpoint=$binance_endpoint_status aurora_endpoint=$aurora_endpoint_status kava_endpoint=$kava_endpoint_status celo_endpoint=$celo_endpoint_status arb_endpoint=$arb_endpoint_status mpc_eligibility=$mpc_eligibility_status vald_run=$vald_run_status tofnd_run=$tofnd_run_status Health_check=$Health_check_status"
             else
                 isvalidator="no"
                 validatorinfo="isvalidator=$isvalidator"
